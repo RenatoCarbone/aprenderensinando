@@ -344,8 +344,12 @@
       document.getElementById('totalAulas').textContent = aulas.length;
 
       if (aulas.length > 0) {
-        const primeira = new Date(aulas[aulas.length - 1].data);
-        const ultima = new Date(aulas[0].data);
+        // Corrigir interpretação de data (forçar local)
+        const [ano1, mes1, dia1] = aulas[aulas.length - 1].data.split('-');
+        const primeira = new Date(ano1, mes1 - 1, dia1);
+        
+        const [ano2, mes2, dia2] = aulas[0].data.split('-');
+        const ultima = new Date(ano2, mes2 - 1, dia2);
 
         document.getElementById('primeiraAula').textContent = 
           primeira.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
@@ -361,7 +365,9 @@
       const timeline = document.getElementById('timeline');
 
       timeline.innerHTML = aulas.map(aula => {
-        const data = new Date(aula.data);
+        // Corrigir interpretação de data (forçar local ao invés de UTC)
+        const [ano, mes, dia] = aula.data.split('-');
+        const data = new Date(ano, mes - 1, dia);
         const dataFormatada = data.toLocaleDateString('pt-BR', {
           weekday: 'long',
           day: '2-digit',
@@ -433,8 +439,12 @@
 
     // Gerar resumo do relatório
     function gerarResumo() {
-      const primeira = new Date(aulas[aulas.length - 1].data);
-      const ultima = new Date(aulas[0].data);
+      // Corrigir interpretação de data (forçar local)
+      const [ano1, mes1, dia1] = aulas[aulas.length - 1].data.split('-');
+      const primeira = new Date(ano1, mes1 - 1, dia1);
+      
+      const [ano2, mes2, dia2] = aulas[0].data.split('-');
+      const ultima = new Date(ano2, mes2 - 1, dia2);
 
       return `
         <h1>📄 Relatório Final de Atendimento</h1>
