@@ -109,16 +109,19 @@
           </select>
         </div>
 
-        <div class="grid grid-2">
-          <div class="form-group">
-            <label for="dataAgendamento" class="form-label required">Data</label>
-            <input type="date" id="dataAgendamento" class="form-control" required>
+        <div class="form-group">
+          <label class="form-label">📅 Datas e Horários</label>
+          <div id="datasContainer">
+            <!-- Primeira linha de data/hora -->
+            <div class="data-hora-linha" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <input type="date" class="form-control data-input" required>
+              <input type="time" class="form-control hora-input" required>
+              <button type="button" class="btn btn-danger btn-remover" onclick="removerLinha(this)" style="padding: 0.75rem; display: none;">🗑️</button>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label for="horaAgendamento" class="form-label required">Horário</label>
-            <input type="time" id="horaAgendamento" class="form-control" required>
-          </div>
+          <button type="button" onclick="adicionarNovaData()" class="btn btn-outline" style="width: 100%; margin-top: 0.5rem;">
+            ➕ Adicionar mais datas
+          </button>
         </div>
 
         <div class="form-group">
@@ -139,7 +142,7 @@
 
         <div class="btn-group" style="justify-content: flex-end;">
           <button type="button" onclick="fecharModal()" class="btn btn-secondary">Cancelar</button>
-          <button type="submit" class="btn btn-primary">💾 Salvar</button>
+          <button type="submit" class="btn btn-primary">💾 Salvar Agendamento(s)</button>
         </div>
       </form>
     </div>
@@ -333,13 +336,56 @@
       }
     }
 
+    function adicionarNovaData() {
+      const container = document.getElementById('datasContainer');
+      const novaLinha = document.createElement('div');
+      novaLinha.className = 'data-hora-linha';
+      novaLinha.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem;';
+      
+      novaLinha.innerHTML = `
+        <input type="date" class="form-control data-input" required>
+        <input type="time" class="form-control hora-input" required>
+        <button type="button" class="btn btn-danger btn-remover" onclick="removerLinha(this)" style="padding: 0.75rem;">🗑️</button>
+      `;
+      
+      container.appendChild(novaLinha);
+      
+      // Mostrar botão remover da primeira linha se tiver mais de 1
+      const linhas = container.querySelectorAll('.data-hora-linha');
+      if (linhas.length > 1) {
+        linhas[0].querySelector('.btn-remover').style.display = 'block';
+      }
+    }
+
+    function removerLinha(btn) {
+      const container = document.getElementById('datasContainer');
+      const linha = btn.closest('.data-hora-linha');
+      linha.remove();
+      
+      // Esconder botão remover se só tiver 1 linha
+      const linhas = container.querySelectorAll('.data-hora-linha');
+      if (linhas.length === 1) {
+        linhas[0].querySelector('.btn-remover').style.display = 'none';
+      }
+    }
+
     function abrirModalNovoAgendamento(pacienteId = null) {
       agendamentoEditando = null;
       document.getElementById('modalTitulo').textContent = 'Novo Agendamento';
       document.getElementById('agendamentoForm').reset();
       
+      // Resetar container de datas (deixar só 1 linha)
+      const container = document.getElementById('datasContainer');
+      container.innerHTML = `
+        <div class="data-hora-linha" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <input type="date" class="form-control data-input" required>
+          <input type="time" class="form-control hora-input" required>
+          <button type="button" class="btn btn-danger btn-remover" onclick="removerLinha(this)" style="padding: 0.75rem; display: none;">🗑️</button>
+        </div>
+      `;
+      
       const hoje = new Date().toISOString().split('T')[0];
-      document.getElementById('dataAgendamento').value = hoje;
+      container.querySelector('.data-input').value = hoje;
 
       if (pacienteId) {
         document.getElementById('pacienteSelect').value = pacienteId;
@@ -410,28 +456,53 @@
       e.preventDefault();
 
       const pacienteId = document.getElementById('pacienteSelect').value;
-      const data = document.getElementById('dataAgendamento').value;
-      const hora = document.getElementById('horaAgendamento').value;
       const duracao = parseInt(document.getElementById('duracaoAgendamento').value);
       const observacoes = document.getElementById('observacoesAgendamento').value.trim();
 
-      if (!pacienteId || !data || !hora) {
-        showAlert('Preencha todos os campos obrigatórios', 'warning');
+      if (!pacienteId) {
+        alert('Selecione um paciente');
         return;
       }
 
-      const dataHora = `${data}T${hora}:00`;
+      // Coletar todas as datas e horas
+      const linhas = document.querySelectorAll('.data-hora-linha');
+      const agendamentos = [];
+      
+      for (const linha of linhas) {
+        const data = linha.querySelector('.data-input').value;
+        const hora = linha.querySelector('.hora-input').value;
+        
+        if (!data || !hora) {
+          alert('Preencha todas as datas e horários');
+          return;
+        }
+        
+        agendamentos.push({
+          data_hora: `${data}T${hora}:00`,
+          paciente_id: pacienteId,
+          duracao: duracao,
+          observacoes: observacoes,
+          usuario_id: currentUser.id
+        });
+      }
+
+      const totalAgendamentos = agendamentos.length;
+      const confirmMsg = totalAgendamentos > 1 
+        ? `Deseja criar ${totalAgendamentos} agendamentos?`
+        : 'Deseja criar este agendamento?';
+      
+      if (!confirm(confirmMsg)) return;
 
       try {
         showLoading(true);
 
         if (agendamentoEditando) {
-          // Atualizar
+          // Atualizar (só funciona com 1 data)
           const { error } = await sb
             .from('agendamentos')
             .update({
               paciente_id: pacienteId,
-              data_hora: dataHora,
+              data_hora: agendamentos[0].data_hora,
               duracao: duracao,
               observacoes: observacoes
             })
@@ -439,19 +510,13 @@
 
           if (error) throw error;
 
-          showAlert('Agendamento atualizado com sucesso!', 'success');
+          alert('Agendamento atualizado com sucesso!');
 
         } else {
-          // Criar novo
+          // Criar múltiplos agendamentos
           const { error } = await sb
             .from('agendamentos')
-            .insert({
-              paciente_id: pacienteId,
-              data_hora: dataHora,
-              duracao: duracao,
-              observacoes: observacoes,
-              usuario_id: currentUser.id
-            });
+            .insert(agendamentos);
 
           if (error) throw error;
 
@@ -461,7 +526,11 @@
             .update({ primeira_aula_agendada: true })
             .eq('id', pacienteId);
 
-          showAlert('Agendamento criado com sucesso!', 'success');
+          const msgSucesso = totalAgendamentos > 1
+            ? `${totalAgendamentos} agendamentos criados com sucesso!`
+            : 'Agendamento criado com sucesso!';
+          
+          alert(msgSucesso);
         }
 
         fecharModal();
@@ -469,7 +538,7 @@
 
       } catch (error) {
         console.error('Erro ao salvar agendamento:', error);
-        showAlert('Erro ao salvar agendamento: ' + error.message, 'danger');
+        alert('Erro ao salvar agendamento: ' + error.message);
       } finally {
         showLoading(false);
       }
