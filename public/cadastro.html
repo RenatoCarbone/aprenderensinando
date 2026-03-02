@@ -153,36 +153,99 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <label for="queixa" class="form-label required">
+            <label for="pergunta1" class="form-label required">
               1) QUEIXA LIVRE: Em que posso ajudá-los? Ou o que os trouxe até aqui?
             </label>
-            <textarea id="queixa" class="form-control" rows="4" required></textarea>
+            <textarea id="pergunta1" class="form-control" rows="3" required></textarea>
           </div>
 
           <div class="form-group">
-            <label for="quandoComecou" class="form-label required">
+            <label for="pergunta2" class="form-label required">
               2) Quando começou o problema?
             </label>
-            <textarea id="quandoComecou" class="form-control" rows="3" required></textarea>
+            <textarea id="pergunta2" class="form-control" rows="2" required></textarea>
           </div>
 
           <div class="form-group">
-            <label for="comoSeSentem" class="form-label required">
+            <label for="pergunta3" class="form-label required">
               3) Como vocês se sentem diante dessa dificuldade?
             </label>
-            <textarea id="comoSeSentem" class="form-control" rows="3" required></textarea>
+            <textarea id="pergunta3" class="form-control" rows="2" required></textarea>
           </div>
 
           <div class="form-group">
-            <label for="expectativas" class="form-label">
-              4) O que a escola já lhes disse sobre essa dificuldade?
+            <label for="pergunta4" class="form-label">
+              4) O que a escola relata sobre essa dificuldade?
             </label>
-            <textarea id="expectativas" class="form-control" rows="3"></textarea>
+            <textarea id="pergunta4" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta5" class="form-label">
+              5) Em casa, como é essa dificuldade relatada pela escola?
+            </label>
+            <textarea id="pergunta5" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta6" class="form-label">
+              6) Fale-me em detalhes como é a rotina de seu filho desde a hora e acordar até a hora de dormir, durante uma semana.
+            </label>
+            <textarea id="pergunta6" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta7" class="form-label">
+              7) Como ele se comporta ao fazer as lições de casa?
+            </label>
+            <textarea id="pergunta7" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta8" class="form-label">
+              8) E como vocês reagem a esse comportamento?
+            </label>
+            <textarea id="pergunta8" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta9" class="form-label">
+              9) Existe outro problema além desse?
+            </label>
+            <textarea id="pergunta9" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta10" class="form-label">
+              10) Quais as qualidades de seu filho?
+            </label>
+            <textarea id="pergunta10" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta11" class="form-label">
+              11) Tem outros filhos? Como eles são?
+            </label>
+            <textarea id="pergunta11" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta12" class="form-label">
+              12) O que vocês esperam de mim e do meu trabalho?
+            </label>
+            <textarea id="pergunta12" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="pergunta13" class="form-label">
+              13) Gostariam de acrescentar algo?
+            </label>
+            <textarea id="pergunta13" class="form-control" rows="2"></textarea>
           </div>
 
           <div class="form-group">
             <label for="observacoesGerais" class="form-label">Observações Gerais</label>
-            <textarea id="observacoesGerais" class="form-control" rows="4" 
+            <textarea id="observacoesGerais" class="form-control" rows="3" 
               placeholder="Outras informações importantes sobre o paciente..."></textarea>
           </div>
         </div>
@@ -298,10 +361,19 @@
           email: document.getElementById('email').value.trim(),
           telefone: document.getElementById('telefone').value.trim(),
           endereco: document.getElementById('endereco').value.trim(),
-          queixa_inicial: document.getElementById('queixa').value.trim(),
-          quando_comecou: document.getElementById('quandoComecou').value.trim(),
-          como_se_sentem: document.getElementById('comoSeSentem').value.trim(),
-          expectativas_escola: document.getElementById('expectativas').value.trim(),
+          pergunta_1: document.getElementById('pergunta1').value.trim(),
+          pergunta_2: document.getElementById('pergunta2').value.trim(),
+          pergunta_3: document.getElementById('pergunta3').value.trim(),
+          pergunta_4: document.getElementById('pergunta4').value.trim(),
+          pergunta_5: document.getElementById('pergunta5').value.trim(),
+          pergunta_6: document.getElementById('pergunta6').value.trim(),
+          pergunta_7: document.getElementById('pergunta7').value.trim(),
+          pergunta_8: document.getElementById('pergunta8').value.trim(),
+          pergunta_9: document.getElementById('pergunta9').value.trim(),
+          pergunta_10: document.getElementById('pergunta10').value.trim(),
+          pergunta_11: document.getElementById('pergunta11').value.trim(),
+          pergunta_12: document.getElementById('pergunta12').value.trim(),
+          pergunta_13: document.getElementById('pergunta13').value.trim(),
           observacoes: document.getElementById('observacoesGerais').value.trim(),
           primeira_aula_agendada: false,
           usuario_id: currentUser.id
