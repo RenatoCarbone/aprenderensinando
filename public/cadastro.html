@@ -103,8 +103,8 @@
             </div>
 
             <div class="form-group">
-              <label for="nomeMae" class="form-label required">Nome da Mãe</label>
-              <input type="text" id="nomeMae" class="form-control" required>
+              <label for="nomeMae" class="form-label">Nome da Mãe</label>
+              <input type="text" id="nomeMae" class="form-control">
             </div>
 
             <div class="form-group">
@@ -134,8 +134,13 @@
             </div>
 
             <div class="form-group">
-              <label for="telefone" class="form-label required">Telefone/WhatsApp</label>
-              <input type="tel" id="telefone" class="form-control" placeholder="(00) 00000-0000" required>
+              <label for="telefone" class="form-label">Telefone Principal</label>
+              <input type="tel" id="telefone" class="form-control" placeholder="(00) 00000-0000">
+            </div>
+
+            <div class="form-group">
+              <label for="telefone2" class="form-label">Telefone Secundário</label>
+              <input type="tel" id="telefone2" class="form-control" placeholder="(00) 00000-0000">
             </div>
 
             <div class="form-group">
@@ -247,6 +252,13 @@
             <label for="observacoesGerais" class="form-label">Observações Gerais</label>
             <textarea id="observacoesGerais" class="form-control" rows="3" 
               placeholder="Outras informações importantes sobre o paciente..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="checkbox" id="autorizacaoImagem" style="width: auto; height: auto;">
+              <span>Autorizo o uso da imagem do meu filho(a) nas redes sociais e materiais de divulgação da instituição</span>
+            </label>
           </div>
         </div>
       </div>
@@ -360,7 +372,9 @@
           responsavel_principal: document.getElementById('responsavelPrincipal').value,
           email: document.getElementById('email').value.trim(),
           telefone: document.getElementById('telefone').value.trim(),
+          telefone2: document.getElementById('telefone2').value.trim(),
           endereco: document.getElementById('endereco').value.trim(),
+          autorizacao_imagem: document.getElementById('autorizacaoImagem').checked,
           pergunta_1: document.getElementById('pergunta1').value.trim(),
           pergunta_2: document.getElementById('pergunta2').value.trim(),
           pergunta_3: document.getElementById('pergunta3').value.trim(),
