@@ -123,7 +123,47 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/config.js"></script>
+  <script>
+    const sb = window.supabase.createClient(
+      'https://ukjxekdwumfxilphrrmb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk'
+    );
+    
+    async function checkAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        window.location.href = '/index.html';
+        return null;
+      }
+      return session;
+    }
+    
+    async function logout() {
+      await sb.auth.signOut();
+      window.location.href = '/index.html';
+    }
+    
+    function formatDate(date) {
+      if (!date) return '';
+      return new Date(date).toLocaleDateString('pt-BR');
+    }
+    
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
+    }
+    
+    function calcularIdade(dataNascimento) {
+      if (!dataNascimento) return null;
+      const hoje = new Date();
+      const nascimento = new Date(dataNascimento);
+      let idade = hoje.getFullYear() - nascimento.getFullYear();
+      const mes = hoje.getMonth() - nascimento.getMonth();
+      if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+        idade--;
+      }
+      return idade;
+    }
+  </script>
   <script>
     let currentUser = null;
 
@@ -132,7 +172,8 @@
       const session = await checkAuth();
       if (!session) return;
 
-      currentUser = await getUserProfile();
+      const { data } = await sb.from('usuarios').select('*').eq('id', session.user.id).single();
+      currentUser = data;
       
       if (currentUser) {
         document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
@@ -144,7 +185,7 @@
     async function carregarDashboard() {
       try {
         // Total de pacientes
-        const { count: totalPacientes } = await supabase
+        const { count: totalPacientes } = await sb
           .from('pacientes')
           .select('*', { count: 'exact', head: true });
         
@@ -152,7 +193,7 @@
 
         // Atendimentos hoje
         const hoje = new Date().toISOString().split('T')[0];
-        const { count: atendimentosHoje } = await supabase
+        const { count: atendimentosHoje } = await sb
           .from('agendamentos')
           .select('*', { count: 'exact', head: true })
           .gte('data_hora', hoje + 'T00:00:00')
@@ -162,7 +203,7 @@
 
         // Atendimentos do mês
         const primeiroDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-        const { count: atendimentosMes } = await supabase
+        const { count: atendimentosMes } = await sb
           .from('agendamentos')
           .select('*', { count: 'exact', head: true })
           .gte('data_hora', primeiroDiaMes);
@@ -170,7 +211,7 @@
         document.getElementById('atendimentosMes').textContent = atendimentosMes || 0;
 
         // Receita mensal
-        const { data: receitas } = await supabase
+        const { data: receitas } = await sb
           .from('financeiro')
           .select('valor')
           .eq('tipo', 'receita')
@@ -198,7 +239,7 @@
       try {
         const agora = new Date().toISOString();
         
-        const { data: agendamentos, error } = await supabase
+        const { data: agendamentos, error } = await sb
           .from('agendamentos')
           .select(`
             *,
@@ -246,7 +287,7 @@
 
     async function carregarPacientesRecentes() {
       try {
-        const { data: pacientes, error } = await supabase
+        const { data: pacientes, error } = await sb
           .from('pacientes')
           .select('*')
           .order('created_at', { ascending: false })
@@ -287,7 +328,7 @@
     async function verificarPacientesPendentes() {
       try {
         // Buscar pacientes sem agendamentos
-        const { data: pacientes } = await supabase
+        const { data: pacientes } = await sb
           .from('pacientes')
           .select('id')
           .is('primeira_aula_agendada', false);

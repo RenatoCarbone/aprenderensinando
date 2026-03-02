@@ -146,7 +146,14 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/config.js"></script>
+  <script>
+    const sb = window.supabase.createClient('https://ukjxekdwumfxilphrrmb.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk');
+    async function checkAuth(){const{data:{session}}=await sb.auth.getSession();if(!session){window.location.href='/index.html';return null}return session}
+    async function logout(){await sb.auth.signOut();window.location.href='/index.html'}
+    function formatDate(d){if(!d)return '';return new Date(d).toLocaleDateString('pt-BR')}
+    function showAlert(m,t){alert(m)}
+    function showLoading(s){}
+  </script>
   <script>
     let currentUser = null;
     let agendamentoEditando = null;
@@ -156,7 +163,7 @@
       const session = await checkAuth();
       if (!session) return;
 
-      currentUser = await getUserProfile();
+      const {data} = await sb.from("usuarios").select("*").eq("id", session.user.id).single(); currentUser = data;
       if (currentUser) {
         document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
       }
@@ -180,7 +187,7 @@
 
     async function carregarPacientes() {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from('pacientes')
           .select('id, nome, id_aluno')
           .order('nome');
@@ -294,7 +301,7 @@
       try {
         // Hoje
         const hoje = new Date().toISOString().split('T')[0];
-        const { count: totalHoje } = await supabase
+        const { count: totalHoje } = await sb
           .from('agendamentos')
           .select('*', { count: 'exact', head: true })
           .gte('data_hora', hoje + 'T00:00:00')
@@ -305,7 +312,7 @@
         // Semana
         const inicioSemana = new Date();
         inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
-        const { count: totalSemana } = await supabase
+        const { count: totalSemana } = await sb
           .from('agendamentos')
           .select('*', { count: 'exact', head: true })
           .gte('data_hora', inicioSemana.toISOString());
@@ -314,7 +321,7 @@
 
         // Mês
         const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const { count: totalMes } = await supabase
+        const { count: totalMes } = await sb
           .from('agendamentos')
           .select('*', { count: 'exact', head: true })
           .gte('data_hora', inicioMes.toISOString());
@@ -343,7 +350,7 @@
 
     async function editarAgendamento(id) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from('agendamentos')
           .select('*')
           .eq('id', id)
@@ -375,7 +382,7 @@
       try {
         showLoading(true);
 
-        const { error } = await supabase
+        const { error } = await sb
           .from('agendamentos')
           .delete()
           .eq('id', id);
@@ -420,7 +427,7 @@
 
         if (agendamentoEditando) {
           // Atualizar
-          const { error } = await supabase
+          const { error } = await sb
             .from('agendamentos')
             .update({
               paciente_id: pacienteId,
@@ -436,7 +443,7 @@
 
         } else {
           // Criar novo
-          const { error } = await supabase
+          const { error } = await sb
             .from('agendamentos')
             .insert({
               paciente_id: pacienteId,
@@ -449,7 +456,7 @@
           if (error) throw error;
 
           // Marcar primeira aula como agendada
-          await supabase
+          await sb
             .from('pacientes')
             .update({ primeira_aula_agendada: true })
             .eq('id', pacienteId);

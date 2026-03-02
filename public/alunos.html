@@ -94,7 +94,22 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/config.js"></script>
+  <script>
+    const sb = window.supabase.createClient(
+      'https://ukjxekdwumfxilphrrmb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk'
+    );
+    async function checkAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = '/index.html'; return null; }
+      return session;
+    }
+    async function logout() { await sb.auth.signOut(); window.location.href = '/index.html'; }
+    function calcularIdade(d) { if (!d) return null; const h = new Date(); const n = new Date(d); let i = h.getFullYear() - n.getFullYear(); const m = h.getMonth() - n.getMonth(); if (m < 0 || (m === 0 && h.getDate() < n.getDate())) i--; return i; }
+    function formatDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('pt-BR'); }
+    function showAlert(m, t) { alert(m); }
+    function showLoading(s) {}
+  </script>
   <script>
     let currentUser = null;
     let pacientes = [];
@@ -105,7 +120,8 @@
       const session = await checkAuth();
       if (!session) return;
 
-      currentUser = await getUserProfile();
+      const { data } = await sb.from('usuarios').select('*').eq('id', session.user.id).single();
+      currentUser = data;
       if (currentUser) {
         document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
       }
@@ -122,7 +138,7 @@
       try {
         showLoading(true);
 
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from('pacientes')
           .select('*')
           .order('created_at', { ascending: false });
@@ -212,7 +228,7 @@
       try {
         showLoading(true);
 
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from('pacientes')
           .select('*')
           .eq('id', id)
@@ -223,7 +239,7 @@
         pacienteSelecionado = data;
 
         // Buscar histórico de sessões
-        const { data: sessoes } = await supabase
+        const { data: sessoes } = await sb
           .from('sessoes')
           .select('*')
           .eq('paciente_id', id)

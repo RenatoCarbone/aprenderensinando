@@ -176,7 +176,15 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/config.js"></script>
+  <script>
+    const sb = window.supabase.createClient('https://ukjxekdwumfxilphrrmb.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk');
+    async function checkAuth(){const{data:{session}}=await sb.auth.getSession();if(!session){window.location.href='/index.html';return null}return session}
+    async function logout(){await sb.auth.signOut();window.location.href='/index.html'}
+    function formatDate(d){if(!d)return '';return new Date(d).toLocaleDateString('pt-BR')}
+    function formatCurrency(v){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0)}
+    function showAlert(m,t){alert(m)}
+    function showLoading(s){}
+  </script>
   <script>
     let currentUser = null;
     let lancamentoEditando = null;
@@ -185,7 +193,7 @@
       const session = await checkAuth();
       if (!session) return;
 
-      currentUser = await getUserProfile();
+      const {data} = await sb.from("usuarios").select("*").eq("id", session.user.id).single(); currentUser = data;
       if (currentUser) {
         document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
       }
@@ -202,7 +210,7 @@
 
     async function carregarPacientes() {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from('pacientes')
           .select('id, nome, id_aluno')
           .order('nome');
@@ -320,7 +328,7 @@
         fimMes.setMonth(fimMes.getMonth() + 1);
 
         // Receitas
-        const { data: receitas } = await supabase
+        const { data: receitas } = await sb
           .from('financeiro')
           .select('valor')
           .eq('tipo', 'receita')
@@ -331,7 +339,7 @@
         document.getElementById('receitasMes').textContent = formatCurrency(totalReceitas);
 
         // Despesas
-        const { data: despesas } = await supabase
+        const { data: despesas } = await sb
           .from('financeiro')
           .select('valor')
           .eq('tipo', 'despesa')
@@ -369,7 +377,7 @@
       try {
         showLoading(true);
 
-        const { error } = await supabase
+        const { error } = await sb
           .from('financeiro')
           .delete()
           .eq('id', id);
@@ -423,7 +431,7 @@
           usuario_id: currentUser.id
         };
 
-        const { error } = await supabase
+        const { error } = await sb
           .from('financeiro')
           .insert(lancamentoData);
 
