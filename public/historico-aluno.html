@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico do Aluno - Aprender Ensinando</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .header-aluno {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .nome-aluno {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-aluno {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .info-item {
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .timeline-item {
+      position: relative;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      margin-left: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .timeline-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2.65rem;
+      top: 1.5rem;
+      width: 20px;
+      height: 20px;
+      background: #667eea;
+      border: 4px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px #667eea33;
+    }
+
+    .aula-data {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .aula-horario {
+      background: #667eea;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+    }
+
+    .aula-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-content {
+      color: #2d3748;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #718096;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-relatorio {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-relatorio:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #718096;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Cabeçalho do Aluno -->
+    <div class="header-aluno" id="headerAluno">
+      <div class="nome-aluno" id="nomeAluno">Carregando...</div>
+      <div class="info-aluno" id="infoAluno">
+        <!-- Será preenchido dinamicamente -->
+      </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="stats-container" id="statsContainer" style="display: none;">
+      <div class="stat-card">
+        <div class="stat-number" id="totalAulas">0</div>
+        <div class="stat-label">Total de Aulas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="primeiraAula">-</div>
+        <div class="stat-label">Primeira Aula</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="ultimaAula">-</div>
+        <div class="stat-label">Última Aula</div>
+      </div>
+    </div>
+
+    <!-- Ações -->
+    <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <button class="btn-relatorio" onclick="gerarRelatorio()">
+        📄 Gerar Relatório Final
+      </button>
+      <a href="alunos.html" class="btn-secondary">
+        ← Voltar para Lista de Alunos
+      </a>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingState" class="loading">
+      <p>⏳ Carregando histórico...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <div class="empty-icon">📚</div>
+      <h3>Nenhuma aula registrada</h3>
+      <p>Este aluno ainda não possui aulas no histórico.</p>
+    </div>
+
+    <!-- Timeline de Aulas -->
+    <div id="timelineContainer" style="display: none;">
+      <h2 style="margin-bottom: 1.5rem;">📖 Histórico de Aulas</h2>
+      <div class="timeline" id="timeline">
+        <!-- Será preenchido dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './js/supabase.js';
+
+    // Pegar ID do aluno da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const pacienteId = urlParams.get('id');
+
+    if (!pacienteId) {
+      alert('ID do aluno não fornecido!');
+      window.location.href = 'alunos.html';
+    }
+
+    let paciente = null;
+    let aulas = [];
+
+    // Carregar dados do aluno
+    async function carregarPaciente() {
+      try {
+        const { data, error } = await supabase
+          .from('pacientes')
+          .select('*')
+          .eq('id', pacienteId)
+          .single();
+
+        if (error) throw error;
+
+        paciente = data;
+        renderizarHeaderAluno();
+
+      } catch (error) {
+        console.error('Erro ao carregar paciente:', error);
+        alert('Erro ao carregar dados do aluno!');
+        window.location.href = 'alunos.html';
+      }
+    }
+
+    // Renderizar header do aluno
+    function renderizarHeaderAluno() {
+      document.getElementById('nomeAluno').textContent = paciente.nome;
+
+      const idade = paciente.data_nascimento 
+        ? calcularIdade(paciente.data_nascimento)
+        : '-';
+
+      document.getElementById('infoAluno').innerHTML = `
+        <div class="info-item">👤 ${idade} anos</div>
+        <div class="info-item">👩 Mãe: ${paciente.nome_mae || '-'}</div>
+        <div class="info-item">📞 ${paciente.telefone || '-'}</div>
+      `;
+    }
+
+    // Calcular idade
+    function calcularIdade(dataNascimento) {
+      const hoje = new Date();
+      const nascimento = new Date(dataNascimento);
+      let idade = hoje.getFullYear() - nascimento.getFullYear();
+      const mes = hoje.getMonth() - nascimento.getMonth();
+      if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+        idade--;
+      }
+      return idade;
+    }
+
+    // Carregar histórico de aulas
+    async function carregarHistorico() {
+      try {
+        const { data: user } = await supabase.auth.getUser();
+        if (!user?.user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('aulas')
+          .select('*')
+          .eq('paciente_id', pacienteId)
+          .eq('profissional_id', user.user.id)
+          .order('data', { ascending: false })
+          .order('horario', { ascending: false });
+
+        if (error) throw error;
+
+        aulas = data || [];
+
+        document.getElementById('loadingState').style.display = 'none';
+
+        if (aulas.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        renderizarStats();
+        renderizarTimeline();
+
+      } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
+        alert('Erro ao carregar histórico de aulas!');
+      }
+    }
+
+    // Renderizar estatísticas
+    function renderizarStats() {
+      document.getElementById('statsContainer').style.display = 'grid';
+      document.getElementById('totalAulas').textContent = aulas.length;
+
+      if (aulas.length > 0) {
+        const primeira = new Date(aulas[aulas.length - 1].data);
+        const ultima = new Date(aulas[0].data);
+
+        document.getElementById('primeiraAula').textContent = 
+          primeira.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        
+        document.getElementById('ultimaAula').textContent = 
+          ultima.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      }
+    }
+
+    // Renderizar timeline
+    function renderizarTimeline() {
+      document.getElementById('timelineContainer').style.display = 'block';
+      const timeline = document.getElementById('timeline');
+
+      timeline.innerHTML = aulas.map(aula => {
+        const data = new Date(aula.data);
+        const dataFormatada = data.toLocaleDateString('pt-BR', {
+          weekday: 'long',
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
+
+        return `
+          <div class="timeline-item">
+            <div class="aula-data">
+              📅 ${dataFormatada}
+              <span class="aula-horario">🕐 ${aula.horario}</span>
+            </div>
+
+            <div class="aula-section">
+              <div class="section-title">📚 O que foi aplicado:</div>
+              <div class="section-content">${aula.conteudo_aplicado}</div>
+            </div>
+
+            ${aula.observacoes_gerais ? `
+              <div class="aula-section">
+                <div class="section-title">📝 Observações:</div>
+                <div class="section-content">${aula.observacoes_gerais}</div>
+              </div>
+            ` : ''}
+
+            ${aula.mensagem_responsavel ? `
+              <div class="aula-section">
+                <div class="section-title">💬 Mensagem ao responsável:</div>
+                <div class="section-content">${aula.mensagem_responsavel}</div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Gerar relatório final
+    window.gerarRelatorio = function() {
+      if (aulas.length === 0) {
+        alert('Não há aulas para gerar relatório!');
+        return;
+      }
+
+      // Por enquanto, abre modal com resumo
+      // Futuramente: gerar PDF
+      const resumo = gerarResumo();
+      
+      const novaJanela = window.open('', '_blank');
+      novaJanela.document.write(`
+        <html>
+        <head>
+          <title>Relatório Final - ${paciente.nome}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; }
+            h1 { color: #667eea; }
+            .info { background: #f7fafc; padding: 1rem; border-radius: 5px; margin: 1rem 0; }
+            .aula { border-left: 3px solid #667eea; padding-left: 1rem; margin: 1rem 0; }
+            @media print { button { display: none; } }
+          </style>
+        </head>
+        <body>
+          ${resumo}
+          <button onclick="window.print()">🖨️ Imprimir</button>
+        </body>
+        </html>
+      `);
+    };
+
+    // Gerar resumo do relatório
+    function gerarResumo() {
+      const primeira = new Date(aulas[aulas.length - 1].data);
+      const ultima = new Date(aulas[0].data);
+
+      return `
+        <h1>📄 Relatório Final de Atendimento</h1>
+        
+        <div class="info">
+          <strong>Aluno:</strong> ${paciente.nome}<br>
+          <strong>Período:</strong> ${primeira.toLocaleDateString('pt-BR')} a ${ultima.toLocaleDateString('pt-BR')}<br>
+          <strong>Total de Aulas:</strong> ${aulas.length}
+        </div>
+
+        <h2>📚 Histórico de Aulas</h2>
+        ${aulas.map((aula, index) => `
+          <div class="aula">
+            <strong>Aula ${aulas.length - index} - ${new Date(aula.data).toLocaleDateString('pt-BR')}</strong>
+            <p><strong>Conteúdo:</strong> ${aula.conteudo_aplicado}</p>
+            ${aula.observacoes_gerais ? `<p><strong>Observações:</strong> ${aula.observacoes_gerais}</p>` : ''}
+          </div>
+        `).join('')}
+      `;
+    }
+
+    // Inicializar
+    carregarPaciente();
+    carregarHistorico();
+  </script>
+</body>
+</html>

@@ -212,9 +212,14 @@
                       : '<span class="badge badge-warning">Pendente</span>'}
                   </td>
                   <td>
-                    <button onclick="verDetalhes('${p.id}')" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
-                      Ver Detalhes
-                    </button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                      <button onclick="verDetalhes('${p.id}')" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                        👁️ Ver Detalhes
+                      </button>
+                      <a href="historico-aluno.html?id=${p.id}" class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem; text-decoration: none;">
+                        📚 Histórico
+                      </a>
+                    </div>
                   </td>
                 </tr>
               `).join('')}
