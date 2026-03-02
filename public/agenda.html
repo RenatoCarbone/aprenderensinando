@@ -479,12 +479,11 @@
           return;
         }
         
-        // Criar timestamp forçando timezone de Brasília
-        // Não usar getTimezoneOffset() - melhor forçar o timezone direto
-        const dataHoraString = `${data}T${hora}:00`;
+        // Criar timestamp FORÇANDO timezone de Brasília (-03:00)
+        const dataHoraString = `${data}T${hora}:00-03:00`;
         
         agendamentos.push({
-          data_hora: dataHoraString, // Salvar sem conversão, deixar o banco interpretar
+          data_hora: dataHoraString,
           paciente_id: pacienteId,
           duracao: duracao,
           observacoes: observacoes,
