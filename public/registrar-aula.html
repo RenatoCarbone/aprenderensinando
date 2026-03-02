@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrar Aula - Aprender Ensinando</title>
+  <title>Aulas do Dia - Aprender Ensinando</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
     .aula-header {
@@ -27,80 +27,67 @@
       margin-top: 1rem;
     }
 
-    .section-divider {
-      border-top: 2px solid #e2e8f0;
-      margin: 2rem 0;
-      padding-top: 2rem;
-    }
-
-    .presenca-list {
+    .agendamentos-list {
       display: grid;
       gap: 1rem;
     }
 
-    .presenca-item {
+    .agendamento-card {
       background: white;
       border: 2px solid #e2e8f0;
       border-radius: 10px;
       padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       transition: all 0.3s;
     }
 
-    .presenca-item.presente {
-      border-color: #48bb78;
-      background: #f0fff4;
+    .agendamento-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
     }
 
-    .presenca-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
+    .agendamento-info {
+      flex: 1;
     }
 
-    .presenca-checkbox {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-    }
-
-    .paciente-nome {
-      font-size: 1.2rem;
+    .aluno-nome {
+      font-size: 1.3rem;
       font-weight: 600;
       color: #2d3748;
+      margin-bottom: 0.5rem;
     }
 
-    .observacoes-container {
-      display: none;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #e2e8f0;
+    .agendamento-hora {
+      font-size: 1rem;
+      color: #718096;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    .observacoes-container.show {
-      display: block;
-    }
-
-    .form-group-inline {
-      margin-bottom: 1rem;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.875rem;
+    .btn-iniciar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
       font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
 
-    .badge-success {
-      background: #48bb78;
-      color: white;
+    .btn-iniciar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
-    .badge-warning {
-      background: #ed8936;
-      color: white;
+    .btn-iniciar:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .loading {
@@ -119,6 +106,62 @@
       font-size: 3rem;
       margin-bottom: 1rem;
     }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .badge-success {
+      background: #48bb78;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -126,64 +169,73 @@
     <div class="aula-header">
       <div class="data-aula" id="dataAula">Carregando...</div>
       <div class="info-agendamentos">
-        <span id="totalAgendamentos">0</span> agendamentos para hoje
+        <span id="totalAgendamentos">0</span> aulas agendadas para hoje
       </div>
     </div>
 
     <div id="loadingState" class="loading">
-      <p>⏳ Carregando agendamentos...</p>
+      <p>⏳ Carregando aulas...</p>
     </div>
 
     <div id="emptyState" class="empty-state" style="display: none;">
       <div class="empty-state-icon">📅</div>
-      <h3>Nenhum agendamento para hoje</h3>
-      <p>Não há agendamentos cadastrados para esta data.</p>
-      <a href="agendamentos.html" class="btn-primary" style="margin-top: 1rem;">
-        Ver todos os agendamentos
+      <h3>Nenhuma aula agendada para hoje</h3>
+      <p>Não há aulas cadastradas para esta data.</p>
+      <a href="agenda.html" class="btn-primary" style="margin-top: 1rem;">
+        Ver agenda completa
       </a>
     </div>
 
-    <form id="formRegistrarAula" style="display: none;">
-      <!-- Dados Gerais da Aula -->
-      <div class="card">
-        <h2>📚 Dados Gerais da Aula</h2>
-        
-        <div class="form-group">
-          <label for="conteudoAplicado" class="form-label required">O que foi aplicado hoje</label>
-          <textarea id="conteudoAplicado" class="form-control" rows="3" 
-            placeholder="Descreva as atividades e conteúdo trabalhado na aula..." required></textarea>
-        </div>
+    <div id="agendamentosList" class="agendamentos-list" style="display: none;">
+      <!-- Será preenchido dinamicamente -->
+    </div>
 
-        <div class="form-group">
-          <label for="observacoesGerais" class="form-label">Observações Gerais do Dia</label>
-          <textarea id="observacoesGerais" class="form-control" rows="3" 
-            placeholder="Observações sobre a turma, clima da aula, etc..."></textarea>
-        </div>
+    <div style="margin-top: 2rem;">
+      <a href="dashboard.html" class="btn-secondary">
+        ← Voltar ao Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Modal de Registro de Aula -->
+  <div id="modalAula" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitulo">Registrar Aula</h2>
+        <p id="modalSubtitulo"></p>
       </div>
 
-      <div class="section-divider"></div>
+      <form id="formRegistrarAula">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="conteudoAplicado" class="form-label required">O que foi aplicado hoje</label>
+            <textarea id="conteudoAplicado" class="form-control" rows="4" 
+              placeholder="Descreva as atividades, exercícios e conteúdo trabalhado com este aluno..." required></textarea>
+          </div>
 
-      <!-- Lista de Presença -->
-      <div class="card">
-        <h2>✅ Presença e Observações Individuais</h2>
-        <p style="color: #718096; margin-bottom: 1.5rem;">
-          Marque os alunos presentes e adicione observações individuais quando necessário.
-        </p>
+          <div class="form-group">
+            <label for="observacoesGerais" class="form-label">Observações Gerais</label>
+            <textarea id="observacoesGerais" class="form-control" rows="3" 
+              placeholder="Observações sobre o desempenho, comportamento, evolução..."></textarea>
+          </div>
 
-        <div id="presencaList" class="presenca-list">
-          <!-- Será preenchido dinamicamente -->
+          <div class="form-group">
+            <label for="mensagemResponsavel" class="form-label">Mensagem para o Responsável</label>
+            <textarea id="mensagemResponsavel" class="form-control" rows="3" 
+              placeholder="Mensagem que será enviada aos pais/responsáveis sobre esta aula..."></textarea>
+          </div>
         </div>
-      </div>
 
-      <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-        <button type="submit" class="btn-primary" style="flex: 1;">
-          💾 Salvar Registro da Aula
-        </button>
-        <a href="dashboard.html" class="btn-secondary" style="flex: 1; text-align: center;">
-          ❌ Cancelar
-        </a>
-      </div>
-    </form>
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary" style="flex: 1;">
+            💾 Salvar e Finalizar Aula
+          </button>
+          <button type="button" class="btn-secondary" onclick="fecharModal()" style="flex: 1;">
+            ❌ Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script type="module">
@@ -205,12 +257,13 @@
     const dia = String(hoje.getDate()).padStart(2, '0');
     
     // Filtros de início e fim do dia
-    const iniciodia = `${ano}-${mes}-${dia} 00:00:00`;
-    const fimdia = `${ano}-${mes}-${dia} 23:59:59`;
+    const inicioDia = `${ano}-${mes}-${dia} 00:00:00`;
+    const fimDia = `${ano}-${mes}-${dia} 23:59:59`;
     
-    console.log('Buscando agendamentos entre:', iniciodia, 'e', fimdia); // Debug
+    console.log('Buscando aulas entre:', inicioDia, 'e', fimDia);
 
     let agendamentos = [];
+    let agendamentoAtual = null;
 
     // Buscar agendamentos do dia
     async function carregarAgendamentos() {
@@ -233,8 +286,8 @@
               telefone
             )
           `)
-          .gte('data_hora', iniciodia)
-          .lte('data_hora', fimdia)
+          .gte('data_hora', inicioDia)
+          .lte('data_hora', fimDia)
           .eq('usuario_id', user.user.id)
           .order('data_hora');
 
@@ -250,79 +303,81 @@
         }
 
         document.getElementById('totalAgendamentos').textContent = agendamentos.length;
-        document.getElementById('formRegistrarAula').style.display = 'block';
+        document.getElementById('agendamentosList').style.display = 'block';
 
-        renderizarPresenca();
+        renderizarAgendamentos();
 
       } catch (error) {
         console.error('Erro ao carregar agendamentos:', error);
-        alert('Erro ao carregar agendamentos: ' + error.message);
+        alert('Erro ao carregar aulas: ' + error.message);
       }
     }
 
-    // Renderizar lista de presença
-    function renderizarPresenca() {
-      const container = document.getElementById('presencaList');
+    // Renderizar lista de agendamentos
+    function renderizarAgendamentos() {
+      const container = document.getElementById('agendamentosList');
       
-      container.innerHTML = agendamentos.map(agendamento => `
-        <div class="presenca-item" data-agendamento-id="${agendamento.id}">
-          <div class="presenca-header">
-            <input 
-              type="checkbox" 
-              class="presenca-checkbox" 
-              id="presente-${agendamento.id}"
-              data-paciente-id="${agendamento.pacientes.id}"
-              onchange="toggleObservacoes('${agendamento.id}')"
+      container.innerHTML = agendamentos.map(agendamento => {
+        const dataHora = new Date(agendamento.data_hora);
+        const horario = dataHora.toLocaleTimeString('pt-BR', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+
+        return `
+          <div class="agendamento-card">
+            <div class="agendamento-info">
+              <div class="aluno-nome">${agendamento.pacientes.nome}</div>
+              <div class="agendamento-hora">
+                🕐 ${horario}
+                ${agendamento.observacoes ? `<span style="color: #718096;">• ${agendamento.observacoes}</span>` : ''}
+              </div>
+            </div>
+            <button 
+              class="btn-iniciar" 
+              onclick="abrirModalAula('${agendamento.id}')"
             >
-            <label for="presente-${agendamento.id}" class="paciente-nome" style="cursor: pointer; flex: 1;">
-              ${agendamento.pacientes.nome}
-            </label>
-            <span class="badge badge-warning">${agendamento.horario}</span>
+              📝 Iniciar Aula
+            </button>
           </div>
-
-          <div class="observacoes-container" id="obs-${agendamento.id}">
-            <div class="form-group-inline">
-              <label class="form-label">Observações Individuais</label>
-              <textarea 
-                class="form-control" 
-                rows="2" 
-                id="obs-individual-${agendamento.id}"
-                placeholder="Observações sobre o desempenho, comportamento, etc..."
-              ></textarea>
-            </div>
-
-            <div class="form-group-inline">
-              <label class="form-label">Mensagem para o Responsável</label>
-              <textarea 
-                class="form-control" 
-                rows="2" 
-                id="msg-responsavel-${agendamento.id}"
-                placeholder="Mensagem que será enviada aos pais/responsáveis..."
-              ></textarea>
-            </div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    // Toggle observações quando marcar presença
-    window.toggleObservacoes = function(agendamentoId) {
-      const checkbox = document.getElementById(`presente-${agendamentoId}`);
-      const container = document.getElementById(`obs-${agendamentoId}`);
-      const item = document.querySelector(`[data-agendamento-id="${agendamentoId}"]`);
+    // Abrir modal para registrar aula
+    window.abrirModalAula = function(agendamentoId) {
+      agendamentoAtual = agendamentos.find(a => a.id === agendamentoId);
+      
+      if (!agendamentoAtual) return;
 
-      if (checkbox.checked) {
-        container.classList.add('show');
-        item.classList.add('presente');
-      } else {
-        container.classList.remove('show');
-        item.classList.remove('presente');
-      }
+      const dataHora = new Date(agendamentoAtual.data_hora);
+      const horario = dataHora.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+
+      document.getElementById('modalTitulo').textContent = agendamentoAtual.pacientes.nome;
+      document.getElementById('modalSubtitulo').textContent = `Aula de ${horario}`;
+      
+      // Limpar campos
+      document.getElementById('conteudoAplicado').value = '';
+      document.getElementById('observacoesGerais').value = '';
+      document.getElementById('mensagemResponsavel').value = '';
+
+      document.getElementById('modalAula').classList.add('show');
+    };
+
+    // Fechar modal
+    window.fecharModal = function() {
+      document.getElementById('modalAula').classList.remove('show');
+      agendamentoAtual = null;
     };
 
     // Salvar registro da aula
     document.getElementById('formRegistrarAula').addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (!agendamentoAtual) return;
 
       const btnSubmit = e.target.querySelector('button[type="submit"]');
       btnSubmit.disabled = true;
@@ -331,14 +386,19 @@
       try {
         const { data: user } = await supabase.auth.getUser();
 
-        // 1. Criar registro da aula
+        const dataHora = new Date(agendamentoAtual.data_hora);
+
+        // Criar registro da aula
         const { data: aula, error: erroAula } = await supabase
           .from('aulas')
           .insert({
-            data: dataSQL,
-            horario: agendamentos[0]?.horario || '00:00',
+            paciente_id: agendamentoAtual.pacientes.id,
+            agendamento_id: agendamentoAtual.id,
+            data: dataHora.toISOString().split('T')[0],
+            horario: dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             conteudo_aplicado: document.getElementById('conteudoAplicado').value,
-            observacoes_gerais: document.getElementById('observacoesGerais').value,
+            observacoes_gerais: document.getElementById('observacoesGerais').value || null,
+            mensagem_responsavel: document.getElementById('mensagemResponsavel').value || null,
             profissional_id: user.user.id
           })
           .select()
@@ -346,37 +406,17 @@
 
         if (erroAula) throw erroAula;
 
-        // 2. Registrar presenças e observações
-        const presencas = [];
-
-        agendamentos.forEach(agendamento => {
-          const checkbox = document.getElementById(`presente-${agendamento.id}`);
-          const obsIndividual = document.getElementById(`obs-individual-${agendamento.id}`).value;
-          const msgResponsavel = document.getElementById(`msg-responsavel-${agendamento.id}`).value;
-
-          presencas.push({
-            aula_id: aula.id,
-            paciente_id: agendamento.pacientes.id,
-            presente: checkbox.checked,
-            observacoes_individuais: obsIndividual || null,
-            mensagem_responsavel: msgResponsavel || null
-          });
-        });
-
-        const { error: erroPresenca } = await supabase
-          .from('aulas_presenca')
-          .insert(presencas);
-
-        if (erroPresenca) throw erroPresenca;
-
         alert('✅ Aula registrada com sucesso!');
-        window.location.href = 'dashboard.html';
+        fecharModal();
+        
+        // Recarregar lista (opcional: marcar como concluído)
+        carregarAgendamentos();
 
       } catch (error) {
         console.error('Erro ao salvar aula:', error);
         alert('Erro ao salvar aula: ' + error.message);
         btnSubmit.disabled = false;
-        btnSubmit.textContent = '💾 Salvar Registro da Aula';
+        btnSubmit.textContent = '💾 Salvar e Finalizar Aula';
       }
     });
 
