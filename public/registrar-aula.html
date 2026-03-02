@@ -388,10 +388,12 @@
       const todos = [...pendentes, ...concluidas];
 
       container.innerHTML = todos.map(agendamento => {
+        // Corrigir horário (forçar interpretação local)
         const dataHora = new Date(agendamento.data_hora);
         const horario = dataHora.toLocaleTimeString('pt-BR', { 
           hour: '2-digit', 
-          minute: '2-digit' 
+          minute: '2-digit',
+          timeZone: 'America/Sao_Paulo' // Força horário de Brasília
         });
 
         const concluida = !!agendamento.aula_id;
