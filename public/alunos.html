@@ -243,12 +243,12 @@
 
         pacienteSelecionado = data;
 
-        // Buscar histórico de sessões
+        // Buscar histórico de aulas
         const { data: sessoes } = await sb
-          .from('sessoes')
+          .from('aulas')
           .select('*')
           .eq('paciente_id', id)
-          .order('data_sessao', { ascending: false });
+          .order('data', { ascending: false });
 
         document.getElementById('modalTitulo').textContent = `${data.nome} (${data.id_aluno})`;
         document.getElementById('modalConteudo').innerHTML = `
@@ -297,11 +297,17 @@
 
           ${sessoes && sessoes.length > 0 ? `
             <div style="margin-top: 1.5rem;">
-              <h3 style="margin-bottom: 1rem;">📝 Histórico de Sessões (${sessoes.length})</h3>
+              <h3 style="margin-bottom: 1rem;">📝 Histórico de Aulas (${sessoes.length})</h3>
+              <p style="margin-bottom: 1rem; color: #718096;">
+                <a href="historico-aluno.html?id=${id}" style="color: #667eea; text-decoration: none;">
+                  📚 Ver histórico completo →
+                </a>
+              </p>
               ${sessoes.slice(0, 5).map(s => `
                 <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
-                  <strong>${formatDate(s.data_sessao)}</strong>
-                  <p style="margin-top: 0.5rem;">${s.observacoes?.substring(0, 150)}${s.observacoes?.length > 150 ? '...' : ''}</p>
+                  <strong>${formatDate(s.data)}</strong> • ${s.horario}
+                  <p style="margin-top: 0.5rem; font-weight: 600;">📚 ${s.conteudo_aplicado?.substring(0, 100)}${s.conteudo_aplicado?.length > 100 ? '...' : ''}</p>
+                  ${s.observacoes_gerais ? `<p style="margin-top: 0.5rem; color: #718096;">${s.observacoes_gerais?.substring(0, 100)}${s.observacoes_gerais?.length > 100 ? '...' : ''}</p>` : ''}
                 </div>
               `).join('')}
             </div>
