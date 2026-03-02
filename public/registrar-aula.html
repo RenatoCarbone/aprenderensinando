@@ -203,9 +203,12 @@
     const ano = hoje.getFullYear();
     const mes = String(hoje.getMonth() + 1).padStart(2, '0');
     const dia = String(hoje.getDate()).padStart(2, '0');
-    const dataSQL = `${ano}-${mes}-${dia}`;
     
-    console.log('Data SQL buscando:', dataSQL); // Debug
+    // Filtros de início e fim do dia
+    const iniciodia = `${ano}-${mes}-${dia} 00:00:00`;
+    const fimdia = `${ano}-${mes}-${dia} 23:59:59`;
+    
+    console.log('Buscando agendamentos entre:', iniciodia, 'e', fimdia); // Debug
 
     let agendamentos = [];
 
@@ -225,14 +228,15 @@
             pacientes (
               id,
               nome,
-              idade,
-              nomeMae,
+              data_nascimento,
+              nome_mae,
               telefone
             )
           `)
-          .eq('data', dataSQL)
-          .eq('profissional_id', user.user.id)
-          .order('horario');
+          .gte('data_hora', iniciodia)
+          .lte('data_hora', fimdia)
+          .eq('usuario_id', user.user.id)
+          .order('data_hora');
 
         if (error) throw error;
 
