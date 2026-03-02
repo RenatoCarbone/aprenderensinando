@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Aula - Aprender Ensinando</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .aula-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .data-aula {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-agendamentos {
+      background: rgba(255,255,255,0.2);
+      padding: 1rem;
+      border-radius: 5px;
+      margin-top: 1rem;
+    }
+
+    .section-divider {
+      border-top: 2px solid #e2e8f0;
+      margin: 2rem 0;
+      padding-top: 2rem;
+    }
+
+    .presenca-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .presenca-item {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .presenca-item.presente {
+      border-color: #48bb78;
+      background: #f0fff4;
+    }
+
+    .presenca-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .presenca-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .paciente-nome {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .observacoes-container {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .observacoes-container.show {
+      display: block;
+    }
+
+    .form-group-inline {
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .badge-warning {
+      background: #ed8936;
+      color: white;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #718096;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #718096;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="aula-header">
+      <div class="data-aula" id="dataAula">Carregando...</div>
+      <div class="info-agendamentos">
+        <span id="totalAgendamentos">0</span> agendamentos para hoje
+      </div>
+    </div>
+
+    <div id="loadingState" class="loading">
+      <p>⏳ Carregando agendamentos...</p>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">📅</div>
+      <h3>Nenhum agendamento para hoje</h3>
+      <p>Não há agendamentos cadastrados para esta data.</p>
+      <a href="agendamentos.html" class="btn-primary" style="margin-top: 1rem;">
+        Ver todos os agendamentos
+      </a>
+    </div>
+
+    <form id="formRegistrarAula" style="display: none;">
+      <!-- Dados Gerais da Aula -->
+      <div class="card">
+        <h2>📚 Dados Gerais da Aula</h2>
+        
+        <div class="form-group">
+          <label for="conteudoAplicado" class="form-label required">O que foi aplicado hoje</label>
+          <textarea id="conteudoAplicado" class="form-control" rows="3" 
+            placeholder="Descreva as atividades e conteúdo trabalhado na aula..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="observacoesGerais" class="form-label">Observações Gerais do Dia</label>
+          <textarea id="observacoesGerais" class="form-control" rows="3" 
+            placeholder="Observações sobre a turma, clima da aula, etc..."></textarea>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Lista de Presença -->
+      <div class="card">
+        <h2>✅ Presença e Observações Individuais</h2>
+        <p style="color: #718096; margin-bottom: 1.5rem;">
+          Marque os alunos presentes e adicione observações individuais quando necessário.
+        </p>
+
+        <div id="presencaList" class="presenca-list">
+          <!-- Será preenchido dinamicamente -->
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn-primary" style="flex: 1;">
+          💾 Salvar Registro da Aula
+        </button>
+        <a href="dashboard.html" class="btn-secondary" style="flex: 1; text-align: center;">
+          ❌ Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { supabase } from './js/supabase.js';
+
+    // Formatar data de hoje
+    const hoje = new Date();
+    const dataFormatada = hoje.toLocaleDateString('pt-BR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    document.getElementById('dataAula').textContent = dataFormatada;
+
+    // Data em formato SQL
+    const dataSQL = hoje.toISOString().split('T')[0];
+
+    let agendamentos = [];
+
+    // Buscar agendamentos do dia
+    async function carregarAgendamentos() {
+      try {
+        const { data: user } = await supabase.auth.getUser();
+        if (!user?.user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('agendamentos')
+          .select(`
+            *,
+            pacientes (
+              id,
+              nome,
+              idade,
+              nomeMae,
+              telefone
+            )
+          `)
+          .eq('data', dataSQL)
+          .eq('profissional_id', user.user.id)
+          .order('horario');
+
+        if (error) throw error;
+
+        agendamentos = data || [];
+
+        document.getElementById('loadingState').style.display = 'none';
+
+        if (agendamentos.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('totalAgendamentos').textContent = agendamentos.length;
+        document.getElementById('formRegistrarAula').style.display = 'block';
+
+        renderizarPresenca();
+
+      } catch (error) {
+        console.error('Erro ao carregar agendamentos:', error);
+        alert('Erro ao carregar agendamentos: ' + error.message);
+      }
+    }
+
+    // Renderizar lista de presença
+    function renderizarPresenca() {
+      const container = document.getElementById('presencaList');
+      
+      container.innerHTML = agendamentos.map(agendamento => `
+        <div class="presenca-item" data-agendamento-id="${agendamento.id}">
+          <div class="presenca-header">
+            <input 
+              type="checkbox" 
+              class="presenca-checkbox" 
+              id="presente-${agendamento.id}"
+              data-paciente-id="${agendamento.pacientes.id}"
+              onchange="toggleObservacoes('${agendamento.id}')"
+            >
+            <label for="presente-${agendamento.id}" class="paciente-nome" style="cursor: pointer; flex: 1;">
+              ${agendamento.pacientes.nome}
+            </label>
+            <span class="badge badge-warning">${agendamento.horario}</span>
+          </div>
+
+          <div class="observacoes-container" id="obs-${agendamento.id}">
+            <div class="form-group-inline">
+              <label class="form-label">Observações Individuais</label>
+              <textarea 
+                class="form-control" 
+                rows="2" 
+                id="obs-individual-${agendamento.id}"
+                placeholder="Observações sobre o desempenho, comportamento, etc..."
+              ></textarea>
+            </div>
+
+            <div class="form-group-inline">
+              <label class="form-label">Mensagem para o Responsável</label>
+              <textarea 
+                class="form-control" 
+                rows="2" 
+                id="msg-responsavel-${agendamento.id}"
+                placeholder="Mensagem que será enviada aos pais/responsáveis..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Toggle observações quando marcar presença
+    window.toggleObservacoes = function(agendamentoId) {
+      const checkbox = document.getElementById(`presente-${agendamentoId}`);
+      const container = document.getElementById(`obs-${agendamentoId}`);
+      const item = document.querySelector(`[data-agendamento-id="${agendamentoId}"]`);
+
+      if (checkbox.checked) {
+        container.classList.add('show');
+        item.classList.add('presente');
+      } else {
+        container.classList.remove('show');
+        item.classList.remove('presente');
+      }
+    };
+
+    // Salvar registro da aula
+    document.getElementById('formRegistrarAula').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btnSubmit = e.target.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = '⏳ Salvando...';
+
+      try {
+        const { data: user } = await supabase.auth.getUser();
+
+        // 1. Criar registro da aula
+        const { data: aula, error: erroAula } = await supabase
+          .from('aulas')
+          .insert({
+            data: dataSQL,
+            horario: agendamentos[0]?.horario || '00:00',
+            conteudo_aplicado: document.getElementById('conteudoAplicado').value,
+            observacoes_gerais: document.getElementById('observacoesGerais').value,
+            profissional_id: user.user.id
+          })
+          .select()
+          .single();
+
+        if (erroAula) throw erroAula;
+
+        // 2. Registrar presenças e observações
+        const presencas = [];
+
+        agendamentos.forEach(agendamento => {
+          const checkbox = document.getElementById(`presente-${agendamento.id}`);
+          const obsIndividual = document.getElementById(`obs-individual-${agendamento.id}`).value;
+          const msgResponsavel = document.getElementById(`msg-responsavel-${agendamento.id}`).value;
+
+          presencas.push({
+            aula_id: aula.id,
+            paciente_id: agendamento.pacientes.id,
+            presente: checkbox.checked,
+            observacoes_individuais: obsIndividual || null,
+            mensagem_responsavel: msgResponsavel || null
+          });
+        });
+
+        const { error: erroPresenca } = await supabase
+          .from('aulas_presenca')
+          .insert(presencas);
+
+        if (erroPresenca) throw erroPresenca;
+
+        alert('✅ Aula registrada com sucesso!');
+        window.location.href = 'dashboard.html';
+
+      } catch (error) {
+        console.error('Erro ao salvar aula:', error);
+        alert('Erro ao salvar aula: ' + error.message);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = '💾 Salvar Registro da Aula';
+      }
+    });
+
+    // Carregar ao iniciar
+    carregarAgendamentos();
+  </script>
+</body>
+</html>
