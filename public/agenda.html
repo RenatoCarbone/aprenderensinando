@@ -178,7 +178,6 @@
       // Definir data de hoje como padrão
       const hoje = new Date().toISOString().split('T')[0];
       document.getElementById('filtroData').value = hoje;
-      document.getElementById('dataAgendamento').value = hoje;
 
       await carregarPacientes();
       await carregarAgendamentos();
