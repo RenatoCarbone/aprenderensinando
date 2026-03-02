@@ -266,7 +266,7 @@
             <div style="display: flex; justify-content: space-between; align-items: start;">
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <strong style="font-size: 1.1rem;">${dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong>
+                  <strong style="font-size: 1.1rem;">${dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })}</strong>
                   ${a.duracao ? `<span class="badge badge-secondary">${a.duracao} min</span>` : ''}
                   ${isPast ? '<span class="badge badge-info">Realizado</span>' : '<span class="badge badge-success">Agendado</span>'}
                 </div>
