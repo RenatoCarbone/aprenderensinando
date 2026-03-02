@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda - Aprender Ensinando</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/dashboard.html" class="logo">
+        🎓 Aprender <span>Ensinando</span>
+      </a>
+      <nav class="nav">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/cadastro.html">Novo Paciente</a>
+        <a href="/alunos.html">Pacientes</a>
+        <a href="/agenda.html">Agenda</a>
+        <a href="/financeiro.html">Financeiro</a>
+      </nav>
+      <div class="user-menu">
+        <span class="user-name" id="userName">Carregando...</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
+      <h1>📅 Agenda de Atendimentos</h1>
+      <button onclick="abrirModalNovoAgendamento()" class="btn btn-primary">
+        ➕ Novo Agendamento
+      </button>
+    </div>
+
+    <!-- Filtro de Data -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label for="filtroData" class="form-label">Data</label>
+            <input type="date" id="filtroData" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="filtroPaciente" class="form-label">Paciente</label>
+            <input type="text" id="filtroPaciente" class="form-control" placeholder="Buscar paciente...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">&nbsp;</label>
+            <button onclick="carregarAgendamentos()" class="btn btn-secondary btn-block">
+              🔍 Filtrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendário Semanal -->
+    <div class="grid grid-2">
+      <!-- Lista de Agendamentos -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 Agendamentos</h2>
+        </div>
+        <div class="card-body" id="listaAgendamentos">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo do Dia -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📊 Resumo</h2>
+        </div>
+        <div class="card-body">
+          <div class="stat-card mb-2">
+            <div class="stat-label">Atendimentos Hoje</div>
+            <div class="stat-value" id="totalHoje">0</div>
+          </div>
+          <div class="stat-card success mb-2">
+            <div class="stat-label">Atendimentos Semana</div>
+            <div class="stat-value" id="totalSemana">0</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">Atendimentos Mês</div>
+            <div class="stat-value" id="totalMes">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Novo Agendamento -->
+  <div id="modalAgendamento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+    <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: var(--radius); padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 id="modalTitulo">Novo Agendamento</h2>
+        <button onclick="fecharModal()" class="btn btn-secondary">✕</button>
+      </div>
+      
+      <form id="agendamentoForm">
+        <div class="form-group">
+          <label for="pacienteSelect" class="form-label required">Paciente</label>
+          <select id="pacienteSelect" class="form-control" required>
+            <option value="">Carregando...</option>
+          </select>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label for="dataAgendamento" class="form-label required">Data</label>
+            <input type="date" id="dataAgendamento" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="horaAgendamento" class="form-label required">Horário</label>
+            <input type="time" id="horaAgendamento" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="duracaoAgendamento" class="form-label">Duração (minutos)</label>
+          <select id="duracaoAgendamento" class="form-control">
+            <option value="30">30 minutos</option>
+            <option value="45">45 minutos</option>
+            <option value="60" selected>1 hora</option>
+            <option value="90">1h 30min</option>
+            <option value="120">2 horas</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="observacoesAgendamento" class="form-label">Observações</label>
+          <textarea id="observacoesAgendamento" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="btn-group" style="justify-content: flex-end;">
+          <button type="button" onclick="fecharModal()" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary">💾 Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    let currentUser = null;
+    let agendamentoEditando = null;
+
+    // Carregar usuário
+    (async () => {
+      const session = await checkAuth();
+      if (!session) return;
+
+      currentUser = await getUserProfile();
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
+      }
+
+      // Verificar se veio de link com paciente pré-selecionado
+      const urlParams = new URLSearchParams(window.location.search);
+      const pacienteId = urlParams.get('paciente');
+
+      // Definir data de hoje como padrão
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('filtroData').value = hoje;
+      document.getElementById('dataAgendamento').value = hoje;
+
+      await carregarPacientes();
+      await carregarAgendamentos();
+
+      if (pacienteId) {
+        abrirModalNovoAgendamento(pacienteId);
+      }
+    })();
+
+    async function carregarPacientes() {
+      try {
+        const { data, error } = await supabase
+          .from('pacientes')
+          .select('id, nome, id_aluno')
+          .order('nome');
+
+        if (error) throw error;
+
+        const select = document.getElementById('pacienteSelect');
+        select.innerHTML = '<option value="">Selecione um paciente...</option>' +
+          data.map(p => `<option value="${p.id}">${p.nome} (${p.id_aluno})</option>`).join('');
+
+      } catch (error) {
+        console.error('Erro ao carregar pacientes:', error);
+      }
+    }
+
+    async function carregarAgendamentos() {
+      try {
+        showLoading(true);
+
+        const dataFiltro = document.getElementById('filtroData').value;
+        const pacienteFiltro = document.getElementById('filtroPaciente').value.toLowerCase();
+
+        let query = supabase
+          .from('agendamentos')
+          .select(`
+            *,
+            pacientes (nome, id_aluno, telefone)
+          `)
+          .order('data_hora', { ascending: true });
+
+        if (dataFiltro) {
+          const inicioDia = dataFiltro + 'T00:00:00';
+          const fimDia = dataFiltro + 'T23:59:59';
+          query = query.gte('data_hora', inicioDia).lte('data_hora', fimDia);
+        }
+
+        const { data: agendamentos, error } = await query;
+
+        if (error) throw error;
+
+        // Filtrar por nome do paciente se necessário
+        let filtrados = agendamentos || [];
+        if (pacienteFiltro) {
+          filtrados = filtrados.filter(a => 
+            a.pacientes?.nome.toLowerCase().includes(pacienteFiltro)
+          );
+        }
+
+        renderizarAgendamentos(filtrados);
+        await atualizarResumo();
+
+        showLoading(false);
+
+      } catch (error) {
+        showLoading(false);
+        console.error('Erro ao carregar agendamentos:', error);
+        showAlert('Erro ao carregar agendamentos', 'danger');
+      }
+    }
+
+    function renderizarAgendamentos(agendamentos) {
+      const container = document.getElementById('listaAgendamentos');
+
+      if (agendamentos.length === 0) {
+        container.innerHTML = '<p class="text-secondary text-center">Nenhum agendamento encontrado</p>';
+        return;
+      }
+
+      container.innerHTML = agendamentos.map(a => {
+        const dataHora = new Date(a.data_hora);
+        const isPast = dataHora < new Date();
+        
+        return `
+          <div style="padding: 1rem; border-bottom: 1px solid var(--border-color); ${isPast ? 'opacity: 0.6;' : ''}">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <strong style="font-size: 1.1rem;">${dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong>
+                  ${a.duracao ? `<span class="badge badge-secondary">${a.duracao} min</span>` : ''}
+                  ${isPast ? '<span class="badge badge-info">Realizado</span>' : '<span class="badge badge-success">Agendado</span>'}
+                </div>
+                <div>
+                  <strong>${a.pacientes?.nome || 'Paciente'}</strong>
+                  <small style="display: block; color: var(--text-secondary);">
+                    ${a.pacientes?.id_aluno || ''} • ${a.pacientes?.telefone || ''}
+                  </small>
+                </div>
+                ${a.observacoes ? `<p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">${a.observacoes}</p>` : ''}
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                ${!isPast ? `
+                  <button onclick="editarAgendamento('${a.id}')" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                    ✏️
+                  </button>
+                  <button onclick="excluirAgendamento('${a.id}')" class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                    🗑️
+                  </button>
+                ` : `
+                  <a href="/sessao.html?paciente=${a.paciente_id}&agendamento=${a.id}" class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                    📝 Registrar
+                  </a>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function atualizarResumo() {
+      try {
+        // Hoje
+        const hoje = new Date().toISOString().split('T')[0];
+        const { count: totalHoje } = await supabase
+          .from('agendamentos')
+          .select('*', { count: 'exact', head: true })
+          .gte('data_hora', hoje + 'T00:00:00')
+          .lte('data_hora', hoje + 'T23:59:59');
+
+        document.getElementById('totalHoje').textContent = totalHoje || 0;
+
+        // Semana
+        const inicioSemana = new Date();
+        inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+        const { count: totalSemana } = await supabase
+          .from('agendamentos')
+          .select('*', { count: 'exact', head: true })
+          .gte('data_hora', inicioSemana.toISOString());
+
+        document.getElementById('totalSemana').textContent = totalSemana || 0;
+
+        // Mês
+        const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const { count: totalMes } = await supabase
+          .from('agendamentos')
+          .select('*', { count: 'exact', head: true })
+          .gte('data_hora', inicioMes.toISOString());
+
+        document.getElementById('totalMes').textContent = totalMes || 0;
+
+      } catch (error) {
+        console.error('Erro ao atualizar resumo:', error);
+      }
+    }
+
+    function abrirModalNovoAgendamento(pacienteId = null) {
+      agendamentoEditando = null;
+      document.getElementById('modalTitulo').textContent = 'Novo Agendamento';
+      document.getElementById('agendamentoForm').reset();
+      
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataAgendamento').value = hoje;
+
+      if (pacienteId) {
+        document.getElementById('pacienteSelect').value = pacienteId;
+      }
+
+      document.getElementById('modalAgendamento').style.display = 'block';
+    }
+
+    async function editarAgendamento(id) {
+      try {
+        const { data, error } = await supabase
+          .from('agendamentos')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        agendamentoEditando = data;
+        document.getElementById('modalTitulo').textContent = 'Editar Agendamento';
+        
+        const dataHora = new Date(data.data_hora);
+        document.getElementById('pacienteSelect').value = data.paciente_id;
+        document.getElementById('dataAgendamento').value = dataHora.toISOString().split('T')[0];
+        document.getElementById('horaAgendamento').value = dataHora.toTimeString().substring(0, 5);
+        document.getElementById('duracaoAgendamento').value = data.duracao || 60;
+        document.getElementById('observacoesAgendamento').value = data.observacoes || '';
+
+        document.getElementById('modalAgendamento').style.display = 'block';
+
+      } catch (error) {
+        console.error('Erro ao carregar agendamento:', error);
+        showAlert('Erro ao carregar agendamento', 'danger');
+      }
+    }
+
+    async function excluirAgendamento(id) {
+      if (!confirm('Deseja realmente excluir este agendamento?')) return;
+
+      try {
+        showLoading(true);
+
+        const { error } = await supabase
+          .from('agendamentos')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        showAlert('Agendamento excluído com sucesso!', 'success');
+        await carregarAgendamentos();
+
+      } catch (error) {
+        console.error('Erro ao excluir agendamento:', error);
+        showAlert('Erro ao excluir agendamento', 'danger');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function fecharModal() {
+      document.getElementById('modalAgendamento').style.display = 'none';
+      agendamentoEditando = null;
+    }
+
+    // Submeter formulário
+    document.getElementById('agendamentoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const pacienteId = document.getElementById('pacienteSelect').value;
+      const data = document.getElementById('dataAgendamento').value;
+      const hora = document.getElementById('horaAgendamento').value;
+      const duracao = parseInt(document.getElementById('duracaoAgendamento').value);
+      const observacoes = document.getElementById('observacoesAgendamento').value.trim();
+
+      if (!pacienteId || !data || !hora) {
+        showAlert('Preencha todos os campos obrigatórios', 'warning');
+        return;
+      }
+
+      const dataHora = `${data}T${hora}:00`;
+
+      try {
+        showLoading(true);
+
+        if (agendamentoEditando) {
+          // Atualizar
+          const { error } = await supabase
+            .from('agendamentos')
+            .update({
+              paciente_id: pacienteId,
+              data_hora: dataHora,
+              duracao: duracao,
+              observacoes: observacoes
+            })
+            .eq('id', agendamentoEditando.id);
+
+          if (error) throw error;
+
+          showAlert('Agendamento atualizado com sucesso!', 'success');
+
+        } else {
+          // Criar novo
+          const { error } = await supabase
+            .from('agendamentos')
+            .insert({
+              paciente_id: pacienteId,
+              data_hora: dataHora,
+              duracao: duracao,
+              observacoes: observacoes,
+              usuario_id: currentUser.id
+            });
+
+          if (error) throw error;
+
+          // Marcar primeira aula como agendada
+          await supabase
+            .from('pacientes')
+            .update({ primeira_aula_agendada: true })
+            .eq('id', pacienteId);
+
+          showAlert('Agendamento criado com sucesso!', 'success');
+        }
+
+        fecharModal();
+        await carregarAgendamentos();
+
+      } catch (error) {
+        console.error('Erro ao salvar agendamento:', error);
+        showAlert('Erro ao salvar agendamento: ' + error.message, 'danger');
+      } finally {
+        showLoading(false);
+      }
+    });
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modalAgendamento').addEventListener('click', (e) => {
+      if (e.target.id === 'modalAgendamento') {
+        fecharModal();
+      }
+    });
+  </script>
+</body>
+</html>

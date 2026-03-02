@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Aprender Ensinando</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/dashboard.html" class="logo">
+        🎓 Aprender <span>Ensinando</span>
+      </a>
+      <nav class="nav">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/cadastro.html">Novo Paciente</a>
+        <a href="/alunos.html">Pacientes</a>
+        <a href="/agenda.html">Agenda</a>
+        <a href="/financeiro.html">Financeiro</a>
+      </nav>
+      <div class="user-menu">
+        <span class="user-name" id="userName">Carregando...</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 class="mt-3 mb-3">Dashboard</h1>
+
+    <!-- Estatísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total de Pacientes</div>
+        <div class="stat-value" id="totalPacientes">0</div>
+        <div class="stat-icon">👥</div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-label">Atendimentos Hoje</div>
+        <div class="stat-value" id="atendimentosHoje">0</div>
+        <div class="stat-icon">📅</div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-label">Atendimentos Mês</div>
+        <div class="stat-value" id="atendimentosMes">0</div>
+        <div class="stat-icon">📊</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Receita Mensal</div>
+        <div class="stat-value" id="receitaMensal">R$ 0,00</div>
+        <div class="stat-icon">💰</div>
+      </div>
+    </div>
+
+    <!-- Grid de Cards -->
+    <div class="grid grid-2">
+      <!-- Próximos Atendimentos -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📅 Próximos Atendimentos</h2>
+        </div>
+        <div class="card-body" id="proximosAtendimentos">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ações Rápidas -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">⚡ Ações Rápidas</h2>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <a href="/cadastro.html" class="btn btn-primary">
+              ➕ Cadastrar Novo Paciente
+            </a>
+            <a href="/agenda.html" class="btn btn-secondary">
+              📅 Agendar Atendimento
+            </a>
+            <a href="/alunos.html" class="btn btn-outline">
+              👥 Ver Todos os Pacientes
+            </a>
+            <a href="/financeiro.html" class="btn btn-outline">
+              💰 Registrar Receita
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pacientes Recentes -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">👥 Pacientes Recentes</h2>
+        </div>
+        <div class="card-body" id="pacientesRecentes">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avisos e Lembretes -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🔔 Avisos</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            Bem-vindo ao sistema Aprender Ensinando! 🎉
+          </div>
+          <div class="alert alert-warning" id="avisoPendentes" style="display: none;">
+            Você tem pacientes pendentes para agendar primeira aula.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    let currentUser = null;
+
+    // Carregar dados ao iniciar
+    (async () => {
+      const session = await checkAuth();
+      if (!session) return;
+
+      currentUser = await getUserProfile();
+      
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
+      }
+
+      await carregarDashboard();
+    })();
+
+    async function carregarDashboard() {
+      try {
+        // Total de pacientes
+        const { count: totalPacientes } = await supabase
+          .from('pacientes')
+          .select('*', { count: 'exact', head: true });
+        
+        document.getElementById('totalPacientes').textContent = totalPacientes || 0;
+
+        // Atendimentos hoje
+        const hoje = new Date().toISOString().split('T')[0];
+        const { count: atendimentosHoje } = await supabase
+          .from('agendamentos')
+          .select('*', { count: 'exact', head: true })
+          .gte('data_hora', hoje + 'T00:00:00')
+          .lt('data_hora', hoje + 'T23:59:59');
+        
+        document.getElementById('atendimentosHoje').textContent = atendimentosHoje || 0;
+
+        // Atendimentos do mês
+        const primeiroDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+        const { count: atendimentosMes } = await supabase
+          .from('agendamentos')
+          .select('*', { count: 'exact', head: true })
+          .gte('data_hora', primeiroDiaMes);
+        
+        document.getElementById('atendimentosMes').textContent = atendimentosMes || 0;
+
+        // Receita mensal
+        const { data: receitas } = await supabase
+          .from('financeiro')
+          .select('valor')
+          .eq('tipo', 'receita')
+          .gte('data', primeiroDiaMes);
+        
+        const receitaMensal = receitas?.reduce((sum, r) => sum + (r.valor || 0), 0) || 0;
+        document.getElementById('receitaMensal').textContent = formatCurrency(receitaMensal);
+
+        // Carregar próximos atendimentos
+        await carregarProximosAtendimentos();
+
+        // Carregar pacientes recentes
+        await carregarPacientesRecentes();
+
+        // Verificar pacientes pendentes
+        await verificarPacientesPendentes();
+
+      } catch (error) {
+        console.error('Erro ao carregar dashboard:', error);
+        showAlert('Erro ao carregar dados do dashboard', 'danger');
+      }
+    }
+
+    async function carregarProximosAtendimentos() {
+      try {
+        const agora = new Date().toISOString();
+        
+        const { data: agendamentos, error } = await supabase
+          .from('agendamentos')
+          .select(`
+            *,
+            pacientes (nome, id_aluno)
+          `)
+          .gte('data_hora', agora)
+          .order('data_hora', { ascending: true })
+          .limit(5);
+
+        if (error) throw error;
+
+        const container = document.getElementById('proximosAtendimentos');
+
+        if (!agendamentos || agendamentos.length === 0) {
+          container.innerHTML = '<p class="text-secondary">Nenhum atendimento agendado</p>';
+          return;
+        }
+
+        container.innerHTML = agendamentos.map(a => `
+          <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>${a.pacientes?.nome || 'Paciente'}</strong>
+                <small style="display: block; color: var(--text-secondary);">
+                  ${a.pacientes?.id_aluno || ''}
+                </small>
+              </div>
+              <div style="text-align: right;">
+                <div>${formatDate(a.data_hora)}</div>
+                <small style="color: var(--text-secondary);">
+                  ${new Date(a.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </small>
+              </div>
+            </div>
+            ${a.observacoes ? `<p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">${a.observacoes}</p>` : ''}
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Erro ao carregar próximos atendimentos:', error);
+        document.getElementById('proximosAtendimentos').innerHTML = 
+          '<p class="text-danger">Erro ao carregar atendimentos</p>';
+      }
+    }
+
+    async function carregarPacientesRecentes() {
+      try {
+        const { data: pacientes, error } = await supabase
+          .from('pacientes')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        const container = document.getElementById('pacientesRecentes');
+
+        if (!pacientes || pacientes.length === 0) {
+          container.innerHTML = '<p class="text-secondary">Nenhum paciente cadastrado</p>';
+          return;
+        }
+
+        container.innerHTML = pacientes.map(p => `
+          <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>${p.nome}</strong>
+                <small style="display: block; color: var(--text-secondary);">
+                  ${p.id_aluno} • ${calcularIdade(p.data_nascimento)} anos
+                </small>
+              </div>
+              <a href="/alunos.html?id=${p.id}" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                Ver
+              </a>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Erro ao carregar pacientes recentes:', error);
+        document.getElementById('pacientesRecentes').innerHTML = 
+          '<p class="text-danger">Erro ao carregar pacientes</p>';
+      }
+    }
+
+    async function verificarPacientesPendentes() {
+      try {
+        // Buscar pacientes sem agendamentos
+        const { data: pacientes } = await supabase
+          .from('pacientes')
+          .select('id')
+          .is('primeira_aula_agendada', false);
+
+        if (pacientes && pacientes.length > 0) {
+          const aviso = document.getElementById('avisoPendentes');
+          aviso.style.display = 'block';
+          aviso.textContent = `Você tem ${pacientes.length} paciente(s) pendente(s) para agendar primeira aula.`;
+        }
+      } catch (error) {
+        console.error('Erro ao verificar pacientes pendentes:', error);
+      }
+    }
+  </script>
+</body>
+</html>

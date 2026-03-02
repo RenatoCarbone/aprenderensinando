@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Sessão - Aprender Ensinando</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/dashboard.html" class="logo">
+        🎓 Aprender <span>Ensinando</span>
+      </a>
+      <nav class="nav">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/cadastro.html">Novo Paciente</a>
+        <a href="/alunos.html">Pacientes</a>
+        <a href="/agenda.html">Agenda</a>
+        <a href="/financeiro.html">Financeiro</a>
+      </nav>
+      <div class="user-menu">
+        <span class="user-name" id="userName">Carregando...</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 class="mt-3 mb-3">📝 Registro de Sessão/Atendimento</h1>
+
+    <form id="sessaoForm">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Informações da Sessão</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label for="pacienteSelect" class="form-label required">Paciente</label>
+              <select id="pacienteSelect" class="form-control" required>
+                <option value="">Carregando...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="dataSessao" class="form-label required">Data da Sessão</label>
+              <input type="date" id="dataSessao" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="atividadesRealizadas" class="form-label required">Atividades Realizadas</label>
+            <textarea id="atividadesRealizadas" class="form-control" rows="4" 
+              placeholder="Descreva as atividades aplicadas durante a sessão..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="observacoes" class="form-label required">Observações sobre o Aluno</label>
+            <textarea id="observacoes" class="form-control" rows="5" 
+              placeholder="Comportamento, evolução, dificuldades observadas..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="progressao" class="form-label">Progressão/Evolução</label>
+            <textarea id="progressao" class="form-control" rows="3"
+              placeholder="Pontos de melhoria ou evolução notados..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="proximasEtapas" class="form-label">Próximas Etapas</label>
+            <textarea id="proximasEtapas" class="form-control" rows="3"
+              placeholder="Planejamento para próximas sessões..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group" style="justify-content: flex-end;">
+        <a href="/dashboard.html" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">💾 Salvar Sessão</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    let currentUser = null;
+
+    (async () => {
+      const session = await checkAuth();
+      if (!session) return;
+
+      currentUser = await getUserProfile();
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
+      }
+
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataSessao').value = hoje;
+
+      await carregarPacientes();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const pacienteId = urlParams.get('paciente');
+      if (pacienteId) {
+        document.getElementById('pacienteSelect').value = pacienteId;
+      }
+    })();
+
+    async function carregarPacientes() {
+      try {
+        const { data, error } = await supabase
+          .from('pacientes')
+          .select('id, nome, id_aluno')
+          .order('nome');
+
+        if (error) throw error;
+
+        const select = document.getElementById('pacienteSelect');
+        select.innerHTML = '<option value="">Selecione um paciente...</option>' +
+          data.map(p => `<option value="${p.id}">${p.nome} (${p.id_aluno})</option>`).join('');
+
+      } catch (error) {
+        console.error('Erro ao carregar pacientes:', error);
+      }
+    }
+
+    document.getElementById('sessaoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!confirm('Deseja salvar este registro de sessão?')) return;
+
+      showLoading(true);
+
+      try {
+        const sessaoData = {
+          paciente_id: document.getElementById('pacienteSelect').value,
+          data_sessao: document.getElementById('dataSessao').value,
+          atividades_realizadas: document.getElementById('atividadesRealizadas').value.trim(),
+          observacoes: document.getElementById('observacoes').value.trim(),
+          progressao: document.getElementById('progressao').value.trim(),
+          proximas_etapas: document.getElementById('proximasEtapas').value.trim(),
+          usuario_id: currentUser.id
+        };
+
+        const { error } = await supabase
+          .from('sessoes')
+          .insert(sessaoData);
+
+        if (error) throw error;
+
+        showLoading(false);
+        showAlert('Sessão registrada com sucesso!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 1500);
+
+      } catch (error) {
+        showLoading(false);
+        console.error('Erro ao salvar sessão:', error);
+        showAlert('Erro ao salvar sessão: ' + error.message, 'danger');
+      }
+    });
+  </script>
+</body>
+</html>

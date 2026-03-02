@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pacientes - Aprender Ensinando</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/dashboard.html" class="logo">
+        🎓 Aprender <span>Ensinando</span>
+      </a>
+      <nav class="nav">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/cadastro.html">Novo Paciente</a>
+        <a href="/alunos.html">Pacientes</a>
+        <a href="/agenda.html">Agenda</a>
+        <a href="/financeiro.html">Financeiro</a>
+      </nav>
+      <div class="user-menu">
+        <span class="user-name" id="userName">Carregando...</span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
+      <h1>👥 Meus Pacientes</h1>
+      <a href="/cadastro.html" class="btn btn-primary">➕ Novo Paciente</a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label for="filtroNome" class="form-label">Buscar por Nome</label>
+            <input type="text" id="filtroNome" class="form-control" placeholder="Digite o nome...">
+          </div>
+          
+          <div class="form-group">
+            <label for="filtroId" class="form-label">Buscar por ID</label>
+            <input type="text" id="filtroId" class="form-control" placeholder="ALU-XXX">
+          </div>
+
+          <div class="form-group">
+            <label for="filtroStatus" class="form-label">Status</label>
+            <select id="filtroStatus" class="form-control">
+              <option value="">Todos</option>
+              <option value="ativo">Ativos</option>
+              <option value="pendente">Pendentes Agendamento</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Pacientes -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          Lista de Pacientes <span id="totalCount" class="badge badge-secondary">0</span>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div id="pacientesList">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes do Paciente -->
+  <div id="modalDetalhes" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+    <div style="max-width: 800px; margin: 2rem auto; background: white; border-radius: var(--radius); padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 id="modalTitulo">Detalhes do Paciente</h2>
+        <button onclick="fecharModal()" class="btn btn-secondary">✕ Fechar</button>
+      </div>
+      
+      <div id="modalConteudo"></div>
+
+      <div class="btn-group mt-3">
+        <button onclick="fecharModal()" class="btn btn-secondary">Fechar</button>
+        <button onclick="agendarAula()" class="btn btn-primary" id="btnAgendar">📅 Agendar Aula</button>
+        <button onclick="registrarSessao()" class="btn btn-success" id="btnSessao">📝 Registrar Sessão</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    let currentUser = null;
+    let pacientes = [];
+    let pacienteSelecionado = null;
+
+    // Carregar usuário
+    (async () => {
+      const session = await checkAuth();
+      if (!session) return;
+
+      currentUser = await getUserProfile();
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
+      }
+
+      await carregarPacientes();
+    })();
+
+    // Filtros
+    document.getElementById('filtroNome').addEventListener('input', filtrarPacientes);
+    document.getElementById('filtroId').addEventListener('input', filtrarPacientes);
+    document.getElementById('filtroStatus').addEventListener('change', filtrarPacientes);
+
+    async function carregarPacientes() {
+      try {
+        showLoading(true);
+
+        const { data, error } = await supabase
+          .from('pacientes')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        pacientes = data || [];
+        renderizarPacientes(pacientes);
+        
+        showLoading(false);
+
+      } catch (error) {
+        showLoading(false);
+        console.error('Erro ao carregar pacientes:', error);
+        showAlert('Erro ao carregar pacientes', 'danger');
+      }
+    }
+
+    function filtrarPacientes() {
+      const nome = document.getElementById('filtroNome').value.toLowerCase();
+      const id = document.getElementById('filtroId').value.toLowerCase();
+      const status = document.getElementById('filtroStatus').value;
+
+      let filtrados = pacientes.filter(p => {
+        const matchNome = !nome || p.nome.toLowerCase().includes(nome);
+        const matchId = !id || p.id_aluno.toLowerCase().includes(id);
+        const matchStatus = !status || 
+          (status === 'pendente' && !p.primeira_aula_agendada) ||
+          (status === 'ativo' && p.primeira_aula_agendada);
+
+        return matchNome && matchId && matchStatus;
+      });
+
+      renderizarPacientes(filtrados);
+    }
+
+    function renderizarPacientes(lista) {
+      const container = document.getElementById('pacientesList');
+      document.getElementById('totalCount').textContent = lista.length;
+
+      if (lista.length === 0) {
+        container.innerHTML = '<p class="text-secondary text-center">Nenhum paciente encontrado</p>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Responsável</th>
+                <th>Telefone</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lista.map(p => `
+                <tr>
+                  <td><strong>${p.id_aluno}</strong></td>
+                  <td>${p.nome}</td>
+                  <td>${calcularIdade(p.data_nascimento)} anos</td>
+                  <td>${p.responsavel_principal || '-'}</td>
+                  <td>${p.telefone || '-'}</td>
+                  <td>
+                    ${p.primeira_aula_agendada 
+                      ? '<span class="badge badge-success">Ativo</span>' 
+                      : '<span class="badge badge-warning">Pendente</span>'}
+                  </td>
+                  <td>
+                    <button onclick="verDetalhes('${p.id}')" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                      Ver Detalhes
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    async function verDetalhes(id) {
+      try {
+        showLoading(true);
+
+        const { data, error } = await supabase
+          .from('pacientes')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        pacienteSelecionado = data;
+
+        // Buscar histórico de sessões
+        const { data: sessoes } = await supabase
+          .from('sessoes')
+          .select('*')
+          .eq('paciente_id', id)
+          .order('data_sessao', { ascending: false });
+
+        document.getElementById('modalTitulo').textContent = `${data.nome} (${data.id_aluno})`;
+        document.getElementById('modalConteudo').innerHTML = `
+          <div class="grid grid-2">
+            <div>
+              <h3 style="margin-bottom: 1rem;">📋 Dados Cadastrais</h3>
+              <p><strong>Data de Nascimento:</strong> ${formatDate(data.data_nascimento)}</p>
+              <p><strong>Idade:</strong> ${calcularIdade(data.data_nascimento)} anos</p>
+              <p><strong>Sexo:</strong> ${data.sexo === 'M' ? 'Masculino' : 'Feminino'}</p>
+              <p><strong>Escola:</strong> ${data.escola || '-'}</p>
+              <p><strong>Série/Ano:</strong> ${data.serie_ano || '-'}</p>
+              <p><strong>Nível Escolar:</strong> ${data.nivel_escolar || '-'}</p>
+            </div>
+            <div>
+              <h3 style="margin-bottom: 1rem;">👨‍👩‍👧 Responsáveis</h3>
+              <p><strong>Responsável Principal:</strong> ${data.responsavel_principal || '-'}</p>
+              <p><strong>Mãe:</strong> ${data.nome_mae || '-'}</p>
+              <p><strong>Pai:</strong> ${data.nome_pai || '-'}</p>
+              <p><strong>Telefone:</strong> ${data.telefone || '-'}</p>
+              <p><strong>E-mail:</strong> ${data.email || '-'}</p>
+              <p><strong>Endereço:</strong> ${data.endereco || '-'}</p>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">💬 Entrevista Inicial</h3>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+              <strong>Queixa Inicial:</strong>
+              <p>${data.queixa_inicial || '-'}</p>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+              <strong>Quando começou:</strong>
+              <p>${data.quando_comecou || '-'}</p>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+              <strong>Como se sentem:</strong>
+              <p>${data.como_se_sentem || '-'}</p>
+            </div>
+            ${data.observacoes ? `
+              <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm);">
+                <strong>Observações:</strong>
+                <p>${data.observacoes}</p>
+              </div>
+            ` : ''}
+          </div>
+
+          ${sessoes && sessoes.length > 0 ? `
+            <div style="margin-top: 1.5rem;">
+              <h3 style="margin-bottom: 1rem;">📝 Histórico de Sessões (${sessoes.length})</h3>
+              ${sessoes.slice(0, 5).map(s => `
+                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
+                  <strong>${formatDate(s.data_sessao)}</strong>
+                  <p style="margin-top: 0.5rem;">${s.observacoes?.substring(0, 150)}${s.observacoes?.length > 150 ? '...' : ''}</p>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        `;
+
+        document.getElementById('modalDetalhes').style.display = 'block';
+        showLoading(false);
+
+      } catch (error) {
+        showLoading(false);
+        console.error('Erro ao carregar detalhes:', error);
+        showAlert('Erro ao carregar detalhes do paciente', 'danger');
+      }
+    }
+
+    function fecharModal() {
+      document.getElementById('modalDetalhes').style.display = 'none';
+      pacienteSelecionado = null;
+    }
+
+    function agendarAula() {
+      if (pacienteSelecionado) {
+        window.location.href = `/agenda.html?paciente=${pacienteSelecionado.id}`;
+      }
+    }
+
+    function registrarSessao() {
+      if (pacienteSelecionado) {
+        window.location.href = `/sessao.html?paciente=${pacienteSelecionado.id}`;
+      }
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modalDetalhes').addEventListener('click', (e) => {
+      if (e.target.id === 'modalDetalhes') {
+        fecharModal();
+      }
+    });
+  </script>
+</body>
+</html>
