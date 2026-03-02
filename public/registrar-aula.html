@@ -48,6 +48,16 @@
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
     }
 
+    .agendamento-card.concluida {
+      background: #f0fff4;
+      border-color: #48bb78;
+    }
+
+    .agendamento-card.concluida:hover {
+      border-color: #38a169;
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.15);
+    }
+
     .agendamento-info {
       flex: 1;
     }
@@ -162,6 +172,32 @@
       font-size: 0.875rem;
       font-weight: 600;
     }
+
+    .badge-pendente {
+      background: #ed8936;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .btn-ver {
+      background: #48bb78;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn-ver:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -264,6 +300,7 @@
 
     let agendamentos = [];
     let agendamentoAtual = null;
+    let aulasRealizadas = [];
 
     // Buscar agendamentos do dia
     async function carregarAgendamentos() {
@@ -274,6 +311,7 @@
           return;
         }
 
+        // Buscar agendamentos
         const { data, error } = await supabase
           .from('agendamentos')
           .select(`
@@ -294,6 +332,18 @@
         if (error) throw error;
 
         agendamentos = data || [];
+
+        // Buscar aulas já realizadas hoje
+        const dataSQL = `${ano}-${mes}-${dia}`;
+        const { data: aulas, error: erroAulas } = await supabase
+          .from('aulas')
+          .select('id, paciente_id, agendamento_id')
+          .eq('data', dataSQL)
+          .eq('profissional_id', user.user.id);
+
+        if (!erroAulas) {
+          aulasRealizadas = aulas || [];
+        }
 
         document.getElementById('loadingState').style.display = 'none';
 
@@ -317,28 +367,62 @@
     function renderizarAgendamentos() {
       const container = document.getElementById('agendamentosList');
       
-      container.innerHTML = agendamentos.map(agendamento => {
+      // Separar concluídas e pendentes
+      const pendentes = [];
+      const concluidas = [];
+
+      agendamentos.forEach(agendamento => {
+        const aulaRealizada = aulasRealizadas.find(a => 
+          a.paciente_id === agendamento.pacientes.id || 
+          a.agendamento_id === agendamento.id
+        );
+
+        if (aulaRealizada) {
+          concluidas.push({ ...agendamento, aula_id: aulaRealizada.id });
+        } else {
+          pendentes.push(agendamento);
+        }
+      });
+
+      // Renderizar: pendentes primeiro, depois concluídas
+      const todos = [...pendentes, ...concluidas];
+
+      container.innerHTML = todos.map(agendamento => {
         const dataHora = new Date(agendamento.data_hora);
         const horario = dataHora.toLocaleTimeString('pt-BR', { 
           hour: '2-digit', 
           minute: '2-digit' 
         });
 
+        const concluida = !!agendamento.aula_id;
+
         return `
-          <div class="agendamento-card">
+          <div class="agendamento-card ${concluida ? 'concluida' : ''}">
             <div class="agendamento-info">
-              <div class="aluno-nome">${agendamento.pacientes.nome}</div>
+              <div class="aluno-nome">
+                ${agendamento.pacientes.nome}
+                ${concluida ? '<span class="badge-success" style="margin-left: 0.5rem;">✅ Concluída</span>' : ''}
+              </div>
               <div class="agendamento-hora">
                 🕐 ${horario}
                 ${agendamento.observacoes ? `<span style="color: #718096;">• ${agendamento.observacoes}</span>` : ''}
               </div>
             </div>
-            <button 
-              class="btn-iniciar" 
-              onclick="abrirModalAula('${agendamento.id}')"
-            >
-              📝 Iniciar Aula
-            </button>
+            ${concluida ? `
+              <a 
+                href="historico-aluno.html?id=${agendamento.pacientes.id}" 
+                class="btn-ver"
+              >
+                👁️ Ver Aula
+              </a>
+            ` : `
+              <button 
+                class="btn-iniciar" 
+                onclick="abrirModalAula('${agendamento.id}')"
+              >
+                📝 Iniciar Aula
+              </button>
+            `}
           </div>
         `;
       }).join('');
@@ -415,7 +499,7 @@
         alert('✅ Aula registrada com sucesso!');
         fecharModal();
         
-        // Recarregar lista (opcional: marcar como concluído)
+        // Recarregar lista para atualizar status
         carregarAgendamentos();
 
       } catch (error) {
