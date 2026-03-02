@@ -372,8 +372,8 @@
       const concluidas = [];
 
       agendamentos.forEach(agendamento => {
+        // Verifica se este agendamento ESPECÍFICO foi realizado
         const aulaRealizada = aulasRealizadas.find(a => 
-          a.paciente_id === agendamento.pacientes.id || 
           a.agendamento_id === agendamento.id
         );
 
