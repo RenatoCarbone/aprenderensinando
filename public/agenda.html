@@ -479,8 +479,13 @@
           return;
         }
         
+        // Criar timestamp em horário local (Brasília) ao invés de UTC
+        const dataHoraLocal = new Date(`${data}T${hora}:00`);
+        const offset = dataHoraLocal.getTimezoneOffset() * 60000; // offset em ms
+        const dataHoraCorrigida = new Date(dataHoraLocal.getTime() - offset);
+        
         agendamentos.push({
-          data_hora: `${data}T${hora}:00`,
+          data_hora: dataHoraCorrigida.toISOString(),
           paciente_id: pacienteId,
           duracao: duracao,
           observacoes: observacoes,
