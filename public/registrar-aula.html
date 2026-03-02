@@ -199,8 +199,13 @@
     });
     document.getElementById('dataAula').textContent = dataFormatada;
 
-    // Data em formato SQL
-    const dataSQL = hoje.toISOString().split('T')[0];
+    // Data em formato SQL (corrigido para usar horário local)
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    const dataSQL = `${ano}-${mes}-${dia}`;
+    
+    console.log('Data SQL buscando:', dataSQL); // Debug
 
     let agendamentos = [];
 
