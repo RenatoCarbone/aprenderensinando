@@ -479,11 +479,13 @@
           return;
         }
         
-        // Criar timestamp FORÇANDO timezone de Brasília (-03:00)
-        const dataHoraString = `${data}T${hora}:00-03:00`;
+        // GAMBIARRA RADICAL: Somar 3 horas no horário pra compensar UTC
+        const [h, m] = hora.split(':').map(Number);
+        const dataTemp = new Date(`${data}T${hora}:00`);
+        dataTemp.setHours(dataTemp.getHours() + 3); // Compensar UTC
         
         agendamentos.push({
-          data_hora: dataHoraString,
+          data_hora: dataTemp.toISOString(),
           paciente_id: pacienteId,
           duracao: duracao,
           observacoes: observacoes,
