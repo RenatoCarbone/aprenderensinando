@@ -29,6 +29,15 @@
 
         <button type="submit" class="btn btn-primary btn-block">Entrar</button>
       </form>
+
+      <div class="text-center mt-4" style="padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <p class="text-secondary" style="font-size: 0.875rem;">
+          Primeiro acesso? 
+          <a href="#" id="createAccount" style="color: var(--accent); text-decoration: none;">
+            Criar conta
+          </a>
+        </p>
+      </div>
     </div>
   </div>
 
@@ -59,7 +68,8 @@
 
           if (error) throw error;
 
-          alert('Login bem-sucedido!');
+          // Redirecionar para dashboard
+          window.location.href = '/dashboard.html';
           
         } catch (error) {
           console.error('Erro:', error);
@@ -67,6 +77,59 @@
           errorDiv.classList.remove('hidden');
         }
       });
+
+      // Criar conta
+      const createAccountLink = document.getElementById('createAccount');
+      if (createAccountLink) {
+        createAccountLink.addEventListener('click', async (e) => {
+          e.preventDefault();
+          
+          const email = prompt('Digite seu e-mail:');
+          if (!email) return;
+
+          const password = prompt('Digite uma senha (mínimo 6 caracteres):');
+          if (!password || password.length < 6) {
+            alert('Senha deve ter no mínimo 6 caracteres');
+            return;
+          }
+
+          const nome = prompt('Digite seu nome completo:');
+          if (!nome) return;
+
+          try {
+            // Criar usuário
+            const { data: authData, error: authError } = await sb.auth.signUp({
+              email,
+              password,
+              options: {
+                emailRedirectTo: window.location.origin,
+                data: { nome }
+              }
+            });
+
+            if (authError) throw authError;
+
+            // Criar perfil
+            const { error: profileError } = await sb
+              .from('usuarios')
+              .insert({
+                id: authData.user.id,
+                email: email,
+                nome: nome
+              });
+
+            if (profileError) throw profileError;
+
+            alert('Conta criada com sucesso! Faça login para continuar.');
+            emailInput.value = email;
+            passwordInput.value = '';
+            
+          } catch (error) {
+            console.error('Erro ao criar conta:', error);
+            alert('Erro ao criar conta: ' + error.message);
+          }
+        });
+      }
     })();
   </script>
 </body>
