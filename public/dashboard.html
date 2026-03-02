@@ -62,6 +62,17 @@
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">📅 Próximos Atendimentos</h2>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <button onclick="filtrarAgendamentos('hoje')" id="btnHoje" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+              Hoje
+            </button>
+            <button onclick="filtrarAgendamentos('semana')" id="btnSemana" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+              Semana
+            </button>
+            <button onclick="filtrarAgendamentos('mes')" id="btnMes" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+              Mês
+            </button>
+          </div>
         </div>
         <div class="card-body" id="proximosAtendimentos">
           <div class="loading">
@@ -235,9 +246,42 @@
       }
     }
 
+    let filtroAtual = 'hoje'; // Filtro padrão
+
+    function filtrarAgendamentos(filtro) {
+      filtroAtual = filtro;
+      
+      // Atualizar botões
+      document.getElementById('btnHoje').className = filtro === 'hoje' ? 'btn btn-primary' : 'btn btn-outline';
+      document.getElementById('btnSemana').className = filtro === 'semana' ? 'btn btn-primary' : 'btn btn-outline';
+      document.getElementById('btnMes').className = filtro === 'mes' ? 'btn btn-primary' : 'btn btn-outline';
+      
+      // Recarregar agendamentos
+      carregarProximosAtendimentos();
+    }
+
     async function carregarProximosAtendimentos() {
       try {
-        const agora = new Date().toISOString();
+        const agora = new Date();
+        let dataInicio, dataFim;
+
+        // Definir período baseado no filtro
+        if (filtroAtual === 'hoje') {
+          // Hoje: do início do dia até o fim do dia
+          dataInicio = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).toISOString();
+          dataFim = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString();
+        } else if (filtroAtual === 'semana') {
+          // Semana: de hoje até 7 dias
+          dataInicio = agora.toISOString();
+          const fimSemana = new Date(agora);
+          fimSemana.setDate(fimSemana.getDate() + 7);
+          dataFim = fimSemana.toISOString();
+        } else if (filtroAtual === 'mes') {
+          // Mês: de hoje até o final do mês
+          dataInicio = agora.toISOString();
+          const ultimoDiaMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0, 23, 59, 59);
+          dataFim = ultimoDiaMes.toISOString();
+        }
         
         const { data: agendamentos, error } = await sb
           .from('agendamentos')
@@ -245,16 +289,17 @@
             *,
             pacientes (nome, id_aluno)
           `)
-          .gte('data_hora', agora)
+          .gte('data_hora', dataInicio)
+          .lte('data_hora', dataFim)
           .order('data_hora', { ascending: true })
-          .limit(5);
+          .limit(10);
 
         if (error) throw error;
 
         const container = document.getElementById('proximosAtendimentos');
 
         if (!agendamentos || agendamentos.length === 0) {
-          container.innerHTML = '<p class="text-secondary">Nenhum atendimento agendado</p>';
+          container.innerHTML = '<p class="text-secondary">Nenhum agendamento encontrado</p>';
           return;
         }
 
