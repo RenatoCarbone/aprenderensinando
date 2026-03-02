@@ -66,11 +66,26 @@
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Inicializar Supabase INLINE para evitar problemas de carregamento
-    const supabase = window.supabase.createClient(
-      'https://ukjxekdwumfxilphrrmb.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk'
-    );
+    // Configuração Supabase
+    const SUPABASE_URL = 'https://ukjxekdwumfxilphrrmb.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk';
+    
+    // Inicializar cliente Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Funções auxiliares
+    function showLoading(show) {
+      if (show) {
+        const loader = document.createElement('div');
+        loader.id = 'loader';
+        loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999';
+        loader.innerHTML = '<div style="color:white;font-size:1.5rem">Carregando...</div>';
+        document.body.appendChild(loader);
+      } else {
+        const loader = document.getElementById('loader');
+        if (loader) loader.remove();
+      }
+    }
   </script>
   <script>
     const loginForm = document.getElementById('loginForm');
