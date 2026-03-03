@@ -968,11 +968,7 @@
             .update({ primeira_aula_agendada: true })
             .eq('id', pacienteId);
 
-          const msgSucesso = totalAgendamentos > 1
-            ? `${totalAgendamentos} agendamentos criados com sucesso!`
-            : 'Agendamento criado com sucesso!';
-          
-          alert(msgSucesso);
+          alert('✅ Agendamento criado com sucesso!');
         }
 
         fecharModal();
