@@ -796,7 +796,7 @@
     let documentoParaRenomear = null;
 
     // Abrir modal novo documento
-    function abrirModalNovoDocumento() {
+    window.abrirModalNovoDocumento = function() {
       document.getElementById('modalNovoDocumento').classList.add('show');
       document.getElementById('formDocumento').reset();
       document.getElementById('fileLabel').classList.remove('has-file');
@@ -804,12 +804,12 @@
     }
 
     // Fechar modal documento
-    function fecharModalDocumento() {
+    window.fecharModalDocumento = function() {
       document.getElementById('modalNovoDocumento').classList.remove('show');
     }
 
     // Atualizar nome do arquivo
-    function atualizarNomeArquivoAluno() {
+    window.atualizarNomeArquivoAluno = function() {
       const input = document.getElementById('arquivoDocumento');
       const label = document.getElementById('fileLabel');
       const fileName = document.getElementById('fileName');
@@ -829,7 +829,7 @@
     }
 
     // Salvar documento do aluno
-    async function salvarDocumentoAluno(e) {
+    window.salvarDocumentoAluno = async function(e) {
       e.preventDefault();
       
       const titulo = document.getElementById('tituloDocumento').value;
@@ -963,7 +963,7 @@
     }
 
     // Baixar documento
-    async function baixarDocumentoAluno(caminho, nomeOriginal) {
+    window.baixarDocumentoAluno = async function(caminho, nomeOriginal) {
       try {
         const { data, error } = await sb.storage
           .from('documentos')
@@ -984,20 +984,20 @@
     }
 
     // Abrir modal renomear
-    function abrirModalRenomear(id, tituloAtual) {
+    window.abrirModalRenomear = function(id, tituloAtual) {
       documentoParaRenomear = id;
       document.getElementById('novoTituloDocumento').value = tituloAtual;
       document.getElementById('modalRenomearDocumento').classList.add('show');
     }
 
     // Fechar modal renomear
-    function fecharModalRenomear() {
+    window.fecharModalRenomear = function() {
       document.getElementById('modalRenomearDocumento').classList.remove('show');
       documentoParaRenomear = null;
     }
 
     // Salvar renomeação
-    async function salvarRenomear(e) {
+    window.salvarRenomear = async function(e) {
       e.preventDefault();
       
       const novoTitulo = document.getElementById('novoTituloDocumento').value;
@@ -1020,7 +1020,7 @@
     }
 
     // Excluir documento
-    async function excluirDocumentoAluno(id, caminho) {
+    window.excluirDocumentoAluno = async function(id, caminho) {
       if (!confirm('Excluir este documento?')) return;
 
       try {
@@ -1046,12 +1046,12 @@
     }
 
     // Imprimir histórico
-    function imprimirHistoricoAulas() {
+    window.imprimirHistoricoAulas = function() {
       window.print();
     }
 
     // Baixar todos documentos (ZIP)
-    async function baixarTodosDocumentos() {
+    window.baixarTodosDocumentos = async function() {
       try {
         const { data, error } = await sb
           .from('documentos_alunos')
