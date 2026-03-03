@@ -197,7 +197,7 @@ body:has(.sidebar-collapsed) .page-content {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-sm);
   color: var(--text-secondary);
   text-decoration: none;
   border-radius: var(--radius-md);
