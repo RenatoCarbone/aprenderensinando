@@ -71,10 +71,15 @@ export function renderSidebar(currentPage = '') {
 export function renderHeader(pageTitle, pageIcon = '📄') {
   return `
     <div class="app-header">
-      <h1 class="page-title">
-        <span>${pageIcon}</span>
-        <span>${pageTitle}</span>
-      </h1>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button onclick="toggleSidebar()" class="btn" style="background: var(--primary); color: white; padding: 0.5rem 0.75rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;" title="Recolher/Expandir Menu">
+          <span style="font-size: 1.25rem;">☰</span>
+        </button>
+        <h1 class="page-title" style="margin: 0;">
+          <span>${pageIcon}</span>
+          <span>${pageTitle}</span>
+        </h1>
+      </div>
       <div style="display: flex; align-items: center; gap: 1rem;">
         <div style="text-align: right;">
           <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);" id="userName">Carregando...</div>
@@ -110,3 +115,28 @@ export async function loadUserName() {
     console.error('Erro ao carregar usuário:', error);
   }
 }
+
+// Função para recolher/expandir sidebar
+window.toggleSidebar = function() {
+  const sidebar = document.querySelector('.sidebar');
+  const mainContent = document.querySelector('.main-content');
+  
+  if (!sidebar) return;
+  
+  sidebar.classList.toggle('sidebar-collapsed');
+  
+  // Salvar preferência no localStorage
+  const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed', isCollapsed);
+};
+
+// Aplicar estado do sidebar ao carregar
+window.addEventListener('DOMContentLoaded', () => {
+  const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  if (isCollapsed) {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.add('sidebar-collapsed');
+    }
+  }
+});
