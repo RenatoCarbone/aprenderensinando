@@ -345,17 +345,28 @@
               <button onclick="toggleGestaoAlunos()" class="btn btn-secondary">✕ Fechar</button>
             </div>
 
-            <!-- Filtros -->
-            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-              <select id="filtroStatusAluno" class="form-control" style="max-width: 200px;" onchange="carregarGestaoAlunos()">
+            <!-- Filtros e Busca -->
+            <div style="display: grid; grid-template-columns: 1fr 200px 250px; gap: 1rem; margin-bottom: 1.5rem;">
+              <div style="position: relative;">
+                <input 
+                  type="text" 
+                  id="buscaAluno" 
+                  class="form-control" 
+                  placeholder="🔍 Buscar aluno pelo nome..."
+                  oninput="filtrarAlunosPorNome()"
+                  style="padding-left: 2.5rem;"
+                >
+                <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem;">🔍</span>
+              </div>
+              <select id="filtroStatusAluno" class="form-control" onchange="carregarGestaoAlunos()">
                 <option value="todos">Todos os alunos</option>
                 <option value="ativo">Apenas ativos</option>
                 <option value="concluido">Apenas inativos</option>
               </select>
-              <select id="filtroCobrancaAtiva" class="form-control" style="max-width: 250px;" onchange="carregarGestaoAlunos()">
+              <select id="filtroCobrancaAtiva" class="form-control" onchange="carregarGestaoAlunos()">
                 <option value="todos">Todos</option>
-                <option value="true">Apenas com cobrança ativa</option>
-                <option value="false">Apenas sem cobrança</option>
+                <option value="true">Com cobrança ativa</option>
+                <option value="false">Sem cobrança</option>
               </select>
             </div>
 
@@ -813,6 +824,8 @@
     }
 
     // ===== GESTÃO DE ALUNOS =====
+    let todosAlunosCache = []; // Cache para filtro rápido
+
     function toggleGestaoAlunos() {
       const secao = document.getElementById('secaoGestaoAlunos');
       if (secao.style.display === 'none') {
@@ -823,9 +836,29 @@
       }
     }
 
+    function filtrarAlunosPorNome() {
+      const busca = document.getElementById('buscaAluno').value.toLowerCase().trim();
+      
+      if (!busca) {
+        // Se busca vazia, mostra todos (filtrados pelos selects)
+        renderizarTabelaAlunos(todosAlunosCache);
+        return;
+      }
+
+      // Filtra alunos pelo nome
+      const alunosFiltrados = todosAlunosCache.filter(aluno => 
+        aluno.nome.toLowerCase().includes(busca)
+      );
+
+      renderizarTabelaAlunos(alunosFiltrados);
+    }
+
     async function carregarGestaoAlunos() {
       const container = document.getElementById('tabelaGestaoAlunos');
       container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      // Limpar busca
+      document.getElementById('buscaAluno').value = '';
 
       try {
         const filtroStatus = document.getElementById('filtroStatusAluno').value;
@@ -850,22 +883,36 @@
 
         if (error) throw error;
 
+        // Armazenar no cache
+        todosAlunosCache = alunos || [];
+
         if (!alunos || alunos.length === 0) {
           container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem;">Nenhum aluno encontrado</p>';
           return;
         }
 
+        renderizarTabelaAlunos(alunos);
+
+      } catch (error) {
+        console.error('Erro ao carregar alunos:', error);
+        container.innerHTML = '<p style="text-align: center; color: red; padding: 2rem;">Erro ao carregar dados</p>';
+      }
+    }
+
+    function renderizarTabelaAlunos(alunos) {
+      const container = document.getElementById('tabelaGestaoAlunos');
+
         let html = `
-          <table class="table" style="width: 100%;">
+          <table style="width: 100%; border-collapse: collapse;">
             <thead>
-              <tr>
-                <th style="min-width: 200px;">Nome do Aluno</th>
-                <th style="min-width: 100px;">Status</th>
-                <th style="min-width: 120px;">Cobrança</th>
-                <th style="min-width: 120px;">Valor/Aula</th>
-                <th style="min-width: 120px;">Dia Vencimento</th>
-                <th style="min-width: 150px;">Forma Pagamento</th>
-                <th style="min-width: 100px;">Ações</th>
+              <tr style="background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">
+                <th style="padding: 0.75rem; text-align: left; font-weight: 600; width: 250px;">Nome do Aluno</th>
+                <th style="padding: 0.75rem; text-align: center; font-weight: 600; width: 100px;">Status</th>
+                <th style="padding: 0.75rem; text-align: center; font-weight: 600; width: 120px;">Cobrança</th>
+                <th style="padding: 0.75rem; text-align: center; font-weight: 600; width: 120px;">Valor/Aula</th>
+                <th style="padding: 0.75rem; text-align: center; font-weight: 600; width: 140px;">Dia Vencimento</th>
+                <th style="padding: 0.75rem; text-align: center; font-weight: 600; width: 150px;">Forma Pagamento</th>
+                <th style="padding: 0.75rem; text-align: center; font-weight: 600; width: 100px;">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -885,14 +932,14 @@
           const formaPagamento = aluno.forma_pagamento || '-';
 
           html += `
-            <tr>
-              <td style="min-width: 200px;"><strong>${aluno.nome}</strong></td>
-              <td style="min-width: 100px;">${statusBadge}</td>
-              <td style="min-width: 120px;">${cobrancaBadge}</td>
-              <td style="min-width: 120px;">${valorAula}</td>
-              <td style="min-width: 120px;">${diaVencimento}</td>
-              <td style="min-width: 150px;">${formaPagamento}</td>
-              <td style="min-width: 100px;">
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.75rem; text-align: left; width: 250px;"><strong>${aluno.nome}</strong></td>
+              <td style="padding: 0.75rem; text-align: center; width: 100px;">${statusBadge}</td>
+              <td style="padding: 0.75rem; text-align: center; width: 120px;">${cobrancaBadge}</td>
+              <td style="padding: 0.75rem; text-align: center; width: 120px;"><strong>${valorAula}</strong></td>
+              <td style="padding: 0.75rem; text-align: center; width: 140px;">${diaVencimento}</td>
+              <td style="padding: 0.75rem; text-align: center; width: 150px;">${formaPagamento}</td>
+              <td style="padding: 0.75rem; text-align: center; width: 100px;">
                 <button onclick="window.location.href='/alunos.html'" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">
                   ⚙️ Editar
                 </button>
@@ -903,11 +950,6 @@
 
         html += '</tbody></table>';
         container.innerHTML = html;
-
-      } catch (error) {
-        console.error('Erro ao carregar alunos:', error);
-        container.innerHTML = '<p style="text-align: center; color: red; padding: 2rem;">Erro ao carregar dados</p>';
-      }
     }
 
     async function excluirLancamento(id) {
