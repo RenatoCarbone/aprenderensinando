@@ -11,7 +11,7 @@ export function renderSidebar(currentPage = '') {
       <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-title">Principal</div>
-          <a href="/dashboard.html" class="nav-item ${currentPage === 'dashboard' ? 'active' : ''}">
+          <a href="/dashboard.html" class="nav-item ${currentPage === 'dashboard' ? 'active' : ''}" title="Dashboard">
             <span class="nav-icon">🏠</span>
             <span>Dashboard</span>
           </a>
@@ -19,11 +19,11 @@ export function renderSidebar(currentPage = '') {
 
         <div class="nav-section">
           <div class="nav-section-title">Alunos</div>
-          <a href="/cadastro.html" class="nav-item ${currentPage === 'cadastro' ? 'active' : ''}">
+          <a href="/cadastro.html" class="nav-item ${currentPage === 'cadastro' ? 'active' : ''}" title="Novo Cadastro">
             <span class="nav-icon">➕</span>
             <span>Novo Cadastro</span>
           </a>
-          <a href="/alunos.html" class="nav-item ${currentPage === 'alunos' ? 'active' : ''}">
+          <a href="/alunos.html" class="nav-item ${currentPage === 'alunos' ? 'active' : ''}" title="Ver Alunos">
             <span class="nav-icon">👥</span>
             <span>Ver Alunos</span>
           </a>
@@ -31,19 +31,19 @@ export function renderSidebar(currentPage = '') {
 
         <div class="nav-section">
           <div class="nav-section-title">Aulas</div>
-          <a href="/agenda.html" class="nav-item ${currentPage === 'agenda' ? 'active' : ''}">
+          <a href="/agenda.html" class="nav-item ${currentPage === 'agenda' ? 'active' : ''}" title="Agendar Aula">
             <span class="nav-icon">📅</span>
             <span>Agendar Aula</span>
           </a>
-          <a href="/registrar-aula.html" class="nav-item ${currentPage === 'registrar-aula' ? 'active' : ''}">
-            <span class="nav-icon">📚</span>
+          <a href="/registrar-aula.html" class="nav-item ${currentPage === 'registrar-aula' ? 'active' : ''}" title="Nova Aula">
+            <span class="nav-icon">📄</span>
             <span>Nova Aula</span>
           </a>
         </div>
 
         <div class="nav-section">
           <div class="nav-section-title">Documentos</div>
-          <a href="/biblioteca.html" class="nav-item ${currentPage === 'biblioteca' ? 'active' : ''}">
+          <a href="/biblioteca.html" class="nav-item ${currentPage === 'biblioteca' ? 'active' : ''}" title="Biblioteca">
             <span class="nav-icon">📚</span>
             <span>Biblioteca</span>
           </a>
@@ -51,7 +51,7 @@ export function renderSidebar(currentPage = '') {
 
         <div class="nav-section">
           <div class="nav-section-title">Financeiro</div>
-          <a href="/financeiro.html" class="nav-item ${currentPage === 'financeiro' ? 'active' : ''}">
+          <a href="/financeiro.html" class="nav-item ${currentPage === 'financeiro' ? 'active' : ''}" title="Financeiro - Receitas">
             <span class="nav-icon">💰</span>
             <span>Receitas</span>
           </a>
@@ -59,7 +59,7 @@ export function renderSidebar(currentPage = '') {
       </nav>
 
       <div style="padding: 1rem; border-top: 1px solid var(--border-light);">
-        <button onclick="logout()" class="btn btn-ghost" style="width: 100%;">
+        <button onclick="logout()" class="btn btn-ghost" style="width: 100%;" title="Sair do Sistema">
           <span>🚪</span>
           <span>Sair</span>
         </button>
