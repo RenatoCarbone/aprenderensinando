@@ -958,6 +958,8 @@
         // Pegar duração selecionada
         const duracaoSelecionada = parseInt(document.getElementById('duracaoAgendamento').value);
         
+        console.log('🔴 DURAÇÃO SELECIONADA:', duracaoSelecionada, 'minutos');
+        
         // Criar array com todos os horários ocupados (incluindo duração)
         const horariosOcupados = new Set();
         agendamentos.forEach(ag => {
