@@ -320,13 +320,50 @@
 
       <div class="page-content">
         <!-- Botões Novo Lançamento e Relatórios -->
-        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: var(--spacing-lg);">
-          <button onclick="abrirModalRelatorios()" class="btn btn-secondary">
-            📊 Relatórios
+        <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: var(--spacing-lg);">
+          <button onclick="toggleGestaoAlunos()" class="btn" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white;">
+            👥 Gestão de Alunos
           </button>
-          <button onclick="abrirModalNovo()" class="btn btn-primary">
-            ➕ Novo Lançamento
-          </button>
+          <div style="display: flex; gap: 1rem;">
+            <button onclick="abrirModalRelatorios()" class="btn btn-secondary">
+              📊 Relatórios
+            </button>
+            <button onclick="abrirModalNovo()" class="btn btn-primary">
+              ➕ Novo Lançamento
+            </button>
+          </div>
+        </div>
+
+        <!-- Seção Gestão de Alunos (inicialmente oculta) -->
+        <div id="secaoGestaoAlunos" style="display: none; margin-bottom: var(--spacing-lg);">
+          <div class="card" style="padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+              <h2 style="color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">👥</span>
+                <span>Gestão de Alunos - Configuração de Pagamentos</span>
+              </h2>
+              <button onclick="toggleGestaoAlunos()" class="btn btn-secondary">✕ Fechar</button>
+            </div>
+
+            <!-- Filtros -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+              <select id="filtroStatusAluno" class="form-control" style="max-width: 200px;" onchange="carregarGestaoAlunos()">
+                <option value="todos">Todos os alunos</option>
+                <option value="ativo">Apenas ativos</option>
+                <option value="concluido">Apenas inativos</option>
+              </select>
+              <select id="filtroCobrancaAtiva" class="form-control" style="max-width: 250px;" onchange="carregarGestaoAlunos()">
+                <option value="todos">Todos</option>
+                <option value="true">Apenas com cobrança ativa</option>
+                <option value="false">Apenas sem cobrança</option>
+              </select>
+            </div>
+
+            <!-- Tabela de Alunos -->
+            <div id="tabelaGestaoAlunos" style="overflow-x: auto;">
+              <div class="loading"><div class="spinner"></div></div>
+            </div>
+          </div>
         </div>
 
         <!-- Resumo Financeiro (no topo, largura total) -->
@@ -772,6 +809,104 @@
         toggleDataPrevista();
       } else {
         divRecorrencia.style.display = 'none';
+      }
+    }
+
+    // ===== GESTÃO DE ALUNOS =====
+    function toggleGestaoAlunos() {
+      const secao = document.getElementById('secaoGestaoAlunos');
+      if (secao.style.display === 'none') {
+        secao.style.display = 'block';
+        carregarGestaoAlunos();
+      } else {
+        secao.style.display = 'none';
+      }
+    }
+
+    async function carregarGestaoAlunos() {
+      const container = document.getElementById('tabelaGestaoAlunos');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      try {
+        const filtroStatus = document.getElementById('filtroStatusAluno').value;
+        const filtroCobranca = document.getElementById('filtroCobrancaAtiva').value;
+
+        let query = supabase
+          .from('pacientes')
+          .select('*')
+          .order('nome', { ascending: true });
+
+        if (filtroStatus !== 'todos') {
+          query = query.eq('status', filtroStatus);
+        }
+
+        if (filtroCobranca === 'true') {
+          query = query.eq('cobranca_ativa', true);
+        } else if (filtroCobranca === 'false') {
+          query = query.or('cobranca_ativa.is.null,cobranca_ativa.eq.false');
+        }
+
+        const { data: alunos, error } = await query;
+
+        if (error) throw error;
+
+        if (!alunos || alunos.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem;">Nenhum aluno encontrado</p>';
+          return;
+        }
+
+        let html = `
+          <table class="table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th style="min-width: 200px;">Nome do Aluno</th>
+                <th style="min-width: 100px;">Status</th>
+                <th style="min-width: 120px;">Cobrança</th>
+                <th style="min-width: 120px;">Valor/Aula</th>
+                <th style="min-width: 120px;">Dia Vencimento</th>
+                <th style="min-width: 150px;">Forma Pagamento</th>
+                <th style="min-width: 100px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        alunos.forEach(aluno => {
+          const statusBadge = aluno.status === 'ativo' 
+            ? '<span class="badge badge-success">Ativo</span>'
+            : '<span class="badge badge-secondary">Inativo</span>';
+          
+          const cobrancaBadge = aluno.cobranca_ativa 
+            ? '<span class="badge badge-success">✓ Ativa</span>'
+            : '<span class="badge" style="background: #6B7280;">✕ Inativa</span>';
+
+          const valorAula = aluno.valor_aula ? `R$ ${parseFloat(aluno.valor_aula).toFixed(2)}` : '-';
+          const diaVencimento = aluno.dia_vencimento ? `Dia ${aluno.dia_vencimento}` : '-';
+          const formaPagamento = aluno.forma_pagamento || '-';
+
+          html += `
+            <tr>
+              <td style="min-width: 200px;"><strong>${aluno.nome}</strong></td>
+              <td style="min-width: 100px;">${statusBadge}</td>
+              <td style="min-width: 120px;">${cobrancaBadge}</td>
+              <td style="min-width: 120px;">${valorAula}</td>
+              <td style="min-width: 120px;">${diaVencimento}</td>
+              <td style="min-width: 150px;">${formaPagamento}</td>
+              <td style="min-width: 100px;">
+                <button onclick="window.location.href='/alunos.html'" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">
+                  ⚙️ Editar
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+      } catch (error) {
+        console.error('Erro ao carregar alunos:', error);
+        container.innerHTML = '<p style="text-align: center; color: red; padding: 2rem;">Erro ao carregar dados</p>';
       }
     }
 
