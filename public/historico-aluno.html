@@ -1085,7 +1085,7 @@
       window.print();
     }
 
-    // Baixar todos documentos (ZIP)
+    // Baixar todos documentos (um por vez)
     window.baixarTodosDocumentos = async function() {
       try {
         const { data, error } = await sb
@@ -1100,14 +1100,34 @@
           return;
         }
 
-        alert('📦 Baixando ' + data.length + ' documento(s)...');
-        
-        for (const doc of data) {
-          await baixarDocumentoAluno(doc.caminho_storage, doc.nome_arquivo);
-          await new Promise(resolve => setTimeout(resolve, 500)); // Delay entre downloads
+        if (!confirm(`📦 Deseja baixar ${data.length} documento(s)?\n\nEles serão baixados um por vez (navegadores bloqueiam downloads múltiplos).`)) {
+          return;
+        }
+
+        let sucesso = 0;
+        let falhas = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          const doc = data[i];
+          try {
+            await baixarDocumentoAluno(doc.caminho_storage, doc.nome_arquivo);
+            sucesso++;
+            
+            // Delay entre downloads para evitar bloqueio do navegador
+            if (i < data.length - 1) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          } catch (err) {
+            console.error('Erro ao baixar:', doc.nome_arquivo, err);
+            falhas++;
+          }
         }
         
-        alert('✅ Download concluído!');
+        if (falhas > 0) {
+          alert(`⚠️ Download parcialmente concluído!\n✅ Sucesso: ${sucesso}\n❌ Falhas: ${falhas}`);
+        } else {
+          alert(`✅ ${sucesso} documento(s) baixado(s) com sucesso!`);
+        }
       } catch (error) {
         console.error('Erro:', error);
         alert('❌ Erro ao baixar documentos');
