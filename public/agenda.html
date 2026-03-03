@@ -942,17 +942,41 @@
       if (!data) return;
       
       const selectHorario = inputData.closest('.data-horario-item').querySelector('.select-horario');
-      selectHorario.disabled = false;
+      selectHorario.disabled = true;
+      selectHorario.innerHTML = '<option value="">Carregando...</option>';
       
-      // Gerar opções simples - TODOS os horários
-      const horarios = gerarOpcoesHorario();
-      let html = '<option value="">Selecione o horário</option>';
-      
-      horarios.forEach(horario => {
-        html += `<option value="${horario}" style="color: #F59E0B;">${horario}</option>`;
-      });
-      
-      selectHorario.innerHTML = html;
+      try {
+        // Buscar agendamentos do dia
+        const { data: agendamentos, error } = await sb
+          .from('agendamentos')
+          .select('data_hora')
+          .gte('data_hora', data + 'T00:00:00')
+          .lt('data_hora', data + 'T23:59:59');
+        
+        if (error) throw error;
+        
+        // Extrair apenas os horários (HH:MM)
+        const horariosOcupados = agendamentos.map(a => a.data_hora.substring(11, 16));
+        
+        // Gerar opções
+        const horarios = gerarOpcoesHorario();
+        let html = '<option value="">Selecione o horário</option>';
+        
+        horarios.forEach(horario => {
+          const ocupado = horariosOcupados.includes(horario);
+          const cor = ocupado ? 'color: #EF4444;' : '';
+          const texto = ocupado ? `${horario} ⛔ OCUPADO` : horario;
+          
+          html += `<option value="${horario}" style="${cor}">${texto}</option>`;
+        });
+        
+        selectHorario.innerHTML = html;
+        selectHorario.disabled = false;
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        selectHorario.innerHTML = '<option value="">Erro ao carregar</option>';
+      }
     }
 
     // Submeter formulário
