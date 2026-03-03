@@ -996,14 +996,29 @@
           
           let temConflito = false;
           let temp = minutos;
+          
+          if (horario === '17:30' || horario === '18:00') {
+            console.log(`Verificando ${horario}: início=${minutos}, fim=${fim}, duração=${duracaoSelecionada}`);
+          }
+          
           while (temp < fim) {
             const hh = Math.floor(temp / 60).toString().padStart(2, '0');
             const mm = (temp % 60).toString().padStart(2, '0');
-            if (horariosOcupados.has(`${hh}:${mm}`)) {
+            const horarioCheck = `${hh}:${mm}`;
+            
+            if (horario === '17:30' || horario === '18:00') {
+              console.log(`  Checando se ${horarioCheck} está ocupado:`, horariosOcupados.has(horarioCheck));
+            }
+            
+            if (horariosOcupados.has(horarioCheck)) {
               temConflito = true;
               break;
             }
             temp += 30;
+          }
+          
+          if (horario === '17:30' || horario === '18:00') {
+            console.log(`  Resultado: ${horario} tem conflito? ${temConflito}`);
           }
           
           const cor = temConflito ? 'color: #EF4444; font-weight: 600;' : '';
