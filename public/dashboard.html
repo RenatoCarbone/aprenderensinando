@@ -373,6 +373,75 @@
       background: white;
       color: var(--primary);
     }
+
+    /* Banner de Alertas */
+    .banner-alerta {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+      border-left: 4px solid #F59E0B;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .banner-alerta:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .banner-alerta-conteudo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .banner-alerta-icone {
+      font-size: 1.5rem;
+    }
+
+    .banner-alerta-texto {
+      flex: 1;
+    }
+
+    .banner-alerta-titulo {
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 0.25rem;
+    }
+
+    .banner-alerta-descricao {
+      font-size: 0.875rem;
+      color: #B45309;
+    }
+
+    .banner-alerta-badge {
+      background: #F59E0B;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .banner-fechar {
+      background: transparent;
+      border: none;
+      font-size: 1.25rem;
+      color: #92400E;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+    }
+
+    .banner-fechar:hover {
+      background: rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
@@ -383,6 +452,9 @@
       <div id="header-container"></div>
 
       <div class="page-content">
+        <!-- Banner de Alertas -->
+        <div id="bannerAlertas"></div>
+
         <!-- Estatísticas -->
         <div class="stats-grid">
           <div class="stat-card">
@@ -765,7 +837,52 @@
       return idade;
     }
 
+    // Verificar alunos sem configuração de cobrança
+    async function verificarAlunosSemCobranca() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const { data: alunos, error } = await supabase
+          .from('pacientes')
+          .select('id, nome')
+          .eq('usuario_id', user.id)
+          .eq('cobranca_ativa', false)
+          .or('valor_aula.is.null,dia_vencimento.is.null');
+
+        if (error) throw error;
+
+        if (alunos && alunos.length > 0) {
+          mostrarBannerCobranca(alunos.length);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar cobranças:', error);
+      }
+    }
+
+    // Mostrar banner amarelo
+    function mostrarBannerCobranca(total) {
+      const banner = document.getElementById('bannerAlertas');
+      banner.innerHTML = `
+        <div class="banner-alerta" onclick="window.location.href='/financeiro.html'">
+          <div class="banner-alerta-conteudo">
+            <div class="banner-alerta-icone">⚠️</div>
+            <div class="banner-alerta-texto">
+              <div class="banner-alerta-titulo">Configuração de Cobrança Pendente</div>
+              <div class="banner-alerta-descricao">
+                ${total === 1 
+                  ? 'Você tem 1 aluno sem configuração de cobrança' 
+                  : `Você tem ${total} alunos sem configuração de cobrança`}. 
+                Clique aqui para configurar.
+              </div>
+            </div>
+          </div>
+          <div class="banner-alerta-badge">${total}</div>
+        </div>
+      `;
+    }
+
     carregarDashboard();
+    verificarAlunosSemCobranca();
   </script>
 </body>
 </html>
