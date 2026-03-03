@@ -964,18 +964,25 @@
           const inicio = ag.data_hora.substring(11, 16);
           const duracao = ag.duracao || 60;
           
+          console.log('Agendamento:', inicio, 'Duração:', duracao, 'minutos');
+          
           // Adicionar todos os intervalos de 30min ocupados a partir do início
           const [h, m] = inicio.split(':').map(Number);
           let minutos = h * 60 + m;
           const fim = minutos + duracao;
           
+          console.log('Minutos início:', minutos, 'Minutos fim:', fim);
+          
           // Loop começa no início e vai até o fim
           for (let temp = minutos; temp < fim; temp += 30) {
             const hh = Math.floor(temp / 60).toString().padStart(2, '0');
             const mm = (temp % 60).toString().padStart(2, '0');
+            console.log('Marcando como ocupado:', `${hh}:${mm}`);
             horariosOcupados.add(`${hh}:${mm}`);
           }
         });
+        
+        console.log('Horários ocupados final:', Array.from(horariosOcupados));
         
         // Gerar opções
         const horarios = gerarOpcoesHorario();
