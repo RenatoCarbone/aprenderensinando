@@ -319,8 +319,11 @@
       <div id="header-container"></div>
 
       <div class="page-content">
-        <!-- Botão Novo Lançamento -->
-        <div style="display: flex; justify-content: flex-end; margin-bottom: var(--spacing-lg);">
+        <!-- Botões Novo Lançamento e Relatórios -->
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: var(--spacing-lg);">
+          <button onclick="abrirModalRelatorios()" class="btn btn-secondary">
+            📊 Relatórios
+          </button>
           <button onclick="abrirModalNovo()" class="btn btn-primary">
             ➕ Novo Lançamento
           </button>
@@ -450,10 +453,23 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label for="statusLancamento" class="form-label required">Status</label>
+          <select id="statusLancamento" class="form-control" required onchange="toggleDataPrevista()">
+            <option value="concluido">✅ Concluído (já realizado)</option>
+            <option value="previsto">📅 Futuro (a receber/pagar)</option>
+          </select>
+        </div>
+
         <div class="grid grid-2">
-          <div class="form-group">
+          <div class="form-group" id="divDataLancamento">
             <label for="dataLancamento" class="form-label required">Data</label>
             <input type="date" id="dataLancamento" class="form-control" required>
+          </div>
+
+          <div class="form-group" id="divDataPrevista" style="display: none;">
+            <label for="dataPrevista" class="form-label">Data Prevista</label>
+            <input type="date" id="dataPrevista" class="form-control">
           </div>
 
           <div class="form-group">
@@ -564,6 +580,7 @@
             *,
             pacientes (nome, id_aluno)
           `)
+          .eq('status', 'concluido')
           .order('data', { ascending: false });
 
         if (tipo) query = query.eq('tipo', tipo);
@@ -691,8 +708,30 @@
       
       const hoje = new Date().toISOString().split('T')[0];
       document.getElementById('dataLancamento').value = hoje;
+      document.getElementById('statusLancamento').value = 'concluido';
+      toggleDataPrevista();
 
       document.getElementById('modalLancamento').style.display = 'block';
+    }
+
+    function toggleDataPrevista() {
+      const status = document.getElementById('statusLancamento').value;
+      const divData = document.getElementById('divDataLancamento');
+      const divPrevista = document.getElementById('divDataPrevista');
+      const inputData = document.getElementById('dataLancamento');
+      const inputPrevista = document.getElementById('dataPrevista');
+
+      if (status === 'previsto') {
+        divData.style.display = 'none';
+        divPrevista.style.display = 'block';
+        inputData.required = false;
+        inputPrevista.required = true;
+      } else {
+        divData.style.display = 'block';
+        divPrevista.style.display = 'none';
+        inputData.required = true;
+        inputPrevista.required = false;
+      }
     }
 
     async function excluirLancamento(id) {
@@ -725,19 +764,223 @@
       lancamentoEditando = null;
     }
 
+    // Funções do Modal de Relatórios
+    function abrirModalRelatorios() {
+      document.getElementById('modalRelatorios').style.display = 'block';
+      document.getElementById('conteudoRelatorio').innerHTML = `
+        <p style="text-align: center; color: var(--text-tertiary); padding: 3rem;">
+          Selecione uma opção acima para visualizar o relatório
+        </p>
+      `;
+    }
+
+    function fecharModalRelatorios() {
+      document.getElementById('modalRelatorios').style.display = 'none';
+    }
+
+    async function mostrarFuturos(tipo) {
+      const conteudo = document.getElementById('conteudoRelatorio');
+      conteudo.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      try {
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        const { data, error } = await sb
+          .from('financeiro')
+          .select('*')
+          .eq('tipo', tipo)
+          .eq('status', 'previsto')
+          .gte('data_prevista', hoje)
+          .order('data_prevista', { ascending: true });
+
+        if (error) throw error;
+
+        const titulo = tipo === 'despesa' ? '💸 Lançamentos Futuros - Despesas' : '💵 Lançamentos Futuros - Receitas';
+        const corCard = tipo === 'despesa' ? 'danger' : 'success';
+        
+        let html = `<h3 style="margin-bottom: 1rem;">${titulo}</h3>`;
+        
+        if (!data || data.length === 0) {
+          html += `<p style="text-align: center; color: var(--text-tertiary); padding: 2rem;">Nenhum lançamento futuro encontrado</p>`;
+        } else {
+          const total = data.reduce((sum, item) => sum + parseFloat(item.valor || 0), 0);
+          
+          html += `<div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem;">
+            <strong>Total: R$ ${total.toFixed(2)}</strong>
+          </div>`;
+          
+          html += '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+          
+          data.forEach(item => {
+            const dataFormatada = new Date(item.data_prevista + 'T00:00:00').toLocaleDateString('pt-BR');
+            html += `
+              <div class="stat-card ${corCard}" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 600; font-size: 1rem;">${item.descricao}</div>
+                  <div style="opacity: 0.8; font-size: 0.875rem;">Vencimento: ${dataFormatada}</div>
+                  ${item.categoria ? `<div style="opacity: 0.8; font-size: 0.875rem;">Categoria: ${item.categoria}</div>` : ''}
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <div style="font-size: 1.25rem; font-weight: 700;">R$ ${parseFloat(item.valor).toFixed(2)}</div>
+                  <button onclick="marcarComoConcluido(${item.id}, '${tipo}')" class="btn btn-primary" style="padding: 0.5rem 1rem;">
+                    ✅ Concluir
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+        }
+        
+        conteudo.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Erro ao carregar futuros:', error);
+        conteudo.innerHTML = `<p style="text-align: center; color: red; padding: 2rem;">Erro ao carregar dados</p>`;
+      }
+    }
+
+    async function marcarComoConcluido(id, tipo) {
+      if (!confirm('Marcar este lançamento como concluído? Ele será removido da lista de futuros.')) return;
+      
+      try {
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        const { error } = await sb
+          .from('financeiro')
+          .update({ 
+            status: 'concluido',
+            data: hoje
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+        
+        showAlert('Lançamento marcado como concluído!', 'success');
+        await mostrarFuturos(tipo);
+        await atualizarResumo();
+        await carregarLancamentos();
+        
+      } catch (error) {
+        console.error('Erro ao marcar como concluído:', error);
+        showAlert('Erro ao marcar como concluído', 'danger');
+      }
+    }
+
+    async function mostrarHistorico12Meses() {
+      const conteudo = document.getElementById('conteudoRelatorio');
+      conteudo.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      try {
+        const dataFim = new Date();
+        const dataInicio = new Date();
+        dataInicio.setMonth(dataInicio.getMonth() - 11);
+        
+        const mesInicio = dataInicio.toISOString().slice(0, 7);
+        const mesFim = dataFim.toISOString().slice(0, 7);
+
+        const { data, error } = await sb
+          .from('financeiro')
+          .select('*')
+          .eq('status', 'concluido')
+          .gte('data', mesInicio + '-01')
+          .order('data', { ascending: true });
+
+        if (error) throw error;
+
+        const mesesMap = {};
+        for (let i = 0; i < 12; i++) {
+          const d = new Date(dataInicio);
+          d.setMonth(d.getMonth() + i);
+          const mesAno = d.toISOString().slice(0, 7);
+          mesesMap[mesAno] = { receitas: 0, despesas: 0, saldo: 0 };
+        }
+
+        data.forEach(item => {
+          const mesAno = item.data.slice(0, 7);
+          if (mesesMap[mesAno]) {
+            const valor = parseFloat(item.valor || 0);
+            if (item.tipo === 'receita') {
+              mesesMap[mesAno].receitas += valor;
+            } else {
+              mesesMap[mesAno].despesas += valor;
+            }
+            mesesMap[mesAno].saldo = mesesMap[mesAno].receitas - mesesMap[mesAno].despesas;
+          }
+        });
+
+        let html = '<h3 style="margin-bottom: 1rem;">📈 Histórico dos Últimos 12 Meses</h3>';
+        html += '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+
+        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        
+        Object.keys(mesesMap).forEach(mesAno => {
+          const [ano, mes] = mesAno.split('-');
+          const mesNome = meses[parseInt(mes) - 1];
+          const dados = mesesMap[mesAno];
+          const corSaldo = dados.saldo >= 0 ? 'success' : 'danger';
+          const iconeSaldo = dados.saldo >= 0 ? '✅' : '❌';
+          
+          html += `
+            <div class="stat-card" style="background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; align-items: center;">
+                <div>
+                  <div style="font-weight: 700; font-size: 1.1rem;">${mesNome}/${ano}</div>
+                </div>
+                <div>
+                  <div style="opacity: 0.8; font-size: 0.75rem;">Receitas</div>
+                  <div style="font-weight: 600;">R$ ${dados.receitas.toFixed(2)}</div>
+                </div>
+                <div>
+                  <div style="opacity: 0.8; font-size: 0.75rem;">Despesas</div>
+                  <div style="font-weight: 600;">R$ ${dados.despesas.toFixed(2)}</div>
+                </div>
+                <div>
+                  <div style="opacity: 0.8; font-size: 0.75rem;">Saldo ${iconeSaldo}</div>
+                  <div style="font-weight: 700; font-size: 1.1rem; color: ${dados.saldo >= 0 ? '#10B981' : '#EF4444'};">
+                    R$ ${dados.saldo.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += '</div>';
+        conteudo.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
+        conteudo.innerHTML = `<p style="text-align: center; color: red; padding: 2rem;">Erro ao carregar histórico</p>`;
+      }
+    }
+
     document.getElementById('lancamentoForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const tipo = document.getElementById('tipoLancamento').value;
-      const data = document.getElementById('dataLancamento').value;
+      const status = document.getElementById('statusLancamento').value;
+      const data = status === 'concluido' ? document.getElementById('dataLancamento').value : null;
+      const dataPrevista = status === 'previsto' ? document.getElementById('dataPrevista').value : null;
       const valor = parseFloat(document.getElementById('valorLancamento').value);
       const categoria = document.getElementById('categoriaLancamento').value;
       const descricao = document.getElementById('descricaoLancamento').value.trim();
       const pacienteId = document.getElementById('pacienteLancamento').value || null;
       const observacoes = document.getElementById('observacoesLancamento').value.trim();
 
-      if (!tipo || !data || !valor || !categoria || !descricao) {
+      if (!tipo || !valor || !categoria || !descricao) {
         showAlert('Preencha todos os campos obrigatórios', 'warning');
+        return;
+      }
+
+      if (status === 'concluido' && !data) {
+        showAlert('Informe a data do lançamento', 'warning');
+        return;
+      }
+
+      if (status === 'previsto' && !dataPrevista) {
+        showAlert('Informe a data prevista', 'warning');
         return;
       }
 
@@ -745,6 +988,8 @@
         showLoading(true);
 
         const lancamentoData = {
+          status: status,
+          data_prevista: dataPrevista,
           tipo,
           data,
           valor,
@@ -1212,6 +1457,36 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal Relatórios -->
+  <div id="modalRelatorios" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+    <div style="max-width: 900px; margin: 2rem auto; background: white; border-radius: var(--radius); padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2>📊 Relatórios Financeiros</h2>
+        <button onclick="fecharModalRelatorios()" class="btn btn-secondary">✕</button>
+      </div>
+      
+      <!-- Botões de escolha -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <button onclick="mostrarFuturos('despesa')" class="btn btn-danger" style="padding: 1.5rem;">
+          💸 Lançamentos Futuros<br>Despesas
+        </button>
+        <button onclick="mostrarFuturos('receita')" class="btn btn-success" style="padding: 1.5rem;">
+          💵 Lançamentos Futuros<br>Receitas
+        </button>
+        <button onclick="mostrarHistorico12Meses()" class="btn btn-primary" style="padding: 1.5rem;">
+          📈 Histórico<br>12 Meses
+        </button>
+      </div>
+
+      <!-- Conteúdo dinâmico -->
+      <div id="conteudoRelatorio" style="min-height: 300px;">
+        <p style="text-align: center; color: var(--text-tertiary); padding: 3rem;">
+          Selecione uma opção acima para visualizar o relatório
+        </p>
+      </div>
     </div>
   </div>
 
