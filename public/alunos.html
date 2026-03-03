@@ -164,7 +164,7 @@
             </div>
 
             <div class="student-card-footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-              <button class="btn btn-success btn-pagamento" data-aluno-id="${aluno.id}" data-aluno-nome="${aluno.nome}" data-valor-aula="${aluno.valor_aula || 0}" data-dia-vencimento="${aluno.dia_vencimento || 0}" data-forma-pagamento="${aluno.forma_pagamento || ''}" style="width: 100%;">
+              <button class="btn btn-pagamento" data-aluno-id="${aluno.id}" data-aluno-nome="${aluno.nome}" data-valor-aula="${aluno.valor_aula || 0}" data-dia-vencimento="${aluno.dia_vencimento || 0}" data-forma-pagamento="${aluno.forma_pagamento || ''}" style="width: 100%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none;">
                 💰 Pagamento
               </button>
               <button class="btn btn-primary" style="width: 100%;" onclick="event.stopPropagation(); window.location.href='/editar-paciente.html?id=${aluno.id}'">
