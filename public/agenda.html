@@ -992,6 +992,24 @@
         return;
       }
 
+      // VALIDAR CONFLITOS antes de criar
+      for (const dh of datasHorarios) {
+        const { data: conflitos, error: errorConflito } = await sb
+          .from('agendamentos')
+          .select('*')
+          .eq('data_hora', `${dh.data}T${dh.horario}:00`);
+        
+        if (errorConflito) {
+          alert('Erro ao verificar conflitos');
+          return;
+        }
+        
+        if (conflitos && conflitos.length > 0) {
+          alert(`⚠️ CONFLITO: Já existe um agendamento em ${dh.data} às ${dh.horario}!\n\nPor favor, escolha outro horário.`);
+          return;
+        }
+      }
+
       if (!confirm(`Serão criados ${datasHorarios.length} agendamento(s). Deseja continuar?`)) {
         return;
       }
