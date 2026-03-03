@@ -279,13 +279,19 @@
 
     // ===== MODAL DE PAGAMENTO ===== (global)
     window.abrirModalPagamento = function(alunoId, alunoNome, valorAula, diaVencimento, formaPagamento) {
+      console.log('Função abrirModalPagamento chamada com:', alunoId, alunoNome, valorAula, diaVencimento, formaPagamento);
+      
+      const modal = document.getElementById('modalPagamento');
+      console.log('Modal encontrado:', modal);
+      
       document.getElementById('alunoIdPagamento').value = alunoId;
       document.getElementById('alunoNomePagamento').textContent = alunoNome;
       document.getElementById('valorAulaPagamento').value = valorAula || '';
       document.getElementById('diaVencimentoPagamento').value = diaVencimento || '';
       document.getElementById('formaPagamentoPagamento').value = formaPagamento || '';
       
-      document.getElementById('modalPagamento').style.display = 'block';
+      modal.style.display = 'block';
+      console.log('Modal aberto!');
     }
 
     window.fecharModalPagamento = function() {
