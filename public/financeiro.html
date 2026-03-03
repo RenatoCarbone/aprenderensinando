@@ -771,7 +771,381 @@
       await carregarLancamentos();
       await atualizarResumo();
     });
+
+    // ==========================================
+    // SISTEMA DE COBRANÇA
+    // ==========================================
+
+    // Carregar alunos sem configuração de cobrança
+    async function carregarAlunosSemCobranca() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const { data: alunos, error } = await supabase
+          .from('pacientes')
+          .select('id, nome')
+          .eq('usuario_id', user.id)
+          .or('valor_aula.is.null,dia_vencimento.is.null,cobranca_ativa.eq.false');
+
+        if (error) throw error;
+
+        const container = document.getElementById('alunosSemCobranca');
+
+        if (!alunos || alunos.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary);">✅ Todos os alunos estão com cobrança configurada!</p>';
+          return;
+        }
+
+        container.innerHTML = alunos.map(aluno => `
+          <div class="aluno-cobranca-card">
+            <div class="aluno-cobranca-info">
+              <div class="aluno-cobranca-nome">${aluno.nome}</div>
+              <div class="aluno-cobranca-desc">🔴 Sem configuração de cobrança</div>
+            </div>
+            <button onclick="abrirModalConfigurarCobranca('${aluno.id}', '${aluno.nome}')" class="btn btn-primary">
+              ⚙️ Configurar
+            </button>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Erro ao carregar alunos:', error);
+      }
+    }
+
+    // Abrir modal configurar cobrança
+    window.abrirModalConfigurarCobranca = function(alunoId, alunoNome) {
+      document.getElementById('alunoIdCobranca').value = alunoId;
+      document.getElementById('alunoNomeCobranca').textContent = alunoNome;
+      document.getElementById('formCobranca').reset();
+      document.getElementById('modalConfigurarCobranca').classList.add('show');
+    };
+
+    window.fecharModalCobranca = function() {
+      document.getElementById('modalConfigurarCobranca').classList.remove('show');
+    };
+
+    // Salvar configuração de cobrança
+    window.salvarCobranca = async function(e) {
+      e.preventDefault();
+
+      const alunoId = document.getElementById('alunoIdCobranca').value;
+      const valorAula = parseFloat(document.getElementById('valorAula').value);
+      const diaVencimento = parseInt(document.getElementById('diaVencimento').value);
+      const formaPagamento = document.getElementById('formaPagamento').value;
+
+      try {
+        // Buscar data da primeira aula
+        const { data: primeiraAula } = await supabase
+          .from('aulas')
+          .select('data')
+          .eq('paciente_id', alunoId)
+          .order('data', { ascending: true })
+          .limit(1)
+          .single();
+
+        const dataInicio = primeiraAula?.data || new Date().toISOString().split('T')[0];
+
+        // Atualizar paciente
+        const { error } = await supabase
+          .from('pacientes')
+          .update({
+            valor_aula: valorAula,
+            dia_vencimento: diaVencimento,
+            forma_pagamento: formaPagamento,
+            data_inicio_cobranca: dataInicio,
+            cobranca_ativa: true
+          })
+          .eq('id', alunoId);
+
+        if (error) throw error;
+
+        alert('✅ Configuração de cobrança salva com sucesso!');
+        fecharModalCobranca();
+        carregarAlunosSemCobranca();
+        carregarCobrancasPendentes();
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('❌ Erro ao salvar configuração');
+      }
+    };
+
+    // Carregar cobranças pendentes
+    async function carregarCobrancasPendentes() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Buscar pacientes com cobrança ativa
+        const { data: pacientes, error: errPacientes } = await supabase
+          .from('pacientes')
+          .select('id, nome, valor_aula, dia_vencimento, forma_pagamento, data_inicio_cobranca')
+          .eq('usuario_id', user.id)
+          .eq('cobranca_ativa', true);
+
+        if (errPacientes) throw errPacientes;
+
+        const container = document.getElementById('cobrancasPendentes');
+
+        if (!pacientes || pacientes.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary);">Nenhuma cobrança pendente</p>';
+          return;
+        }
+
+        const hoje = new Date();
+        const mes = hoje.getMonth();
+        const ano = hoje.getFullYear();
+        
+        let cobrancasHTML = [];
+
+        for (const paciente of pacientes) {
+          // Calcular período de cobrança
+          const diaVenc = paciente.dia_vencimento;
+          const dataInicio = new Date(ano, mes - 1, diaVenc);
+          const dataFim = new Date(ano, mes, diaVenc - 1);
+          const dataVencimento = new Date(ano, mes, diaVenc);
+
+          // Contar aulas do período
+          const { data: aulas } = await supabase
+            .from('aulas')
+            .select('id')
+            .eq('paciente_id', paciente.id)
+            .gte('data', dataInicio.toISOString().split('T')[0])
+            .lte('data', dataFim.toISOString().split('T')[0]);
+
+          const totalAulas = aulas?.length || 0;
+          
+          if (totalAulas === 0) continue; // Pular se não teve aulas no período
+
+          const valorTotal = totalAulas * paciente.valor_aula;
+
+          // Verificar se já tem mensalidade criada
+          const { data: mensalidade } = await supabase
+            .from('mensalidades')
+            .select('id, status')
+            .eq('paciente_id', paciente.id)
+            .eq('data_vencimento', dataVencimento.toISOString().split('T')[0])
+            .maybeSingle();
+
+          if (mensalidade && mensalidade.status === 'pago') continue; // Já foi pago
+
+          const diasAteVencimento = Math.ceil((dataVencimento - hoje) / (1000 * 60 * 60 * 24));
+          let statusClass = '';
+          let statusLabel = '🔵 Pendente';
+
+          if (diasAteVencimento < 0) {
+            statusClass = 'atrasado';
+            statusLabel = '🔴 Atrasado';
+          } else if (diasAteVencimento <= 1) {
+            statusClass = 'vence-amanha';
+            statusLabel = '🟡 Vence amanhã!';
+          }
+
+          cobrancasHTML.push(`
+            <div class="cobranca-card ${statusClass}">
+              <div class="cobranca-header">
+                <div class="cobranca-aluno">${paciente.nome}</div>
+                <div class="cobranca-valor">R$ ${valorTotal.toFixed(2)}</div>
+              </div>
+              
+              <div class="cobranca-detalhes">
+                <div class="cobranca-detalhe">
+                  <div class="cobranca-detalhe-label">Período</div>
+                  <div class="cobranca-detalhe-valor">${dataInicio.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})} a ${dataFim.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</div>
+                </div>
+                <div class="cobranca-detalhe">
+                  <div class="cobranca-detalhe-label">Aulas</div>
+                  <div class="cobranca-detalhe-valor">${totalAulas} × R$ ${paciente.valor_aula.toFixed(2)}</div>
+                </div>
+                <div class="cobranca-detalhe">
+                  <div class="cobranca-detalhe-label">Vencimento</div>
+                  <div class="cobranca-detalhe-valor">${dataVencimento.toLocaleDateString('pt-BR')}</div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: 600; color: ${statusClass === 'atrasado' ? '#EF4444' : statusClass === 'vence-amanha' ? '#F59E0B' : '#3B82F6'};">${statusLabel}</div>
+                <button onclick="abrirModalDarBaixa('${paciente.id}', '${paciente.nome}', ${valorTotal}, ${totalAulas}, '${dataInicio.toISOString().split('T')[0]}', '${dataFim.toISOString().split('T')[0]}', '${dataVencimento.toISOString().split('T')[0]}', ${paciente.valor_aula}, '${paciente.forma_pagamento}')" class="btn-dar-baixa">
+                  ✅ Dar Baixa
+                </button>
+              </div>
+            </div>
+          `);
+        }
+
+        if (cobrancasHTML.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary);">✅ Nenhuma cobrança pendente este mês!</p>';
+        } else {
+          container.innerHTML = cobrancasHTML.join('');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar cobranças:', error);
+      }
+    }
+
+    // Abrir modal dar baixa
+    window.abrirModalDarBaixa = function(pacienteId, nome, valorTotal, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento) {
+      window.dadosBaixa = { pacienteId, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento };
+      
+      document.getElementById('alunoNomeBaixa').textContent = nome;
+      document.getElementById('valorBaixa').textContent = `R$ ${valorTotal.toFixed(2)}`;
+      document.getElementById('dataPagamento').value = new Date().toISOString().split('T')[0];
+      document.getElementById('formBaixa').reset();
+      document.getElementById('modalDarBaixa').classList.add('show');
+    };
+
+    window.fecharModalBaixa = function() {
+      document.getElementById('modalDarBaixa').classList.remove('show');
+    };
+
+    // Confirmar baixa
+    window.confirmarBaixa = async function(e) {
+      e.preventDefault();
+
+      const dataPagamento = document.getElementById('dataPagamento').value;
+      const observacoes = document.getElementById('observacoesBaixa').value;
+      const { pacienteId, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento } = window.dadosBaixa;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Criar/atualizar mensalidade
+        const { error } = await supabase
+          .from('mensalidades')
+          .upsert({
+            paciente_id: pacienteId,
+            usuario_id: user.id,
+            data_inicio: dataInicio,
+            data_fim: dataFim,
+            total_aulas: totalAulas,
+            valor_aula: valorAula,
+            valor_total: totalAulas * valorAula,
+            status: 'pago',
+            data_vencimento: dataVencimento,
+            data_pagamento: dataPagamento,
+            forma_pagamento: formaPagamento,
+            observacoes: observacoes
+          }, {
+            onConflict: 'paciente_id,data_vencimento'
+          });
+
+        if (error) throw error;
+
+        alert('✅ Pagamento registrado com sucesso!');
+        fecharModalBaixa();
+        carregarCobrancasPendentes();
+        atualizarResumo();
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('❌ Erro ao registrar pagamento');
+      }
+    };
+
+    // Inicializar
+    carregarAlunosSemCobranca();
+    carregarCobrancasPendentes();
   </script>
+
+  <!-- Modal Configurar Cobrança -->
+  <div id="modalConfigurarCobranca" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">💰 Configurar Cobrança</h2>
+        <button onclick="fecharModalCobranca()" class="modal-close">✕</button>
+      </div>
+
+      <form id="formCobranca" onsubmit="salvarCobranca(event)">
+        <div class="modal-body">
+          <input type="hidden" id="alunoIdCobranca">
+          
+          <div class="form-group">
+            <label class="form-label">Aluno</label>
+            <div id="alunoNomeCobranca" style="font-weight: 600; color: var(--text-primary);"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="valorAula" class="form-label required">Valor por Aula (R$)</label>
+            <input type="number" id="valorAula" class="form-control" step="0.01" min="0" placeholder="80.00" required>
+          </div>
+
+          <div class="form-group">
+            <label for="diaVencimento" class="form-label required">Dia de Vencimento</label>
+            <select id="diaVencimento" class="form-control" required>
+              <option value="">Selecione o dia do mês</option>
+              ${Array.from({length: 28}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}
+            </select>
+            <small style="color: var(--text-tertiary); font-size: 0.75rem;">
+              Cobrança será gerada todo dia escolhido do mês
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="formaPagamento" class="form-label required">Forma de Pagamento</label>
+            <select id="formaPagamento" class="form-control" required>
+              <option value="">Selecione...</option>
+              <option value="PIX">PIX</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Transferência">Transferência</option>
+              <option value="Cartão">Cartão</option>
+              <option value="Boleto">Boleto</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" onclick="fecharModalCobranca()" class="btn-large btn-secondary-large">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-large btn-primary-large">
+            💾 Salvar Configuração
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Dar Baixa -->
+  <div id="modalDarBaixa" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">💵 Registrar Pagamento</h2>
+        <button onclick="fecharModalBaixa()" class="modal-close">✕</button>
+      </div>
+
+      <form id="formBaixa" onsubmit="confirmarBaixa(event)">
+        <div class="modal-body">
+          <input type="hidden" id="mensalidadeId">
+          
+          <div class="form-group">
+            <label class="form-label">Aluno</label>
+            <div id="alunoNomeBaixa" style="font-weight: 600; color: var(--text-primary);"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Valor</label>
+            <div id="valorBaixa" style="font-size: 1.5rem; font-weight: 700; color: #10B981;"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="dataPagamento" class="form-label required">Data do Recebimento</label>
+            <input type="date" id="dataPagamento" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="observacoesBaixa" class="form-label">Observações</label>
+            <textarea id="observacoesBaixa" class="form-control" rows="3" placeholder="Ex: Recebido via PIX"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" onclick="fecharModalBaixa()" class="btn-large btn-secondary-large">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-large btn-primary-large">
+            ✅ Confirmar Recebimento
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script type="module">
     import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
