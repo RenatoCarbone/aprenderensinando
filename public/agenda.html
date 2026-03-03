@@ -339,7 +339,17 @@
       <form id="agendamentoForm">
         <div class="modal-body">
         <div class="form-group">
-          <label for="pacienteSelect" class="form-label required">Paciente</label>
+          <label for="tipoAgendamento" class="form-label required">📋 Tipo de Agendamento</label>
+          <select id="tipoAgendamento" class="form-control" required>
+            <option value="aula">📚 Aula</option>
+            <option value="entrevista">💬 Entrevista com Pais/Responsáveis</option>
+            <option value="avaliacao">📊 Avaliação Inicial</option>
+            <option value="reuniao">👥 Reunião</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pacienteSelect" class="form-label required">👤 Paciente/Aluno</label>
           <select id="pacienteSelect" class="form-control" required>
             <option value="">Carregando...</option>
           </select>
@@ -372,8 +382,8 @@
         </div>
 
         <div class="form-group">
-          <label for="observacoesAgendamento" class="form-label">Observações</label>
-          <textarea id="observacoesAgendamento" class="form-control" rows="3"></textarea>
+          <label for="observacoesAgendamento" class="form-label">📝 Observações</label>
+          <textarea id="observacoesAgendamento" class="form-control" rows="3" placeholder="Ex: Entrevista inicial com a mãe, trazer histórico escolar, etc."></textarea>
         </div>
         </div>
 
