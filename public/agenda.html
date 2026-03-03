@@ -804,25 +804,30 @@
 
     function abrirModalNovoAgendamento(pacienteId = null) {
       agendamentoEditando = null;
-      document.getElementById('modalTitulo').textContent = 'Novo Agendamento';
+      document.getElementById('modalTitulo').querySelector('span:last-child').textContent = 'Novo Agendamento';
       document.getElementById('agendamentoForm').reset();
       
-      // Resetar grade de horários
-      document.getElementById('horariosSection').style.display = 'none';
-      document.getElementById('horarioSelecionado').value = '';
-      
-      // Definir data padrão como hoje
-      const hoje = new Date().toISOString().split('T')[0];
-      document.getElementById('dataAgendamento').value = hoje;
+      // Resetar container de datas/horários para ter apenas 1 linha
+      const container = document.getElementById('datasHorariosContainer');
+      container.innerHTML = `
+        <div class="data-horario-item" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end;">
+          <div>
+            <input type="date" class="form-control input-data" required onchange="verificarHorariosOcupados(this)">
+          </div>
+          <div>
+            <select class="form-control select-horario" required disabled>
+              <option value="">Selecione a data primeiro</option>
+            </select>
+          </div>
+          <div style="width: 40px;"></div>
+        </div>
+      `;
 
       if (pacienteId) {
         document.getElementById('pacienteSelect').value = pacienteId;
       }
 
       document.getElementById('modalAgendamento').style.display = 'block';
-      
-      // Carregar horários do dia de hoje
-      carregarHorariosDisponiveis();
     }
 
     async function editarAgendamento(id) {
