@@ -29,8 +29,18 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--spacing-lg);
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-md);
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+    }
+
+    .form-full {
+      grid-column: 1 / -1;
     }
 
     .form-group {
@@ -95,8 +105,66 @@
       margin-top: var(--spacing-xl);
     }
 
+    /* Botões Grandes e Modernos */
+    .btn-action-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 2px solid var(--border-light);
+    }
+
+    .btn-large {
+      padding: 1.25rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+      border-radius: var(--radius-xl);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+    }
+
+    .btn-large:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    .btn-cancel {
+      background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: linear-gradient(135deg, #4B5563 0%, #374151 100%);
+    }
+
+    .btn-large .emoji {
+      font-size: 1.5rem;
+    }
+
     @media (max-width: 768px) {
-      .form-grid {
+      .form-grid,
+      .form-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-action-group {
         grid-template-columns: 1fr;
       }
     }
@@ -121,53 +189,56 @@
               <span>👶</span>
               <span>Dados da Criança</span>
             </h2>
-            <div class="form-grid">
-            <div class="form-group">
+            
+            <div class="form-group form-full">
               <label for="nome" class="form-label required">Nome Completo</label>
               <input type="text" id="nome" class="form-control" required>
             </div>
 
-            <div class="form-group">
-              <label for="dataNascimento" class="form-label required">Data de Nascimento</label>
-              <input type="date" id="dataNascimento" class="form-control" required>
-              <small class="form-text" id="idadeCalculada"></small>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="dataNascimento" class="form-label required">Data de Nascimento</label>
+                <input type="date" id="dataNascimento" class="form-control" required>
+                <small class="form-text" id="idadeCalculada"></small>
+              </div>
+
+              <div class="form-group">
+                <label for="sexo" class="form-label required">Sexo</label>
+                <select id="sexo" class="form-control" required>
+                  <option value="">Selecione...</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Feminino</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="serieAno" class="form-label">Série/Ano</label>
+                <input type="text" id="serieAno" class="form-control" placeholder="Ex: 3º ano">
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="sexo" class="form-label required">Sexo</label>
-              <select id="sexo" class="form-control" required>
-                <option value="">Selecione...</option>
-                <option value="M">Masculino</option>
-                <option value="F">Feminino</option>
-              </select>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="nivelEscolar" class="form-label">Nível Escolar</label>
+                <select id="nivelEscolar" class="form-control">
+                  <option value="">Selecione...</option>
+                  <option value="Educação Infantil">Educação Infantil</option>
+                  <option value="Fundamental 1">Fundamental 1 (1º ao 5º ano)</option>
+                  <option value="Fundamental 2">Fundamental 2 (6º ao 9º ano)</option>
+                  <option value="Ensino Médio">Ensino Médio</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="escola" class="form-label">Escola</label>
+                <input type="text" id="escola" class="form-control">
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="nivelEscolar" class="form-label">Nível Escolar</label>
-              <select id="nivelEscolar" class="form-control">
-                <option value="">Selecione...</option>
-                <option value="Educação Infantil">Educação Infantil</option>
-                <option value="Fundamental 1">Fundamental 1 (1º ao 5º ano)</option>
-                <option value="Fundamental 2">Fundamental 2 (6º ao 9º ano)</option>
-                <option value="Ensino Médio">Ensino Médio</option>
-              </select>
+            <div class="form-group form-full">
+              <label for="indicacao" class="form-label">Como conheceu? (Indicação)</label>
+              <input type="text" id="indicacao" class="form-control" placeholder="Ex: Indicação da Maria Silva">
             </div>
-
-            <div class="form-group">
-              <label for="serieAno" class="form-label">Série/Ano</label>
-              <input type="text" id="serieAno" class="form-control" placeholder="Ex: 3º ano">
-            </div>
-
-            <div class="form-group">
-              <label for="escola" class="form-label">Escola</label>
-              <input type="text" id="escola" class="form-control">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="indicacao" class="form-label">Como conheceu? (Indicação)</label>
-            <input type="text" id="indicacao" class="form-control" placeholder="Ex: Indicação da Maria Silva">
-          </div>
         </div>
       </div>
 
@@ -177,60 +248,60 @@
               <span>👨‍👩‍👧</span>
               <span>Dados dos Responsáveis</span>
             </h2>
+            
             <div class="form-grid">
-            <div class="form-group">
-              <label for="nomePai" class="form-label">Nome do Pai</label>
-              <input type="text" id="nomePai" class="form-control">
+              <div class="form-group">
+                <label for="nomeMae" class="form-label">Nome da Mãe</label>
+                <input type="text" id="nomeMae" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="nomePai" class="form-label">Nome do Pai</label>
+                <input type="text" id="nomePai" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="nomeAvo" class="form-label">Avô/Avó</label>
+                <input type="text" id="nomeAvo" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="nomeOutroResponsavel" class="form-label">Outro Responsável</label>
+                <input type="text" id="nomeOutroResponsavel" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="responsavelPrincipal" class="form-label required">Responsável Principal</label>
+                <select id="responsavelPrincipal" class="form-control" required>
+                  <option value="">Selecione...</option>
+                  <option value="Mãe">Mãe</option>
+                  <option value="Pai">Pai</option>
+                  <option value="Avô/Avó">Avô/Avó</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" id="email" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="telefone" class="form-label">Telefone Principal</label>
+                <input type="tel" id="telefone" class="form-control" placeholder="(00) 00000-0000">
+              </div>
+
+              <div class="form-group">
+                <label for="telefone2" class="form-label">Telefone Secundário</label>
+                <input type="tel" id="telefone2" class="form-control" placeholder="(00) 00000-0000">
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="nomeMae" class="form-label">Nome da Mãe</label>
-              <input type="text" id="nomeMae" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label for="nomeAvo" class="form-label">Nome do(a) Avô/Avó</label>
-              <input type="text" id="nomeAvo" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label for="nomeOutroResponsavel" class="form-label">Outro Responsável</label>
-              <input type="text" id="nomeOutroResponsavel" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label for="responsavelPrincipal" class="form-label required">Responsável Principal</label>
-              <select id="responsavelPrincipal" class="form-control" required>
-                <option value="">Selecione...</option>
-                <option value="Mãe">Mãe</option>
-                <option value="Pai">Pai</option>
-                <option value="Avô/Avó">Avô/Avó</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="email" class="form-label">E-mail</label>
-              <input type="email" id="email" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label for="telefone" class="form-label">Telefone Principal</label>
-              <input type="tel" id="telefone" class="form-control" placeholder="(00) 00000-0000">
-            </div>
-
-            <div class="form-group">
-              <label for="telefone2" class="form-label">Telefone Secundário</label>
-              <input type="tel" id="telefone2" class="form-control" placeholder="(00) 00000-0000">
-            </div>
-
-            <div class="form-group">
-              <label for="endereco" class="form-label">Endereço</label>
+            <div class="form-group form-full">
+              <label for="endereco" class="form-label">Endereço Completo</label>
               <input type="text" id="endereco" class="form-control">
             </div>
           </div>
-        </div>
-      </div>
 
           <!-- ENTREVISTA INICIAL -->
           <div class="form-section">
@@ -345,10 +416,14 @@
       </div>
 
           <!-- BOTÕES -->
-          <div class="btn-group" style="justify-content: flex-end;">
-            <a href="/dashboard.html" class="btn btn-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-primary">
-              💾 Salvar Cadastro
+          <div class="btn-action-group">
+            <a href="/dashboard.html" class="btn-large btn-cancel">
+              <span class="emoji">❌</span>
+              <span>Cancelar</span>
+            </a>
+            <button type="submit" class="btn-large btn-save">
+              <span class="emoji">💾</span>
+              <span>Salvar Cadastro</span>
             </button>
           </div>
         </form>
