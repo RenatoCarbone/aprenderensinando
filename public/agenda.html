@@ -964,16 +964,16 @@
           const inicio = ag.data_hora.substring(11, 16);
           const duracao = ag.duracao || 60;
           
-          // Adicionar todos os intervalos de 30min ocupados
+          // Adicionar todos os intervalos de 30min ocupados a partir do início
           const [h, m] = inicio.split(':').map(Number);
           let minutos = h * 60 + m;
           const fim = minutos + duracao;
           
-          while (minutos < fim) {
-            const hh = Math.floor(minutos / 60).toString().padStart(2, '0');
-            const mm = (minutos % 60).toString().padStart(2, '0');
+          // Loop começa no início e vai até o fim
+          for (let temp = minutos; temp < fim; temp += 30) {
+            const hh = Math.floor(temp / 60).toString().padStart(2, '0');
+            const mm = (temp % 60).toString().padStart(2, '0');
             horariosOcupados.add(`${hh}:${mm}`);
-            minutos += 30;
           }
         });
         
