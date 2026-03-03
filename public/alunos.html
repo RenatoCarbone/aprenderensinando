@@ -163,14 +163,14 @@
               ` : ''}
             </div>
 
-            <div class="student-card-footer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
-              <button class="btn btn-secondary" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;" onclick="event.stopPropagation(); window.location.href='/historico-aluno.html?id=${aluno.id}'">
+            <div class="student-card-footer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem;">
+              <button class="btn btn-secondary" style="width: 100%; padding: 0.4rem 0.25rem; font-size: 0.75rem; white-space: nowrap;" onclick="event.stopPropagation(); window.location.href='/historico-aluno.html?id=${aluno.id}'">
                 📚 Histórico
               </button>
-              <button class="btn btn-success" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;" onclick="event.stopPropagation(); abrirModalPagamento('${aluno.id}', '${aluno.nome.replace(/'/g, "\\'")}', ${aluno.valor_aula || 0}, ${aluno.dia_vencimento || 0}, '${aluno.forma_pagamento || ''}')">
+              <button class="btn btn-success" style="width: 100%; padding: 0.4rem 0.25rem; font-size: 0.75rem; white-space: nowrap;" onclick="event.stopPropagation(); abrirModalPagamento('${aluno.id}', '${aluno.nome.replace(/'/g, "\\'")}', ${aluno.valor_aula || 0}, ${aluno.dia_vencimento || 0}, '${aluno.forma_pagamento || ''}')">
                 💰 Pagamento
               </button>
-              <button class="btn btn-primary" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;" onclick="event.stopPropagation(); window.location.href='/editar-paciente.html?id=${aluno.id}'">
+              <button class="btn btn-primary" style="width: 100%; padding: 0.4rem 0.25rem; font-size: 0.75rem; white-space: nowrap;" onclick="event.stopPropagation(); window.location.href='/editar-paciente.html?id=${aluno.id}'">
                 ✏️ Editar
               </button>
             </div>
