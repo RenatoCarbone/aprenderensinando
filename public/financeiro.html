@@ -545,7 +545,7 @@
         const mes = document.getElementById('filtroMes').value;
         const categoria = document.getElementById('filtroCategoria').value;
 
-        let query = supabase
+        let query = sb
           .from('financeiro')
           .select(`
             *,
@@ -835,7 +835,7 @@
 
       try {
         // Buscar data da primeira aula
-        const { data: primeiraAula } = await supabase
+        const { data: primeiraAula } = await sb
           .from('aulas')
           .select('data')
           .eq('paciente_id', alunoId)
@@ -846,7 +846,7 @@
         const dataInicio = primeiraAula?.data || new Date().toISOString().split('T')[0];
 
         // Atualizar paciente
-        const { error } = await supabase
+        const { error } = await sb
           .from('pacientes')
           .update({
             valor_aula: valorAula,
@@ -875,7 +875,7 @@
         const { data: { user } } = await sb.auth.getUser();
         
         // Buscar pacientes com cobrança ativa
-        const { data: pacientes, error: errPacientes } = await supabase
+        const { data: pacientes, error: errPacientes } = await sb
           .from('pacientes')
           .select('id, nome, valor_aula, dia_vencimento, forma_pagamento, data_inicio_cobranca')
           .eq('usuario_id', user.id)
@@ -904,7 +904,7 @@
           const dataVencimento = new Date(ano, mes, diaVenc);
 
           // Contar aulas do período
-          const { data: aulas } = await supabase
+          const { data: aulas } = await sb
             .from('aulas')
             .select('id')
             .eq('paciente_id', paciente.id)
@@ -918,7 +918,7 @@
           const valorTotal = totalAulas * paciente.valor_aula;
 
           // Verificar se já tem mensalidade criada
-          const { data: mensalidade } = await supabase
+          const { data: mensalidade } = await sb
             .from('mensalidades')
             .select('id, status')
             .eq('paciente_id', paciente.id)
@@ -1008,7 +1008,7 @@
         const { data: { user } } = await sb.auth.getUser();
         
         // Criar/atualizar mensalidade
-        const { error } = await supabase
+        const { error } = await sb
           .from('mensalidades')
           .upsert({
             paciente_id: pacienteId,
