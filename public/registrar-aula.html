@@ -117,7 +117,7 @@
       margin-bottom: 1rem;
     }
 
-    /* Modal */
+    /* Modal Moderno */
     .modal {
       display: none;
       position: fixed;
@@ -125,32 +125,58 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
       z-index: 1000;
       overflow-y: auto;
+      padding: 2rem;
     }
 
     .modal.show {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
     }
 
     .modal-content {
       background: white;
-      border-radius: 10px;
-      max-width: 800px;
+      border-radius: var(--radius-xl);
+      max-width: 700px;
       width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .modal-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 1.5rem;
-      border-radius: 10px 10px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 2rem;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    .modal-header h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .modal-header p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin: 0;
     }
 
     .modal-body {
@@ -158,10 +184,83 @@
     }
 
     .modal-footer {
-      padding: 1.5rem;
-      border-top: 1px solid #e2e8f0;
+      padding: 1.5rem 2rem;
+      border-top: 2px solid var(--border-light);
       display: flex;
       gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-label.required::after {
+      content: " *";
+      color: #EF4444;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: all var(--transition-fast);
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 190, 205, 0.1);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn-large {
+      padding: 1rem 2rem;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      border-radius: var(--radius-lg);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary-large {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary-large:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary-large {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary-large:hover {
+      background: var(--bg-secondary);
     }
 
     .badge-success {
@@ -271,11 +370,11 @@
         </div>
 
         <div class="modal-footer">
-          <button type="submit" class="btn-primary" style="flex: 1;">
-            💾 Salvar e Finalizar Aula
-          </button>
-          <button type="button" class="btn-secondary" onclick="fecharModal()" style="flex: 1;">
+          <button type="button" class="btn-large btn-secondary-large" onclick="fecharModal()">
             ❌ Cancelar
+          </button>
+          <button type="submit" class="btn-large btn-primary-large" style="flex: 1;">
+            💾 Salvar e Finalizar Aula
           </button>
         </div>
       </form>
