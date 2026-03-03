@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca de Documentos - Aprender Ensinando</title>
+  <link rel="stylesheet" href="/css/modern-layout.css">
+  <style>
+    .documents-grid {
+      display: grid;
+      gap: var(--spacing-md);
+    }
+
+    .document-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .document-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
+    }
+
+    .document-info {
+      flex: 1;
+    }
+
+    .document-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .document-icon {
+      font-size: 1.5rem;
+    }
+
+    .document-meta {
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .document-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      padding: 0.625rem 1rem;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-delete {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .btn-delete:hover {
+      background: #FEF2F2;
+      transform: translateY(-2px);
+    }
+
+    .btn-new {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: var(--radius-lg);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-new:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-tertiary);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-xl);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 2px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      background: var(--bg-tertiary);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--border);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-label.required::after {
+      content: " *";
+      color: #EF4444;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: all var(--transition-fast);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 190, 205, 0.1);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: block;
+    }
+
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 3rem 1rem;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: var(--bg-secondary);
+    }
+
+    .file-input-label:hover {
+      border-color: var(--primary);
+      background: var(--bg-tertiary);
+    }
+
+    .file-input-label.has-file {
+      border-color: var(--primary);
+      background: rgba(79, 190, 205, 0.1);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-name {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+      <div id="header-container"></div>
+
+      <div class="page-content">
+        <!-- Botão Novo Documento -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+          <div></div>
+          <button onclick="abrirModalNovo()" class="btn-new">
+            ➕ Novo Documento
+          </button>
+        </div>
+
+        <!-- Lista de Documentos -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📚 Meus Documentos</h2>
+          </div>
+          <div id="listaDocumentos" style="padding: var(--spacing-lg);">
+            <div style="text-align: center; padding: 2rem; color: var(--text-tertiary);">
+              ⏳ Carregando...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Novo Documento -->
+  <div id="modalNovoDocumento" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">➕ Novo Documento</h2>
+        <button onclick="fecharModal()" class="modal-close">✕</button>
+      </div>
+
+      <form id="formDocumento" onsubmit="salvarDocumento(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="tituloDocumento" class="form-label required">Título do Documento</label>
+            <input 
+              type="text" 
+              id="tituloDocumento" 
+              class="form-control" 
+              placeholder="Ex: Modelo de Laudo, Lição - Alfabeto, etc."
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">Arquivo</label>
+            <div class="file-input-wrapper">
+              <label for="arquivoDocumento" class="file-input-label" id="fileLabel">
+                <span style="font-size: 2rem;">📄</span>
+                <span>Clique para selecionar o arquivo</span>
+              </label>
+              <input 
+                type="file" 
+                id="arquivoDocumento" 
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                onchange="atualizarNomeArquivo()"
+                required
+              >
+              <div id="fileName" class="file-name"></div>
+            </div>
+            <small style="color: var(--text-tertiary); font-size: 0.75rem; display: block; margin-top: 0.5rem;">
+              Formatos aceitos: PDF, Word, Excel, PowerPoint, Imagens (máx. 10MB)
+            </small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" onclick="fecharModal()" class="btn-large btn-secondary-large">
+            ❌ Cancelar
+          </button>
+          <button type="submit" class="btn-large btn-primary-large" style="flex: 1;">
+            💾 Salvar Documento
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('biblioteca');
+    document.getElementById('header-container').innerHTML = renderHeader('Biblioteca de Documentos', '📚');
+    loadUserName();
+  </script>
+
+  <script>
+    // Configuração Supabase
+    const SUPABASE_URL = 'https://vhoqzcegtqejojajttgf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZob3F6Y2VndHFla m9qYWp0dGdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg4NTI4NjEsImV4cCI6MjA1NDQyODg2MX0.hTEoNe1GEkxpDk8jy7p8uNI1r5XvRz8iD9aNw6-PNbc';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+
+    // Verificar autenticação
+    async function verificarAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        window.location.href = '/login.html';
+        return false;
+      }
+      currentUser = session.user;
+      return true;
+    }
+
+    // Abrir modal
+    function abrirModalNovo() {
+      document.getElementById('modalNovoDocumento').classList.add('show');
+      document.getElementById('formDocumento').reset();
+      document.getElementById('fileLabel').classList.remove('has-file');
+      document.getElementById('fileName').textContent = '';
+    }
+
+    // Fechar modal
+    function fecharModal() {
+      document.getElementById('modalNovoDocumento').classList.remove('show');
+    }
+
+    // Atualizar nome do arquivo
+    function atualizarNomeArquivo() {
+      const input = document.getElementById('arquivoDocumento');
+      const label = document.getElementById('fileLabel');
+      const fileName = document.getElementById('fileName');
+      
+      if (input.files.length > 0) {
+        const file = input.files[0];
+        label.classList.add('has-file');
+        fileName.textContent = `📎 ${file.name} (${formatarTamanho(file.size)})`;
+      }
+    }
+
+    // Formatar tamanho do arquivo
+    function formatarTamanho(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // Salvar documento
+    async function salvarDocumento(e) {
+      e.preventDefault();
+      
+      const titulo = document.getElementById('tituloDocumento').value;
+      const fileInput = document.getElementById('arquivoDocumento');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert('Selecione um arquivo');
+        return;
+      }
+
+      // Validar tamanho (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Arquivo muito grande! Máximo: 10MB');
+        return;
+      }
+
+      try {
+        // Upload para Supabase Storage
+        const timestamp = Date.now();
+        const extensao = file.name.split('.').pop();
+        const nomeArquivo = `${timestamp}-${file.name}`;
+        const caminho = `${currentUser.id}/biblioteca/${nomeArquivo}`;
+
+        const { data: uploadData, error: uploadError } = await sb.storage
+          .from('documentos')
+          .upload(caminho, file);
+
+        if (uploadError) throw uploadError;
+
+        // Salvar no banco
+        const { error: dbError } = await sb
+          .from('documentos_biblioteca')
+          .insert({
+            titulo: titulo,
+            nome_arquivo: file.name,
+            caminho_storage: caminho,
+            tipo_arquivo: file.type || extensao,
+            tamanho_bytes: file.size,
+            usuario_id: currentUser.id
+          });
+
+        if (dbError) throw dbError;
+
+        alert('✅ Documento salvo com sucesso!');
+        fecharModal();
+        carregarDocumentos();
+      } catch (error) {
+        console.error('Erro ao salvar documento:', error);
+        alert('❌ Erro ao salvar documento: ' + error.message);
+      }
+    }
+
+    // Carregar documentos
+    async function carregarDocumentos() {
+      try {
+        const { data, error } = await sb
+          .from('documentos_biblioteca')
+          .select('*')
+          .eq('usuario_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        renderizarDocumentos(data || []);
+      } catch (error) {
+        console.error('Erro ao carregar documentos:', error);
+        document.getElementById('listaDocumentos').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">❌</div>
+            <p>Erro ao carregar documentos</p>
+          </div>
+        `;
+      }
+    }
+
+    // Renderizar documentos
+    function renderizarDocumentos(documentos) {
+      const container = document.getElementById('listaDocumentos');
+
+      if (documentos.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <h3>Nenhum documento ainda</h3>
+            <p>Clique em "Novo Documento" para adicionar modelos e templates</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="documents-grid">
+          ${documentos.map(doc => {
+            const icone = getIconeArquivo(doc.tipo_arquivo);
+            const data = new Date(doc.created_at).toLocaleDateString('pt-BR');
+            
+            return `
+              <div class="document-card">
+                <div class="document-info">
+                  <div class="document-title">
+                    <span class="document-icon">${icone}</span>
+                    <span>${doc.titulo}</span>
+                  </div>
+                  <div class="document-meta">
+                    <span>📅 ${data}</span>
+                    <span>📦 ${formatarTamanho(doc.tamanho_bytes)}</span>
+                    <span>📄 ${doc.nome_arquivo}</span>
+                  </div>
+                </div>
+                <div class="document-actions">
+                  <button onclick="baixarDocumento('${doc.id}', '${doc.caminho_storage}', '${doc.nome_arquivo}')" class="btn-icon btn-download">
+                    ⬇️ Baixar
+                  </button>
+                  <button onclick="excluirDocumento('${doc.id}', '${doc.caminho_storage}')" class="btn-icon btn-delete">
+                    🗑️ Excluir
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // Ícone por tipo de arquivo
+    function getIconeArquivo(tipo) {
+      if (tipo.includes('pdf')) return '📕';
+      if (tipo.includes('word') || tipo.includes('document')) return '📘';
+      if (tipo.includes('excel') || tipo.includes('spreadsheet')) return '📗';
+      if (tipo.includes('powerpoint') || tipo.includes('presentation')) return '📙';
+      if (tipo.includes('image')) return '🖼️';
+      return '📄';
+    }
+
+    // Baixar documento
+    async function baixarDocumento(id, caminho, nomeOriginal) {
+      try {
+        const { data, error } = await sb.storage
+          .from('documentos')
+          .download(caminho);
+
+        if (error) throw error;
+
+        const url = URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nomeOriginal;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Erro ao baixar:', error);
+        alert('❌ Erro ao baixar documento');
+      }
+    }
+
+    // Excluir documento
+    async function excluirDocumento(id, caminho) {
+      if (!confirm('Tem certeza que deseja excluir este documento?')) return;
+
+      try {
+        // Deletar do storage
+        const { error: storageError } = await sb.storage
+          .from('documentos')
+          .remove([caminho]);
+
+        if (storageError) throw storageError;
+
+        // Deletar do banco
+        const { error: dbError } = await sb
+          .from('documentos_biblioteca')
+          .delete()
+          .eq('id', id);
+
+        if (dbError) throw dbError;
+
+        alert('✅ Documento excluído!');
+        carregarDocumentos();
+      } catch (error) {
+        console.error('Erro ao excluir:', error);
+        alert('❌ Erro ao excluir documento');
+      }
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modalNovoDocumento').addEventListener('click', (e) => {
+      if (e.target.id === 'modalNovoDocumento') {
+        fecharModal();
+      }
+    });
+
+    // Inicializar
+    (async () => {
+      if (await verificarAuth()) {
+        carregarDocumentos();
+      }
+    })();
+  </script>
+</body>
+</html>

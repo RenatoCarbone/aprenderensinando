@@ -42,6 +42,14 @@ export function renderSidebar(currentPage = '') {
         </div>
 
         <div class="nav-section">
+          <div class="nav-section-title">Documentos</div>
+          <a href="/biblioteca.html" class="nav-item ${currentPage === 'biblioteca' ? 'active' : ''}">
+            <span class="nav-icon">📚</span>
+            <span>Biblioteca</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
           <div class="nav-section-title">Financeiro</div>
           <a href="/financeiro.html" class="nav-item ${currentPage === 'financeiro' ? 'active' : ''}">
             <span class="nav-icon">💰</span>
