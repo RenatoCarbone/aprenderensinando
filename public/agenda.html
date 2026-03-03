@@ -5,6 +5,261 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agenda - Aprender Ensinando</title>
   <link rel="stylesheet" href="/css/modern-layout.css">
+  <style>
+    /* Filtros Modernos */
+    .filters-container {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: var(--spacing-md);
+      align-items: end;
+    }
+
+    /* Cards de Resumo */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+
+    .summary-card.success {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    }
+
+    .summary-card.warning {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    }
+
+    .summary-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+
+    /* Modal Moderno */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .modal-content {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .modal-close {
+      background: var(--bg-tertiary);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: all var(--transition-fast);
+      color: var(--text-secondary);
+    }
+
+    .modal-close:hover {
+      background: var(--border);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Botão Grande Novo Agendamento */
+    .btn-new-appointment {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+      border-radius: var(--radius-xl);
+      border: none;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-base);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-new-appointment:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .btn-new-appointment .emoji {
+      font-size: 1.5rem;
+    }
+
+    /* Lista de Agendamentos */
+    .appointments-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .appointment-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .appointment-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: all var(--transition-fast);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 190, 205, 0.1);
+    }
+
+    .btn-large {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-lg);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary-large {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary-large:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary-large {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary-large:hover {
+      background: var(--bg-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-overlay {
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="app-layout">
@@ -14,83 +269,75 @@
       <div id="header-container"></div>
 
       <div class="page-content">
-        <!-- Cabeçalho com Botão -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
-          <div></div>
-          <button onclick="abrirModalNovoAgendamento()" class="btn btn-primary">
-            ➕ Novo Agendamento
+        <!-- Botão Novo Agendamento -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: var(--spacing-lg);">
+          <button onclick="abrirModalNovoAgendamento()" class="btn-new-appointment">
+            <span class="emoji">➕</span>
+            <span>Novo Agendamento</span>
           </button>
         </div>
 
-        <!-- Filtro de Data -->
-        <div class="card" style="margin-bottom: var(--spacing-lg);">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
-          <div class="form-group">
-            <label for="filtroData" class="form-label">Data</label>
-            <input type="date" id="filtroData" class="form-control">
+        <!-- Cards de Resumo -->
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-number" id="totalHoje">0</div>
+            <div class="summary-label">📅 Hoje</div>
           </div>
-          <div class="form-group">
-            <label for="filtroPaciente" class="form-label">Paciente</label>
-            <input type="text" id="filtroPaciente" class="form-control" placeholder="Buscar paciente...">
+          <div class="summary-card success">
+            <div class="summary-number" id="totalSemana">0</div>
+            <div class="summary-label">📊 Esta Semana</div>
           </div>
-          <div class="form-group">
-            <label class="form-label">&nbsp;</label>
-            <button onclick="carregarAgendamentos()" class="btn btn-secondary btn-block">
+          <div class="summary-card warning">
+            <div class="summary-number" id="totalMes">0</div>
+            <div class="summary-label">📈 Este Mês</div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-container">
+          <div class="filters-grid">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filtroData" class="form-label">📅 Data</label>
+              <input type="date" id="filtroData" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filtroPaciente" class="form-label">👤 Buscar Paciente</label>
+              <input type="text" id="filtroPaciente" class="form-control" placeholder="Digite o nome...">
+            </div>
+            <button onclick="carregarAgendamentos()" class="btn-large btn-primary-large">
               🔍 Filtrar
             </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Calendário Semanal -->
-    <div class="grid grid-2">
-      <!-- Lista de Agendamentos -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📋 Agendamentos</h2>
-        </div>
-        <div class="card-body" id="listaAgendamentos">
-          <div class="loading">
-            <div class="spinner"></div>
+        <!-- Lista de Agendamentos -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📋 Agendamentos</h2>
+          </div>
+          <div id="listaAgendamentos" style="padding: var(--spacing-lg);">
+            <div style="text-align: center; padding: 2rem; color: var(--text-tertiary);">
+              ⏳ Carregando...
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Resumo do Dia -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📊 Resumo</h2>
-        </div>
-        <div class="card-body">
-          <div class="stat-card mb-2">
-            <div class="stat-label">Atendimentos Hoje</div>
-            <div class="stat-value" id="totalHoje">0</div>
-          </div>
-          <div class="stat-card success mb-2">
-            <div class="stat-label">Atendimentos Semana</div>
-            <div class="stat-value" id="totalSemana">0</div>
-          </div>
-          <div class="stat-card warning">
-            <div class="stat-label">Atendimentos Mês</div>
-            <div class="stat-value" id="totalMes">0</div>
-          </div>
-        </div>
-      </div>
-    </div>
       </div>
     </div>
   </div>
 
   <!-- Modal Novo Agendamento -->
-  <div id="modalAgendamento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
-    <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: var(--radius); padding: 2rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 id="modalTitulo">Novo Agendamento</h2>
-        <button onclick="fecharModal()" class="btn btn-secondary">✕</button>
+  <div id="modalAgendamento" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitulo" class="modal-title">
+          <span>📅</span>
+          <span>Novo Agendamento</span>
+        </h2>
+        <button onclick="fecharModal()" class="modal-close">✕</button>
       </div>
       
       <form id="agendamentoForm">
+        <div class="modal-body">
         <div class="form-group">
           <label for="pacienteSelect" class="form-label required">Paciente</label>
           <select id="pacienteSelect" class="form-control" required>
