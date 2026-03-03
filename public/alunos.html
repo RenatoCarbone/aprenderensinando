@@ -163,14 +163,14 @@
               ` : ''}
             </div>
 
-            <div class="student-card-footer">
-              <button class="btn btn-secondary" style="flex: 1;" onclick="event.stopPropagation(); window.location.href='/historico-aluno.html?id=${aluno.id}'">
+            <div class="student-card-footer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+              <button class="btn btn-secondary" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;" onclick="event.stopPropagation(); window.location.href='/historico-aluno.html?id=${aluno.id}'">
                 📚 Histórico
               </button>
-              <button class="btn btn-success" style="flex: 1;" onclick="event.stopPropagation(); abrirModalPagamento('${aluno.id}', '${aluno.nome}', ${aluno.valor_aula || 0}, ${aluno.dia_vencimento || 0}, '${aluno.forma_pagamento || ''}')">
+              <button class="btn btn-success" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;" onclick="event.stopPropagation(); abrirModalPagamento('${aluno.id}', '${aluno.nome.replace(/'/g, "\\'")}', ${aluno.valor_aula || 0}, ${aluno.dia_vencimento || 0}, '${aluno.forma_pagamento || ''}')">
                 💰 Pagamento
               </button>
-              <button class="btn btn-primary" style="flex: 1;" onclick="event.stopPropagation(); window.location.href='/editar-paciente.html?id=${aluno.id}'">
+              <button class="btn btn-primary" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;" onclick="event.stopPropagation(); window.location.href='/editar-paciente.html?id=${aluno.id}'">
                 ✏️ Editar
               </button>
             </div>
@@ -316,7 +316,34 @@
           <label for="diaVencimentoPagamento" class="form-label required">Dia de Vencimento</label>
           <select id="diaVencimentoPagamento" class="form-control" required>
             <option value="">Selecione o dia do mês</option>
-            ${Array.from({length: 28}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
           </select>
           <small style="color: var(--text-tertiary); font-size: 0.75rem;">
             Cobrança será gerada todo dia escolhido do mês
