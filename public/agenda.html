@@ -936,81 +936,23 @@
       btn.closest('.data-horario-item').remove();
     }
 
-    // Verificar horários ocupados quando seleciona uma data
+    // Carregar horários quando seleciona uma data
     async function verificarHorariosOcupados(inputData) {
       const data = inputData.value;
       if (!data) return;
       
       const selectHorario = inputData.closest('.data-horario-item').querySelector('.select-horario');
-      selectHorario.disabled = true;
-      selectHorario.innerHTML = '<option value="">Carregando...</option>';
+      selectHorario.disabled = false;
       
-      try {
-        // Buscar agendamentos do dia
-        const { data: agendamentos, error } = await sb
-          .from('agendamentos')
-          .select('data_hora, duracao')
-          .gte('data_hora', data + 'T00:00:00')
-          .lt('data_hora', data + 'T23:59:59');
-        
-        if (error) throw error;
-        
-        // Pegar duração selecionada
-        const duracaoSelecionada = parseInt(document.getElementById('duracaoAgendamento').value);
-        
-        // Criar array com todos os horários ocupados (incluindo duração)
-        const horariosOcupados = new Set();
-        agendamentos.forEach(ag => {
-          const inicio = ag.data_hora.substring(11, 16);
-          const duracao = ag.duracao || 60;
-          
-          // Adicionar todos os intervalos de 30min ocupados a partir do início
-          const [h, m] = inicio.split(':').map(Number);
-          const minutos = h * 60 + m;
-          const fim = minutos + duracao;
-          
-          // Loop começa no início e vai até o fim
-          for (let temp = minutos; temp < fim; temp += 30) {
-            const hh = Math.floor(temp / 60).toString().padStart(2, '0');
-            const mm = (temp % 60).toString().padStart(2, '0');
-            horariosOcupados.add(`${hh}:${mm}`);
-          }
-        });
-        
-        // Gerar opções
-        const horarios = gerarOpcoesHorario();
-        let html = '<option value="">Selecione o horário</option>';
-        
-        horarios.forEach(horario => {
-          // Verificar se este horário + duração tem conflito
-          const [h, m] = horario.split(':').map(Number);
-          const inicioMinutos = h * 60 + m;
-          const fimMinutos = inicioMinutos + duracaoSelecionada;
-          
-          // Verificar cada slot de 30min que esta aula ocuparia
-          let temConflito = false;
-          for (let min = inicioMinutos; min < fimMinutos; min += 30) {
-            const hh = Math.floor(min / 60).toString().padStart(2, '0');
-            const mm = (min % 60).toString().padStart(2, '0');
-            
-            if (horariosOcupados.has(`${hh}:${mm}`)) {
-              temConflito = true;
-              break;
-            }
-          }
-          
-          const cor = temConflito ? 'color: #EF4444; font-weight: 600;' : '';
-          const texto = temConflito ? `${horario} ⛔ Ocupado` : horario;
-          html += `<option value="${horario}" style="${cor}" ${temConflito ? 'disabled' : ''}>${texto}</option>`;
-        });
-        
-        selectHorario.innerHTML = html;
-        selectHorario.disabled = false;
-        
-      } catch (error) {
-        console.error('Erro:', error);
-        selectHorario.innerHTML = '<option value="">Erro ao carregar</option>';
-      }
+      // Gerar opções simples - TODOS os horários
+      const horarios = gerarOpcoesHorario();
+      let html = '<option value="">Selecione o horário</option>';
+      
+      horarios.forEach(horario => {
+        html += `<option value="${horario}">${horario}</option>`;
+      });
+      
+      selectHorario.innerHTML = html;
     }
 
     // Submeter formulário
@@ -1112,16 +1054,6 @@
       } finally {
         showLoading(false);
       }
-    });
-
-    // Recarregar horários quando mudar a duração
-    document.getElementById('duracaoAgendamento').addEventListener('change', () => {
-      // Recarregar todos os selects de horário que já têm data selecionada
-      document.querySelectorAll('.input-data').forEach(input => {
-        if (input.value) {
-          verificarHorariosOcupados(input);
-        }
-      });
     });
 
     // Mostrar/esconder campo paciente conforme tipo de agendamento
