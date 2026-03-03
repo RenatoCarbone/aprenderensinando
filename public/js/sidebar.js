@@ -60,7 +60,7 @@ export function renderSidebar(currentPage = '') {
 
       <div style="padding: 1rem; border-top: 1px solid var(--border-light);">
         <button onclick="logout()" class="btn btn-ghost" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);" title="Sair do Sistema">
-          <span style="font-size: 1.25rem;">🚪</span>
+          <span style="font-size: 1.5rem;">🚪</span>
           <span>Sair</span>
         </button>
       </div>
