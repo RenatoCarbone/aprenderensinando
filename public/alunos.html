@@ -183,23 +183,31 @@
       
       // Adicionar event listeners nos botões de pagamento e contato
       setTimeout(() => {
-        document.querySelectorAll('.btn-pagamento').forEach(btn => {
+        const btnsPagamento = document.querySelectorAll('.btn-pagamento');
+        const btnsContato = document.querySelectorAll('.btn-contato');
+        
+        console.log('Botões de pagamento encontrados:', btnsPagamento.length);
+        console.log('Botões de contato encontrados:', btnsContato.length);
+        
+        btnsPagamento.forEach(btn => {
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
+            console.log('Botão pagamento clicado!', this.dataset);
             const id = this.dataset.alunoId;
             const nome = this.dataset.alunoNome;
             const valor = this.dataset.valorAula;
             const dia = this.dataset.diaVencimento;
             const forma = this.dataset.formaPagamento;
-            abrirModalPagamento(id, nome, valor, dia, forma);
+            window.abrirModalPagamento(id, nome, valor, dia, forma);
           });
         });
         
-        document.querySelectorAll('.btn-contato').forEach(btn => {
+        btnsContato.forEach(btn => {
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
+            console.log('Botão contato clicado!', this.dataset.telefone);
             const telefone = this.dataset.telefone;
-            abrirWhatsApp(telefone);
+            window.abrirWhatsApp(telefone);
           });
         });
       }, 100);
