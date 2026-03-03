@@ -507,6 +507,32 @@
           <textarea id="observacoesLancamento" class="form-control" rows="2"></textarea>
         </div>
 
+        <!-- Lançamento Recorrente -->
+        <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="lancamentoRecorrente" onchange="toggleRecorrencia()" style="width: 18px; height: 18px;">
+            <span style="font-weight: 600;">🔁 Lançamento Recorrente/Fixo</span>
+          </label>
+          <small style="color: var(--text-tertiary); font-size: 0.75rem; margin-left: 1.5rem;">
+            Para despesas/receitas que se repetem todos os meses (Ex: aluguel, salário)
+          </small>
+        </div>
+
+        <div id="divRecorrencia" style="display: none;">
+          <div class="form-group">
+            <label for="quantidadeMeses" class="form-label required">Quantos meses gerar?</label>
+            <select id="quantidadeMeses" class="form-control">
+              <option value="3">3 meses</option>
+              <option value="6" selected>6 meses</option>
+              <option value="12">12 meses</option>
+              <option value="24">24 meses (2 anos)</option>
+            </select>
+            <small style="color: var(--text-tertiary); font-size: 0.75rem;">
+              Serão criados lançamentos futuros automaticamente
+            </small>
+          </div>
+        </div>
+
         <div class="btn-group" style="justify-content: flex-end;">
           <button type="button" onclick="fecharModal()" class="btn btn-secondary">Cancelar</button>
           <button type="submit" class="btn btn-primary">💾 Salvar</button>
@@ -734,6 +760,21 @@
       }
     }
 
+    function toggleRecorrencia() {
+      const checkbox = document.getElementById('lancamentoRecorrente');
+      const divRecorrencia = document.getElementById('divRecorrencia');
+      const status = document.getElementById('statusLancamento');
+      
+      if (checkbox.checked) {
+        divRecorrencia.style.display = 'block';
+        // Forçar status para "previsto" quando recorrente
+        status.value = 'previsto';
+        toggleDataPrevista();
+      } else {
+        divRecorrencia.style.display = 'none';
+      }
+    }
+
     async function excluirLancamento(id) {
       if (!confirm('Deseja realmente excluir este lançamento?')) return;
 
@@ -915,7 +956,10 @@
 
         const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         
-        Object.keys(mesesMap).forEach(mesAno => {
+        // Inverter ordem: mais recente primeiro
+        const mesesOrdenados = Object.keys(mesesMap).reverse();
+        
+        mesesOrdenados.forEach(mesAno => {
           const [ano, mes] = mesAno.split('-');
           const mesNome = meses[parseInt(mes) - 1];
           const dados = mesesMap[mesAno];
@@ -923,21 +967,21 @@
           const iconeSaldo = dados.saldo >= 0 ? '✅' : '❌';
           
           html += `
-            <div class="stat-card" style="background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);">
+            <div class="stat-card" style="background: white; border: 1px solid var(--border-color);">
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; align-items: center;">
                 <div>
-                  <div style="font-weight: 700; font-size: 1.1rem;">${mesNome}/${ano}</div>
+                  <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">${mesNome}/${ano}</div>
                 </div>
                 <div>
-                  <div style="opacity: 0.8; font-size: 0.75rem;">Receitas</div>
-                  <div style="font-weight: 600;">R$ ${dados.receitas.toFixed(2)}</div>
+                  <div style="opacity: 0.6; font-size: 0.75rem; color: var(--text-secondary);">Receitas</div>
+                  <div style="font-weight: 600; color: #10B981;">R$ ${dados.receitas.toFixed(2)}</div>
                 </div>
                 <div>
-                  <div style="opacity: 0.8; font-size: 0.75rem;">Despesas</div>
-                  <div style="font-weight: 600;">R$ ${dados.despesas.toFixed(2)}</div>
+                  <div style="opacity: 0.6; font-size: 0.75rem; color: var(--text-secondary);">Despesas</div>
+                  <div style="font-weight: 600; color: #EF4444;">R$ ${dados.despesas.toFixed(2)}</div>
                 </div>
                 <div>
-                  <div style="opacity: 0.8; font-size: 0.75rem;">Saldo ${iconeSaldo}</div>
+                  <div style="opacity: 0.6; font-size: 0.75rem; color: var(--text-secondary);">Saldo ${iconeSaldo}</div>
                   <div style="font-weight: 700; font-size: 1.1rem; color: ${dados.saldo >= 0 ? '#10B981' : '#EF4444'};">
                     R$ ${dados.saldo.toFixed(2)}
                   </div>
@@ -968,6 +1012,8 @@
       const descricao = document.getElementById('descricaoLancamento').value.trim();
       const pacienteId = document.getElementById('pacienteLancamento').value || null;
       const observacoes = document.getElementById('observacoesLancamento').value.trim();
+      const recorrente = document.getElementById('lancamentoRecorrente').checked;
+      const quantidadeMeses = recorrente ? parseInt(document.getElementById('quantidadeMeses').value) : 1;
 
       if (!tipo || !valor || !categoria || !descricao) {
         showAlert('Preencha todos os campos obrigatórios', 'warning');
@@ -987,26 +1033,54 @@
       try {
         showLoading(true);
 
-        const lancamentoData = {
-          status: status,
-          data_prevista: dataPrevista,
-          tipo,
-          data,
-          valor,
-          categoria,
-          descricao,
-          paciente_id: pacienteId,
-          observacoes,
-          usuario_id: currentUser.id
-        };
+        // Se for recorrente, criar múltiplos lançamentos
+        if (recorrente) {
+          const lancamentos = [];
+          const dataBase = new Date(dataPrevista + 'T00:00:00');
+          
+          for (let i = 0; i < quantidadeMeses; i++) {
+            const dataAtual = new Date(dataBase);
+            dataAtual.setMonth(dataAtual.getMonth() + i);
+            
+            lancamentos.push({
+              status: 'previsto',
+              data_prevista: dataAtual.toISOString().split('T')[0],
+              tipo,
+              data: null,
+              valor,
+              categoria,
+              descricao: `${descricao} (${i + 1}/${quantidadeMeses})`,
+              paciente_id: pacienteId,
+              observacoes,
+              usuario_id: currentUser.id
+            });
+          }
+          
+          const { error } = await sb.from('financeiro').insert(lancamentos);
+          if (error) throw error;
+          
+          showAlert(`${quantidadeMeses} lançamentos recorrentes criados com sucesso!`, 'success');
+        } else {
+          // Lançamento único
+          const lancamentoData = {
+            status: status,
+            data_prevista: dataPrevista,
+            tipo,
+            data,
+            valor,
+            categoria,
+            descricao,
+            paciente_id: pacienteId,
+            observacoes,
+            usuario_id: currentUser.id
+          };
 
-        const { error } = await sb
-          .from('financeiro')
-          .insert(lancamentoData);
+          const { error } = await sb.from('financeiro').insert(lancamentoData);
+          if (error) throw error;
+          
+          showAlert('Lançamento salvo com sucesso!', 'success');
+        }
 
-        if (error) throw error;
-
-        showAlert('Lançamento salvo com sucesso!', 'success');
         fecharModal();
         await carregarLancamentos();
         await atualizarResumo();
