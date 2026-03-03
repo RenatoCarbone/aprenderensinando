@@ -1007,25 +1007,53 @@
       try {
         const { data: { user } } = await sb.auth.getUser();
         
-        // Criar/atualizar mensalidade
-        const { error } = await sb
+        // Verificar se já existe mensalidade para esse período
+        const { data: mensalidadeExistente } = await sb
           .from('mensalidades')
-          .upsert({
-            paciente_id: pacienteId,
-            usuario_id: user.id,
-            data_inicio: dataInicio,
-            data_fim: dataFim,
-            total_aulas: totalAulas,
-            valor_aula: valorAula,
-            valor_total: totalAulas * valorAula,
-            status: 'pago',
-            data_vencimento: dataVencimento,
-            data_pagamento: dataPagamento,
-            forma_pagamento: formaPagamento,
-            observacoes: observacoes
-          }, {
-            onConflict: 'paciente_id,data_vencimento'
-          });
+          .select('id')
+          .eq('paciente_id', pacienteId)
+          .eq('data_vencimento', dataVencimento)
+          .maybeSingle();
+
+        let error;
+
+        if (mensalidadeExistente) {
+          // Atualizar mensalidade existente
+          const result = await sb
+            .from('mensalidades')
+            .update({
+              total_aulas: totalAulas,
+              valor_aula: valorAula,
+              valor_total: totalAulas * valorAula,
+              status: 'pago',
+              data_pagamento: dataPagamento,
+              forma_pagamento: formaPagamento,
+              observacoes: observacoes
+            })
+            .eq('id', mensalidadeExistente.id);
+          
+          error = result.error;
+        } else {
+          // Criar nova mensalidade
+          const result = await sb
+            .from('mensalidades')
+            .insert({
+              paciente_id: pacienteId,
+              usuario_id: user.id,
+              data_inicio: dataInicio,
+              data_fim: dataFim,
+              total_aulas: totalAulas,
+              valor_aula: valorAula,
+              valor_total: totalAulas * valorAula,
+              status: 'pago',
+              data_vencimento: dataVencimento,
+              data_pagamento: dataPagamento,
+              forma_pagamento: formaPagamento,
+              observacoes: observacoes
+            });
+          
+          error = result.error;
+        }
 
         if (error) throw error;
 
