@@ -119,15 +119,18 @@ body {
 
 .sidebar-collapsed .nav-item {
   justify-content: center;
-  padding: 0.85rem 0.5rem;
+  align-items: center;
+  padding: 0.85rem 0;
   margin: 0 0.5rem 0.5rem 0.5rem;
   min-width: 40px;
 }
 
 .sidebar-collapsed .nav-icon {
   font-size: 1.75rem;
-  margin: 0;
+  margin: 0 auto;
   width: auto;
+  text-align: center;
+  display: block;
 }
 
 .sidebar-collapsed .nav-item:hover {
@@ -177,7 +180,7 @@ body:has(.sidebar-collapsed) .page-content {
 }
 
 .nav-section {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
 }
 
 .nav-section-title {
@@ -186,7 +189,7 @@ body:has(.sidebar-collapsed) .page-content {
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
   padding: 0 var(--spacing-md);
 }
 
@@ -194,14 +197,14 @@ body:has(.sidebar-collapsed) .page-content {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   color: var(--text-secondary);
   text-decoration: none;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   font-size: 0.9375rem;
   font-weight: 500;
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 0.25rem;
 }
 
 .nav-item:hover {
