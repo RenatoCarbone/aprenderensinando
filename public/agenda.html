@@ -992,30 +992,27 @@
         return;
       }
 
-      // VALIDAR CONFLITOS antes de criar
-      for (const dh of datasHorarios) {
-        console.log('Verificando conflito para:', `${dh.data}T${dh.horario}:00`);
-        
-        const { data: conflitos, error: errorConflito } = await sb
-          .from('agendamentos')
-          .select('*')
-          .eq('data_hora', `${dh.data}T${dh.horario}:00`);
-        
-        console.log('Conflitos encontrados:', conflitos);
-        
-        if (errorConflito) {
-          console.error('Erro ao verificar:', errorConflito);
-          alert('Erro ao verificar conflitos');
-          return;
+      // VALIDAR CONFLITOS - SIMPLES E DIRETO
+      try {
+        for (const dh of datasHorarios) {
+          const dataHoraCompleta = `${dh.data}T${dh.horario}:00`;
+          
+          const { count, error } = await sb
+            .from('agendamentos')
+            .select('*', { count: 'exact', head: true })
+            .eq('data_hora', dataHoraCompleta);
+          
+          if (error) throw error;
+          
+          if (count > 0) {
+            alert(`❌ JÁ EXISTE UM AGENDAMENTO!\n\nData: ${dh.data}\nHorário: ${dh.horario}\n\nEscolha outro horário.`);
+            return;
+          }
         }
-        
-        if (conflitos && conflitos.length > 0) {
-          alert(`⚠️ CONFLITO: Já existe um agendamento em ${dh.data} às ${dh.horario}!\n\nPor favor, escolha outro horário.`);
-          return;
-        }
+      } catch (error) {
+        alert('Erro ao verificar conflitos: ' + error.message);
+        return;
       }
-      
-      console.log('Nenhum conflito encontrado. Prosseguindo...');
 
       if (!confirm(`Serão criados ${datasHorarios.length} agendamento(s). Deseja continuar?`)) {
         return;
