@@ -459,15 +459,6 @@
           </select>
         </div>
 
-        <!-- Agendamento Único ou Recorrente -->
-        <div class="form-group">
-          <label class="form-label">🔄 Frequência</label>
-          <select id="frequenciaAgendamento" class="form-control" onchange="toggleRecorrencia()">
-            <option value="unico">📅 Agendamento Único</option>
-            <option value="recorrente">🔁 Agendamento Recorrente (várias datas)</option>
-          </select>
-        </div>
-
         <div class="form-group" id="grupoPaciente">
           <label for="pacienteSelect" class="form-label required">👤 Paciente/Aluno</label>
           <select id="pacienteSelect" class="form-control">
@@ -475,86 +466,26 @@
           </select>
         </div>
 
-        <!-- Campos para Agendamento Recorrente -->
-        <div id="camposRecorrente" style="display: none;">
-          <div class="form-group">
-            <label class="form-label required">📆 Dias da Semana</label>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
-                <input type="checkbox" name="diaSemana" value="1">
-                <span>Segunda</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
-                <input type="checkbox" name="diaSemana" value="2">
-                <span>Terça</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
-                <input type="checkbox" name="diaSemana" value="3">
-                <span>Quarta</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
-                <input type="checkbox" name="diaSemana" value="4">
-                <span>Quinta</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
-                <input type="checkbox" name="diaSemana" value="5">
-                <span>Sexta</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
-                <input type="checkbox" name="diaSemana" value="6">
-                <span>Sábado</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="grid grid-2">
-            <div class="form-group">
-              <label for="dataInicio" class="form-label required">📅 Data Início</label>
-              <input type="date" id="dataInicio" class="form-control">
-            </div>
-            <div class="form-group">
-              <label for="dataFim" class="form-label required">📅 Data Fim</label>
-              <input type="date" id="dataFim" class="form-control">
-            </div>
-          </div>
-
-          <div class="grid grid-2">
-            <div class="form-group">
-              <label for="horarioInicioRec" class="form-label required">🕐 Horário Início</label>
-              <input type="time" id="horarioInicioRec" class="form-control">
-            </div>
-            <div class="form-group">
-              <label for="horarioFimRec" class="form-label required">🕐 Horário Fim</label>
-              <input type="time" id="horarioFimRec" class="form-control">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group" id="campoUnico">
-          <label class="form-label">📅 Data do Agendamento</label>
-          <input type="date" id="dataAgendamento" class="form-control" onchange="carregarHorariosDisponiveis()" required>
-          
-          <!-- Grade de Horários -->
-          <div id="horariosSection" class="horarios-section" style="display: none;">
-            <div class="horarios-header">
-              🕐 Selecione um horário disponível:
-            </div>
-            <div id="horariosGrid" class="horarios-grid">
-              <!-- Será preenchido via JavaScript -->
-            </div>
-            <div class="legenda-horarios">
-              <div class="legenda-item">
-                <div class="legenda-cor livre"></div>
-                <span>Livre</span>
+        <!-- Múltiplas Datas e Horários -->
+        <div class="form-group">
+          <label class="form-label">📅 Data(s) e Horário(s)</label>
+          <div id="datasHorariosContainer">
+            <!-- Primeira data/horário -->
+            <div class="data-horario-item" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end;">
+              <div>
+                <input type="date" class="form-control input-data" required onchange="verificarHorariosOcupados(this)">
               </div>
-              <div class="legenda-item">
-                <div class="legenda-cor ocupado"></div>
-                <span>Ocupado</span>
+              <div>
+                <select class="form-control select-horario" required disabled>
+                  <option value="">Selecione a data primeiro</option>
+                </select>
               </div>
+              <div style="width: 40px;"></div>
             </div>
           </div>
-
-          <input type="hidden" id="horarioSelecionado">
+          <button type="button" onclick="adicionarDataHorario()" class="btn btn-secondary" style="margin-top: 0.5rem;">
+            ➕ Adicionar mais data
+          </button>
         </div>
 
         <div class="form-group">
@@ -955,40 +886,91 @@
       agendamentoEditando = null;
     }
 
-    // Toggle entre agendamento único e recorrente
-    function toggleRecorrencia() {
-      const frequencia = document.getElementById('frequenciaAgendamento').value;
-      const camposRecorrente = document.getElementById('camposRecorrente');
-      const campoUnico = document.getElementById('campoUnico');
-
-      if (frequencia === 'recorrente') {
-        camposRecorrente.style.display = 'block';
-        campoUnico.style.display = 'none';
-        document.getElementById('dataAgendamento').required = false;
-      } else {
-        camposRecorrente.style.display = 'none';
-        campoUnico.style.display = 'block';
-        document.getElementById('dataAgendamento').required = true;
-      }
-    }
-
-    // Gerar datas recorrentes baseado nos dias da semana selecionados
-    function gerarDatasRecorrentes(dataInicio, dataFim, diasSemana) {
-      const datas = [];
-      const inicio = new Date(dataInicio + 'T00:00:00');
-      const fim = new Date(dataFim + 'T00:00:00');
-      
-      // Iterar por cada dia no período
-      for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
-        const diaSemana = d.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
-        
-        // Verificar se o dia da semana está selecionado
-        if (diasSemana.includes(diaSemana)) {
-          datas.push(new Date(d).toISOString().split('T')[0]);
+    // Gerar horários de meia em meia hora (07:00 até 20:00)
+    function gerarOpcoesHorario() {
+      const opcoes = [];
+      for (let h = 7; h <= 20; h++) {
+        for (let m = 0; m < 60; m += 30) {
+          const hora = h.toString().padStart(2, '0');
+          const min = m.toString().padStart(2, '0');
+          opcoes.push(`${hora}:${min}`);
         }
       }
+      return opcoes;
+    }
+
+    // Adicionar novo campo de data/horário
+    function adicionarDataHorario() {
+      const container = document.getElementById('datasHorariosContainer');
+      const index = container.children.length;
       
-      return datas;
+      const novoItem = document.createElement('div');
+      novoItem.className = 'data-horario-item';
+      novoItem.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end;';
+      novoItem.innerHTML = `
+        <div>
+          <input type="date" class="form-control input-data" required onchange="verificarHorariosOcupados(this)">
+        </div>
+        <div>
+          <select class="form-control select-horario" required disabled>
+            <option value="">Selecione a data primeiro</option>
+          </select>
+        </div>
+        <div>
+          <button type="button" onclick="removerDataHorario(this)" class="btn" style="background: #EF4444; color: white; padding: 0.5rem;">
+            🗑️
+          </button>
+        </div>
+      `;
+      
+      container.appendChild(novoItem);
+    }
+
+    // Remover campo de data/horário
+    function removerDataHorario(btn) {
+      btn.closest('.data-horario-item').remove();
+    }
+
+    // Verificar horários ocupados quando seleciona uma data
+    async function verificarHorariosOcupados(inputData) {
+      const data = inputData.value;
+      if (!data) return;
+      
+      const selectHorario = inputData.closest('.data-horario-item').querySelector('.select-horario');
+      selectHorario.disabled = true;
+      selectHorario.innerHTML = '<option value="">Carregando...</option>';
+      
+      try {
+        // Buscar agendamentos do dia
+        const { data: agendamentos, error } = await sb
+          .from('agendamentos')
+          .select('data_hora')
+          .gte('data_hora', data + 'T00:00:00')
+          .lt('data_hora', data + 'T23:59:59');
+        
+        if (error) throw error;
+        
+        // Extrair horários ocupados
+        const horariosOcupados = agendamentos.map(a => a.data_hora.substring(11, 16));
+        
+        // Gerar opções
+        const horarios = gerarOpcoesHorario();
+        let html = '<option value="">Selecione o horário</option>';
+        
+        horarios.forEach(horario => {
+          const ocupado = horariosOcupados.includes(horario);
+          const cor = ocupado ? 'color: #EF4444; font-weight: 600;' : '';
+          const texto = ocupado ? `${horario} ⛔ Ocupado` : horario;
+          html += `<option value="${horario}" style="${cor}" ${ocupado ? 'disabled' : ''}>${texto}</option>`;
+        });
+        
+        selectHorario.innerHTML = html;
+        selectHorario.disabled = false;
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        selectHorario.innerHTML = '<option value="">Erro ao carregar</option>';
+      }
     }
 
     // Submeter formulário
@@ -999,7 +981,6 @@
       const duracao = parseInt(document.getElementById('duracaoAgendamento').value);
       const observacoes = document.getElementById('observacoesAgendamento').value.trim();
       const tipoAgendamento = document.getElementById('tipoAgendamento').value;
-      const frequencia = document.getElementById('frequenciaAgendamento').value;
 
       // Validar paciente (obrigatório para Aula e Reunião)
       if (!pacienteId && tipoAgendamento !== 'avaliacao') {
@@ -1013,111 +994,46 @@
         return;
       }
 
-      // AGENDAMENTO RECORRENTE
-      if (frequencia === 'recorrente') {
-        const dataInicio = document.getElementById('dataInicio').value;
-        const dataFim = document.getElementById('dataFim').value;
-        const horarioInicio = document.getElementById('horarioInicioRec').value;
-        const horarioFim = document.getElementById('horarioFimRec').value;
+      // Coletar todas as datas e horários
+      const datasHorarios = [];
+      document.querySelectorAll('.data-horario-item').forEach(item => {
+        const data = item.querySelector('.input-data').value;
+        const horario = item.querySelector('.select-horario').value;
         
-        // Validações
-        if (!dataInicio || !dataFim) {
-          alert('Preencha as datas de início e fim');
-          return;
+        if (data && horario) {
+          datasHorarios.push({ data, horario });
         }
-        
-        if (!horarioInicio || !horarioFim) {
-          alert('Preencha os horários de início e fim');
-          return;
-        }
-        
-        // Pegar dias da semana selecionados
-        const diasSelecionados = Array.from(document.querySelectorAll('input[name="diaSemana"]:checked'))
-          .map(cb => parseInt(cb.value));
-        
-        if (diasSelecionados.length === 0) {
-          alert('Selecione pelo menos um dia da semana');
-          return;
-        }
-        
-        // Gerar datas
-        const datas = gerarDatasRecorrentes(dataInicio, dataFim, diasSelecionados);
-        
-        if (datas.length === 0) {
-          alert('Nenhuma data encontrada com os critérios selecionados');
-          return;
-        }
-        
-        if (!confirm(`Serão criados ${datas.length} agendamentos. Deseja continuar?`)) {
-          return;
-        }
-        
-        // Criar múltiplos agendamentos
-        try {
-          showLoading(true);
-          
-          const agendamentos = datas.map(data => ({
-            data_hora: `${data}T${horarioInicio}:00`,
-            paciente_id: pacienteId || null,
-            duracao: duracao,
-            observacoes: observacoes,
-            tipo: tipoAgendamento,
-            usuario_id: currentUser.id
-          }));
-          
-          const { error } = await sb.from('agendamentos').insert(agendamentos);
-          
-          if (error) throw error;
-          
-          alert(`${datas.length} agendamentos criados com sucesso!`);
-          fecharModal();
-          await carregarAgendamentos();
-          
-        } catch (error) {
-          console.error('Erro:', error);
-          alert('Erro ao criar agendamentos: ' + error.message);
-        } finally {
-          showLoading(false);
-        }
-        
+      });
+
+      if (datasHorarios.length === 0) {
+        alert('Preencha pelo menos uma data e horário');
         return;
       }
 
-      // AGENDAMENTO ÚNICO (código original)
-      const data = document.getElementById('dataAgendamento').value;
-      const hora = document.getElementById('horarioSelecionado').value;
-
-      if (!data) {
-        alert('Selecione a data do agendamento');
+      if (!confirm(`Serão criados ${datasHorarios.length} agendamento(s). Deseja continuar?`)) {
         return;
       }
-
-      if (!hora) {
-        alert('Selecione um horário disponível na grade');
-        return;
-      }
-
-      const agendamento = {
-        data_hora: `${data}T${hora}:00`,
-        paciente_id: pacienteId || null,
-        duracao: duracao,
-        observacoes: observacoes,
-        tipo: tipoAgendamento,
-        usuario_id: currentUser.id
-      };
-
-      if (!confirm('Deseja criar este agendamento?')) return;
 
       try {
         showLoading(true);
 
+        // Criar múltiplos agendamentos
+        const agendamentos = datasHorarios.map(dh => ({
+          data_hora: `${dh.data}T${dh.horario}:00`,
+          paciente_id: pacienteId || null,
+          duracao: duracao,
+          observacoes: observacoes,
+          tipo: tipoAgendamento,
+          usuario_id: currentUser.id
+        }));
+
         if (agendamentoEditando) {
-          // Atualizar
+          // Atualizar (apenas primeiro agendamento se estiver editando)
           const { error } = await sb
             .from('agendamentos')
             .update({
               paciente_id: pacienteId || null,
-              data_hora: agendamento.data_hora,
+              data_hora: agendamentos[0].data_hora,
               duracao: duracao,
               observacoes: observacoes,
               tipo: tipoAgendamento
@@ -1129,20 +1045,22 @@
           alert('✅ Agendamento atualizado com sucesso!');
 
         } else {
-          // Criar agendamento
+          // Criar múltiplos agendamentos
           const { error } = await sb
             .from('agendamentos')
-            .insert([agendamento]);
+            .insert(agendamentos);
 
           if (error) throw error;
 
           // Marcar primeira aula como agendada
-          await sb
-            .from('pacientes')
-            .update({ primeira_aula_agendada: true })
-            .eq('id', pacienteId);
+          if (pacienteId) {
+            await sb
+              .from('pacientes')
+              .update({ primeira_aula_agendada: true })
+              .eq('id', pacienteId);
+          }
 
-          alert('✅ Agendamento criado com sucesso!');
+          alert(`✅ ${agendamentos.length} agendamento(s) criado(s) com sucesso!`);
         }
 
         fecharModal();
