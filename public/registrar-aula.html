@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="/css/modern-layout.css">
   <style>
     .aula-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
       padding: 2rem;
-      border-radius: 10px;
+      border-radius: var(--radius-xl);
       margin-bottom: 2rem;
+      box-shadow: var(--shadow-lg);
     }
 
     .data-aula {
@@ -34,28 +35,30 @@
 
     .agendamento-card {
       background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
       padding: 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.3s;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
     }
 
     .agendamento-card:hover {
-      border-color: #667eea;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
     }
 
     .agendamento-card.concluida {
-      background: #f0fff4;
-      border-color: #48bb78;
+      background: #F0FDF4;
+      border-color: #10B981;
     }
 
     .agendamento-card.concluida:hover {
-      border-color: #38a169;
-      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.15);
+      border-color: #059669;
+      box-shadow: var(--shadow-md);
     }
 
     .agendamento-info {
@@ -78,24 +81,25 @@
     }
 
     .btn-iniciar {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      border-radius: var(--radius-lg);
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn-iniciar:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: var(--shadow-lg);
     }
 
     .btn-iniciar:disabled {
-      background: #cbd5e0;
+      background: var(--border);
       cursor: not-allowed;
       transform: none;
     }
@@ -282,20 +286,25 @@
     }
 
     .btn-ver {
-      background: #48bb78;
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      border-radius: var(--radius-lg);
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-ver:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+      box-shadow: var(--shadow-lg);
     }
   </style>
 </head>
@@ -331,8 +340,8 @@
           <!-- Será preenchido dinamicamente -->
         </div>
 
-        <div style="margin-top: 2rem;">
-          <a href="dashboard.html" class="btn-secondary">
+        <div style="margin-top: 2rem; text-align: center;">
+          <a href="/dashboard.html" class="btn-large btn-secondary-large" style="display: inline-flex; text-decoration: none;">
             ← Voltar ao Dashboard
           </a>
         </div>
