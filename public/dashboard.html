@@ -117,6 +117,262 @@
       font-size: 0.875rem;
       color: var(--text-secondary);
     }
+
+    /* Calendário/Agenda */
+    .agenda-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    .agenda-tab {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all var(--transition-fast);
+      font-size: 0.9375rem;
+    }
+
+    .agenda-tab:hover {
+      color: var(--primary);
+      background: var(--bg-secondary);
+    }
+
+    .agenda-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .agenda-view {
+      display: none;
+    }
+
+    .agenda-view.active {
+      display: block;
+    }
+
+    /* Vista DIA */
+    .dia-header {
+      text-align: center;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      margin-bottom: 1rem;
+    }
+
+    .aula-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-left: 4px solid var(--primary);
+      background: white;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.75rem;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .aula-item:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .aula-item.avaliacao {
+      border-left-color: #F59E0B;
+    }
+
+    .aula-item.reuniao {
+      border-left-color: #8B5CF6;
+    }
+
+    .aula-horario {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      min-width: 60px;
+    }
+
+    .aula-info {
+      flex: 1;
+    }
+
+    .aula-nome {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .aula-tipo {
+      font-size: 0.8125rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Vista SEMANA */
+    .semana-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .semana-dia {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      transition: all var(--transition-fast);
+    }
+
+    .semana-dia:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .semana-dia.hoje {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .semana-nome {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .semana-numero {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .semana-total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .semana-dia.hoje .semana-total {
+      color: white;
+    }
+
+    .semana-label {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Vista MÊS */
+    .mes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+    }
+
+    .mes-nome {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .mes-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .mes-nav-btn {
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-secondary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all var(--transition-fast);
+    }
+
+    .mes-nav-btn:hover {
+      background: var(--border);
+    }
+
+    .calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calendario-dia-nome {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 0.5rem;
+    }
+
+    .calendario-dia {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .calendario-dia:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .calendario-dia.hoje {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .calendario-dia.outro-mes {
+      opacity: 0.3;
+      background: var(--bg-tertiary);
+    }
+
+    .calendario-dia-numero {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .calendario-dia-badge {
+      position: absolute;
+      bottom: 4px;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: 0.625rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calendario-dia.hoje .calendario-dia-badge {
+      background: white;
+      color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -168,14 +424,45 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
-          <!-- Próximas Aulas -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
+          <!-- Agenda de Aulas -->
           <div class="card">
             <div class="card-header">
-              <h2 class="card-title">📅 Aulas Agendadas</h2>
+              <h2 class="card-title">📅 Agenda de Aulas</h2>
             </div>
-            <div id="proximasAulas">
-              <p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Carregando...</p>
+            
+            <!-- Abas -->
+            <div class="agenda-tabs">
+              <button class="agenda-tab active" onclick="trocarVista('dia')">📅 Dia</button>
+              <button class="agenda-tab" onclick="trocarVista('semana')">📊 Semana</button>
+              <button class="agenda-tab" onclick="trocarVista('mes')">📆 Mês</button>
+            </div>
+
+            <!-- Vista DIA -->
+            <div id="vistaDia" class="agenda-view active">
+              <div class="dia-header" id="diaHeader">Hoje</div>
+              <div id="diaAulas">
+                <p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Carregando...</p>
+              </div>
+            </div>
+
+            <!-- Vista SEMANA -->
+            <div id="vistaSemana" class="agenda-view">
+              <div class="semana-grid" id="semanaGrid">
+                <!-- Será preenchido via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Vista MÊS -->
+            <div id="vistaMes" class="agenda-view">
+              <div class="mes-header">
+                <button class="mes-nav-btn" onclick="mesAnterior()">◀</button>
+                <div class="mes-nome" id="mesNome">Março 2026</div>
+                <button class="mes-nav-btn" onclick="mesSeguinte()">▶</button>
+              </div>
+              <div class="calendario" id="mesGrid">
+                <!-- Será preenchido via JavaScript -->
+              </div>
             </div>
           </div>
 
@@ -200,6 +487,42 @@
     document.getElementById('sidebar-container').innerHTML = renderSidebar('dashboard');
     document.getElementById('header-container').innerHTML = renderHeader('Dashboard', '🏠');
     loadUserName();
+
+    // Variáveis globais para agenda
+    let todasAulas = [];
+    let mesAtual = new Date();
+
+    // Trocar vista da agenda
+    window.trocarVista = function(vista) {
+      // Atualizar abas
+      document.querySelectorAll('.agenda-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Atualizar vistas
+      document.querySelectorAll('.agenda-view').forEach(view => view.classList.remove('active'));
+      
+      if (vista === 'dia') {
+        document.getElementById('vistaDia').classList.add('active');
+        renderVistaDia();
+      } else if (vista === 'semana') {
+        document.getElementById('vistaSemana').classList.add('active');
+        renderVistaSemana();
+      } else if (vista === 'mes') {
+        document.getElementById('vistaMes').classList.add('active');
+        renderVistaMes();
+      }
+    };
+
+    // Navegar mês
+    window.mesAnterior = function() {
+      mesAtual.setMonth(mesAtual.getMonth() - 1);
+      renderVistaMes();
+    };
+
+    window.mesSeguinte = function() {
+      mesAtual.setMonth(mesAtual.getMonth() + 1);
+      renderVistaMes();
+    };
 
     async function carregarDashboard() {
       try {
@@ -246,16 +569,17 @@
 
         document.getElementById('aulasMes').textContent = aulasMes || 0;
 
-        // Próximas aulas
-        const { data: proximasAulas } = await supabase
+        // Carregar todas as aulas do mês para agenda
+        const { data: agendamentos } = await supabase
           .from('agendamentos')
           .select('*, pacientes(nome)')
-          .gte('data_hora', `${dataHoje} 00:00:00`)
+          .gte('data_hora', `${ano}-${mes}-01 00:00:00`)
+          .lte('data_hora', `${ano}-${mes}-31 23:59:59`)
           .eq('usuario_id', user.user.id)
-          .order('data_hora')
-          .limit(5);
+          .order('data_hora');
 
-        renderProximasAulas(proximasAulas || []);
+        todasAulas = agendamentos || [];
+        renderVistaDia();
 
         // Alunos recentes
         const { data: alunosRecentes } = await supabase
@@ -272,32 +596,133 @@
       }
     }
 
-    function renderProximasAulas(aulas) {
-      const container = document.getElementById('proximasAulas');
+    // Renderizar Vista DIA
+    function renderVistaDia() {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
       
-      if (aulas.length === 0) {
-        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Nenhuma aula agendada</p>';
+      const aulasHoje = todasAulas.filter(aula => {
+        const dataAula = new Date(aula.data_hora);
+        dataAula.setHours(0, 0, 0, 0);
+        return dataAula.getTime() === hoje.getTime();
+      });
+
+      // Atualizar header
+      document.getElementById('diaHeader').textContent = hoje.toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long'
+      });
+
+      const container = document.getElementById('diaAulas');
+      
+      if (aulasHoje.length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Nenhuma aula agendada para hoje</p>';
         return;
       }
 
-      container.innerHTML = aulas.map(aula => {
+      container.innerHTML = aulasHoje.map(aula => {
         const dataHora = new Date(aula.data_hora);
-        const hora = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
-        const data = dataHora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const hora = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const tipoClass = aula.tipo === 'avaliacao' ? 'avaliacao' : aula.tipo === 'reuniao' ? 'reuniao' : '';
+        const tipoTexto = aula.tipo === 'avaliacao' ? 'Avaliação Inicial' : aula.tipo === 'reuniao' ? 'Reunião' : 'Aula';
 
         return `
-          <div class="timeline-item">
-            <div class="timeline-time">
-              <div style="font-weight: 600;">${hora}</div>
-              <div>${data}</div>
-            </div>
-            <div class="timeline-content">
-              <div class="timeline-title">${aula.pacientes?.nome || '💬 Avaliação Inicial'}</div>
-              ${aula.observacoes ? `<div class="timeline-desc">${aula.observacoes}</div>` : ''}
+          <div class="aula-item ${tipoClass}" onclick="window.location.href='/registrar-aula.html'">
+            <div class="aula-horario">${hora}</div>
+            <div class="aula-info">
+              <div class="aula-nome">${aula.pacientes?.nome || '💬 Avaliação Inicial'}</div>
+              <div class="aula-tipo">${tipoTexto}${aula.observacoes ? ' • ' + aula.observacoes : ''}</div>
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    // Renderizar Vista SEMANA
+    function renderVistaSemana() {
+      const hoje = new Date();
+      const diaSemana = hoje.getDay();
+      const segunda = new Date(hoje);
+      segunda.setDate(hoje.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
+
+      const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+      let html = '';
+
+      for (let i = 0; i < 7; i++) {
+        const dia = new Date(segunda);
+        dia.setDate(segunda.getDate() + i);
+        dia.setHours(0, 0, 0, 0);
+
+        const aulasDia = todasAulas.filter(aula => {
+          const dataAula = new Date(aula.data_hora);
+          dataAula.setHours(0, 0, 0, 0);
+          return dataAula.getTime() === dia.getTime();
+        });
+
+        const isHoje = dia.toDateString() === hoje.toDateString();
+
+        html += `
+          <div class="semana-dia ${isHoje ? 'hoje' : ''}">
+            <div class="semana-nome">${diasSemana[i]}</div>
+            <div class="semana-numero">${dia.getDate()}</div>
+            <div class="semana-total">${aulasDia.length}</div>
+            <div class="semana-label">${aulasDia.length === 1 ? 'aula' : 'aulas'}</div>
+          </div>
+        `;
+      }
+
+      document.getElementById('semanaGrid').innerHTML = html;
+    }
+
+    // Renderizar Vista MÊS
+    function renderVistaMes() {
+      const ano = mesAtual.getFullYear();
+      const mes = mesAtual.getMonth();
+      
+      document.getElementById('mesNome').textContent = mesAtual.toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const primeiroDia = new Date(ano, mes, 1);
+      const ultimoDia = new Date(ano, mes + 1, 0);
+      const diaSemanaInicio = primeiroDia.getDay();
+      const totalDias = ultimoDia.getDate();
+
+      const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      let html = diasSemana.map(d => `<div class="calendario-dia-nome">${d}</div>`).join('');
+
+      // Dias do mês anterior
+      const mesAnterior = new Date(ano, mes, 0);
+      const diasMesAnterior = mesAnterior.getDate();
+      for (let i = diaSemanaInicio - 1; i >= 0; i--) {
+        html += `<div class="calendario-dia outro-mes"><div class="calendario-dia-numero">${diasMesAnterior - i}</div></div>`;
+      }
+
+      // Dias do mês atual
+      const hoje = new Date();
+      for (let dia = 1; dia <= totalDias; dia++) {
+        const data = new Date(ano, mes, dia);
+        data.setHours(0, 0, 0, 0);
+        
+        const aulasDia = todasAulas.filter(aula => {
+          const dataAula = new Date(aula.data_hora);
+          dataAula.setHours(0, 0, 0, 0);
+          return dataAula.getTime() === data.getTime();
+        });
+
+        const isHoje = data.toDateString() === hoje.toDateString();
+
+        html += `
+          <div class="calendario-dia ${isHoje ? 'hoje' : ''}">
+            <div class="calendario-dia-numero">${dia}</div>
+            ${aulasDia.length > 0 ? `<div class="calendario-dia-badge">${aulasDia.length}</div>` : ''}
+          </div>
+        `;
+      }
+
+      document.getElementById('mesGrid').innerHTML = html;
     }
 
     function renderAlunosRecentes(alunos) {
