@@ -642,18 +642,19 @@
 
     // Enviar mensagem por WhatsApp (global)
     window.enviarWhatsApp = async function() {
-      const pacienteId = document.getElementById('pacienteSelect').value;
-      const mensagem = document.getElementById('mensagemResponsavel').value.trim();
-      
-      if (!pacienteId) {
-        alert('Selecione um aluno primeiro!');
+      if (!agendamentoAtual) {
+        alert('Nenhum agendamento selecionado!');
         return;
       }
+      
+      const mensagem = document.getElementById('mensagemResponsavel').value.trim();
       
       if (!mensagem) {
         alert('Escreva uma mensagem primeiro!');
         return;
       }
+      
+      const pacienteId = agendamentoAtual.paciente_id;
       
       try {
         // Buscar telefone do responsável
