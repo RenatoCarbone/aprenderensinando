@@ -640,8 +640,8 @@
       }
     });
 
-    // Enviar mensagem por WhatsApp
-    async function enviarWhatsApp() {
+    // Enviar mensagem por WhatsApp (global)
+    window.enviarWhatsApp = async function() {
       const pacienteId = document.getElementById('pacienteSelect').value;
       const mensagem = document.getElementById('mensagemResponsavel').value.trim();
       
