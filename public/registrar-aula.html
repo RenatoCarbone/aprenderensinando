@@ -509,7 +509,7 @@
           <div class="agendamento-card ${concluida ? 'concluida' : ''}">
             <div class="agendamento-info">
               <div class="aluno-nome">
-                ${agendamento.pacientes.nome}
+                ${agendamento.pacientes?.nome || '💬 Avaliação Inicial'}
                 ${concluida ? '<span class="badge-success" style="margin-left: 0.5rem;">✅ Concluída</span>' : ''}
               </div>
               <div class="agendamento-hora">
@@ -550,7 +550,7 @@
         timeZone: 'America/Sao_Paulo'
       });
 
-      document.getElementById('modalTitulo').textContent = agendamentoAtual.pacientes.nome;
+      document.getElementById('modalTitulo').textContent = agendamentoAtual.pacientes?.nome || '💬 Avaliação Inicial';
       document.getElementById('modalSubtitulo').textContent = `Aula de ${horario}`;
       
       // Limpar campos
