@@ -399,10 +399,10 @@
     </div>
 
         <!-- Layout 2 Colunas -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); align-items: start;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--spacing-lg); align-items: start;">
           
           <!-- COLUNA ESQUERDA (estreita) -->
-          <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-lg); min-width: 0;">
             
             <!-- Configuração de Cobranças -->
             <div class="card">
@@ -427,7 +427,7 @@
           </div>
 
           <!-- COLUNA DIREITA (larga) - Lançamentos -->
-          <div class="card">
+          <div class="card" style="min-width: 0;">
             <div class="card-header">
               <h2 class="card-title">📊 Lançamentos</h2>
             </div>
