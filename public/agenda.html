@@ -958,33 +958,24 @@
         // Pegar duração selecionada
         const duracaoSelecionada = parseInt(document.getElementById('duracaoAgendamento').value);
         
-        console.log('🔴 DURAÇÃO SELECIONADA:', duracaoSelecionada, 'minutos');
-        
         // Criar array com todos os horários ocupados (incluindo duração)
         const horariosOcupados = new Set();
         agendamentos.forEach(ag => {
           const inicio = ag.data_hora.substring(11, 16);
           const duracao = ag.duracao || 60;
           
-          console.log('Agendamento:', inicio, 'Duração:', duracao, 'minutos');
-          
           // Adicionar todos os intervalos de 30min ocupados a partir do início
           const [h, m] = inicio.split(':').map(Number);
-          let minutos = h * 60 + m;
+          const minutos = h * 60 + m;
           const fim = minutos + duracao;
-          
-          console.log('Minutos início:', minutos, 'Minutos fim:', fim);
           
           // Loop começa no início e vai até o fim
           for (let temp = minutos; temp < fim; temp += 30) {
             const hh = Math.floor(temp / 60).toString().padStart(2, '0');
             const mm = (temp % 60).toString().padStart(2, '0');
-            console.log('Marcando como ocupado:', `${hh}:${mm}`);
             horariosOcupados.add(`${hh}:${mm}`);
           }
         });
-        
-        console.log('Horários ocupados final:', Array.from(horariosOcupados));
         
         // Gerar opções
         const horarios = gerarOpcoesHorario();
@@ -993,34 +984,19 @@
         horarios.forEach(horario => {
           // Verificar se este horário + duração tem conflito
           const [h, m] = horario.split(':').map(Number);
-          let minutos = h * 60 + m;
-          const fim = minutos + duracaoSelecionada;
+          const inicioMinutos = h * 60 + m;
+          const fimMinutos = inicioMinutos + duracaoSelecionada;
           
+          // Verificar cada slot de 30min que esta aula ocuparia
           let temConflito = false;
-          let temp = minutos;
-          
-          if (horario === '17:30' || horario === '18:00') {
-            console.log(`Verificando ${horario}: início=${minutos}, fim=${fim}, duração=${duracaoSelecionada}`);
-          }
-          
-          while (temp < fim) {
-            const hh = Math.floor(temp / 60).toString().padStart(2, '0');
-            const mm = (temp % 60).toString().padStart(2, '0');
-            const horarioCheck = `${hh}:${mm}`;
+          for (let min = inicioMinutos; min < fimMinutos; min += 30) {
+            const hh = Math.floor(min / 60).toString().padStart(2, '0');
+            const mm = (min % 60).toString().padStart(2, '0');
             
-            if (horario === '17:30' || horario === '18:00') {
-              console.log(`  Checando se ${horarioCheck} está ocupado:`, horariosOcupados.has(horarioCheck));
-            }
-            
-            if (horariosOcupados.has(horarioCheck)) {
+            if (horariosOcupados.has(`${hh}:${mm}`)) {
               temConflito = true;
               break;
             }
-            temp += 30;
-          }
-          
-          if (horario === '17:30' || horario === '18:00') {
-            console.log(`  Resultado: ${horario} tem conflito? ${temConflito}`);
           }
           
           const cor = temConflito ? 'color: #EF4444; font-weight: 600;' : '';
