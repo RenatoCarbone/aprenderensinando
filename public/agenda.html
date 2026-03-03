@@ -739,7 +739,7 @@
         
         agendamentos.push({
           data_hora: `${data}T${hora}:00`,
-          paciente_id: pacienteId,
+          paciente_id: pacienteId || null,
           duracao: duracao,
           observacoes: observacoes,
           tipo: tipoAgendamento,
