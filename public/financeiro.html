@@ -841,7 +841,7 @@
           .eq('paciente_id', alunoId)
           .order('data', { ascending: true })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         const dataInicio = primeiraAula?.data || new Date().toISOString().split('T')[0];
 
