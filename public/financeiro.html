@@ -4,38 +4,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financeiro - Aprender Ensinando</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/modern-layout.css">
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-base);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .stat-card.success {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    }
+
+    .stat-card.danger {
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+      margin-top: 0.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-control {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: all var(--transition-fast);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 190, 205, 0.1);
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <a href="/dashboard.html" class="logo">
-        🎓 Aprender <span>Ensinando</span>
-      </a>
-      <nav class="nav">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/cadastro.html">Novo Paciente</a>
-        <a href="/alunos.html">Pacientes</a>
-        <a href="/agenda.html">Agenda</a>
-        <a href="/financeiro.html">Financeiro</a>
-      </nav>
-      <div class="user-menu">
-        <span class="user-name" id="userName">Carregando...</span>
-        <button class="btn-logout" onclick="logout()">Sair</button>
-      </div>
-    </div>
-  </header>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
 
-  <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
-      <h1>💰 Controle Financeiro</h1>
-      <button onclick="abrirModalNovo()" class="btn btn-primary">
-        ➕ Novo Lançamento
-      </button>
-    </div>
+    <div class="main-content">
+      <div id="header-container"></div>
 
-    <!-- Resumo Financeiro -->
-    <div class="stats-grid mb-3">
+      <div class="page-content">
+        <!-- Botão Novo Lançamento -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: var(--spacing-lg);">
+          <button onclick="abrirModalNovo()" class="btn btn-primary">
+            ➕ Novo Lançamento
+          </button>
+        </div>
+
+        <!-- Resumo Financeiro -->
+        <div class="stats-grid">
       <div class="stat-card success">
         <div class="stat-label">Receitas do Mês</div>
         <div class="stat-value" id="receitasMes">R$ 0,00</div>
@@ -55,10 +115,9 @@
       </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="grid grid-4">
+        <!-- Filtros -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
           <div class="form-group">
             <label for="filtroTipo" class="form-label">Tipo</label>
             <select id="filtroTipo" class="form-control">
@@ -95,12 +154,12 @@
       </div>
     </div>
 
-    <!-- Lista de Lançamentos -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">📊 Lançamentos</h2>
-      </div>
-      <div class="card-body" id="listaLancamentos">
+        <!-- Lista de Lançamentos -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📊 Lançamentos</h2>
+          </div>
+          <div id="listaLancamentos">
         <div class="loading">
           <div class="spinner"></div>
         </div>
@@ -460,6 +519,13 @@
       await carregarLancamentos();
       await atualizarResumo();
     });
+  </script>
+
+  <script type="module">
+    import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('financeiro');
+    document.getElementById('header-container').innerHTML = renderHeader('Financeiro', '💰');
+    loadUserName();
   </script>
 </body>
 </html>

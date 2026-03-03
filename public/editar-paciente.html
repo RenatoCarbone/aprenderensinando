@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar Aluno - Aprender Ensinando</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/modern-layout.css">
   <style>
+    .foto-container {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
     .foto-container {
       text-align: center;
       margin-bottom: 2rem;
@@ -14,39 +19,129 @@
     .foto-preview {
       width: 150px;
       height: 150px;
-      border-radius: 50%;
+      border-radius: var(--radius-full);
       object-fit: cover;
-      border: 4px solid #667eea;
+      border: 4px solid var(--primary);
       margin-bottom: 1rem;
       display: block;
       margin-left: auto;
       margin-right: auto;
+      box-shadow: var(--shadow-md);
     }
 
     .foto-placeholder {
       width: 150px;
       height: 150px;
-      border-radius: 50%;
-      background: #e2e8f0;
+      border-radius: var(--radius-full);
+      background: var(--bg-tertiary);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 3rem;
       margin: 0 auto 1rem;
-      border: 4px dashed #cbd5e0;
+      border: 4px dashed var(--border);
     }
 
     .btn-upload {
-      background: #667eea;
+      background: var(--primary);
       color: white;
-      padding: 0.5rem 1.5rem;
-      border-radius: 8px;
+      padding: 0.625rem 1.5rem;
+      border-radius: var(--radius-md);
       cursor: pointer;
       display: inline-block;
+      font-weight: 600;
+      transition: all var(--transition-fast);
     }
 
     .btn-upload:hover {
-      background: #5568d3;
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .form-section {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    .form-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-label.required::after {
+      content: " *";
+      color: #EF4444;
+    }
+
+    .form-control {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: all var(--transition-fast);
+      background: white;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 190, 205, 0.1);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-xl);
+    }
+
+    .btn-danger {
+      background: #EF4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #DC2626;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .status-group {
@@ -102,14 +197,18 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>✏️ Editar Aluno</h1>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
 
-    <div id="loadingState" style="text-align: center; padding: 3rem;">
-      <p>⏳ Carregando dados...</p>
-    </div>
+    <div class="main-content">
+      <div id="header-container"></div>
 
-    <form id="formEditarPaciente" style="display: none;">
+      <div class="page-content">
+        <div id="loadingState" style="text-align: center; padding: 3rem;">
+          <p>⏳ Carregando dados...</p>
+        </div>
+
+        <form id="formEditarPaciente" style="display: none;">
       <!-- Foto -->
       <div class="card">
         <h2>📸 Foto do Aluno</h2>
@@ -224,6 +323,8 @@
         </a>
       </div>
     </form>
+      </div>
+    </div>
   </div>
 
   <script type="module">
@@ -402,6 +503,13 @@
 
     // Iniciar
     carregarPaciente();
+  </script>
+
+  <script type='module'>
+    import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('alunos');
+    document.getElementById('header-container').innerHTML = renderHeader('Editar Aluno', '✏️');
+    loadUserName();
   </script>
 </body>
 </html>

@@ -4,40 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agenda - Aprender Ensinando</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/modern-layout.css">
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <a href="/dashboard.html" class="logo">
-        🎓 Aprender <span>Ensinando</span>
-      </a>
-      <nav class="nav">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/cadastro.html">Novo Paciente</a>
-        <a href="/alunos.html">Pacientes</a>
-        <a href="/agenda.html">Agenda</a>
-        <a href="/financeiro.html">Financeiro</a>
-      </nav>
-      <div class="user-menu">
-        <span class="user-name" id="userName">Carregando...</span>
-        <button class="btn-logout" onclick="logout()">Sair</button>
-      </div>
-    </div>
-  </header>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
 
-  <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
-      <h1>📅 Agenda de Aulas</h1>
-      <button onclick="abrirModalNovoAgendamento()" class="btn btn-primary">
-        ➕ Novo Agendamento
-      </button>
-    </div>
+    <div class="main-content">
+      <div id="header-container"></div>
 
-    <!-- Filtro de Data -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="grid grid-3">
+      <div class="page-content">
+        <!-- Cabeçalho com Botão -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+          <div></div>
+          <button onclick="abrirModalNovoAgendamento()" class="btn btn-primary">
+            ➕ Novo Agendamento
+          </button>
+        </div>
+
+        <!-- Filtro de Data -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
           <div class="form-group">
             <label for="filtroData" class="form-label">Data</label>
             <input type="date" id="filtroData" class="form-control">
@@ -89,6 +76,8 @@
             <div class="stat-value" id="totalMes">0</div>
           </div>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   </div>
@@ -552,6 +541,13 @@
         fecharModal();
       }
     });
+  </script>
+
+  <script type='module'>
+    import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('agenda');
+    document.getElementById('header-container').innerHTML = renderHeader('Agenda de Aulas', '📅');
+    loadUserName();
   </script>
 </body>
 </html>

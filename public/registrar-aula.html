@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aulas do Dia - Aprender Ensinando</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/modern-layout.css">
   <style>
     .aula-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -201,35 +201,43 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="aula-header">
-      <div class="data-aula" id="dataAula">Carregando...</div>
-      <div class="info-agendamentos">
-        <span id="totalAgendamentos">0</span> aulas agendadas para hoje
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+      <div id="header-container"></div>
+
+      <div class="page-content">
+        <div class="aula-header">
+          <div class="data-aula" id="dataAula">Carregando...</div>
+          <div class="info-agendamentos">
+            <span id="totalAgendamentos">0</span> aulas agendadas para hoje
+          </div>
+        </div>
+
+        <div id="loadingState" class="loading">
+          <p>⏳ Carregando aulas...</p>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-state-icon">📅</div>
+          <h3>Nenhuma aula agendada para hoje</h3>
+          <p>Não há aulas cadastradas para esta data.</p>
+          <a href="agenda.html" class="btn-primary" style="margin-top: 1rem;">
+            Ver agenda completa
+          </a>
+        </div>
+
+        <div id="agendamentosList" class="agendamentos-list" style="display: none;">
+          <!-- Será preenchido dinamicamente -->
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <a href="dashboard.html" class="btn-secondary">
+            ← Voltar ao Dashboard
+          </a>
+        </div>
       </div>
-    </div>
-
-    <div id="loadingState" class="loading">
-      <p>⏳ Carregando aulas...</p>
-    </div>
-
-    <div id="emptyState" class="empty-state" style="display: none;">
-      <div class="empty-state-icon">📅</div>
-      <h3>Nenhuma aula agendada para hoje</h3>
-      <p>Não há aulas cadastradas para esta data.</p>
-      <a href="agenda.html" class="btn-primary" style="margin-top: 1rem;">
-        Ver agenda completa
-      </a>
-    </div>
-
-    <div id="agendamentosList" class="agendamentos-list" style="display: none;">
-      <!-- Será preenchido dinamicamente -->
-    </div>
-
-    <div style="margin-top: 2rem;">
-      <a href="dashboard.html" class="btn-secondary">
-        ← Voltar ao Dashboard
-      </a>
     </div>
   </div>
 
@@ -515,6 +523,13 @@
 
     // Carregar ao iniciar
     carregarAgendamentos();
+  </script>
+
+  <script type='module'>
+    import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('registrar-aula');
+    document.getElementById('header-container').innerHTML = renderHeader('Nova Aula', '📚');
+    loadUserName();
   </script>
 </body>
 </html>
