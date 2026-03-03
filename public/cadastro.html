@@ -9,8 +9,8 @@
     .form-section {
       background: white;
       border-radius: var(--radius-xl);
-      padding: var(--spacing-xl);
-      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-light);
     }
@@ -107,12 +107,11 @@
 
     /* Botões Grandes e Modernos */
     .btn-action-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-top: 3rem;
-      padding-top: 2rem;
-      border-top: 2px solid var(--border-light);
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
     }
 
     .btn-large {
@@ -178,11 +177,13 @@
       <div id="header-container"></div>
 
       <div class="page-content">
-        <div class="alert alert-info">
-          📋 Preencha os dados cadastrais e as perguntas da entrevista inicial em um único formulário.
-        </div>
+        <!-- Centralizar formulário -->
+        <div style="max-width: 900px; margin: 0 auto;">
+          <div class="alert alert-info">
+            📋 Preencha os dados cadastrais e as perguntas da entrevista inicial em um único formulário.
+          </div>
 
-        <form id="cadastroForm">
+          <form id="cadastroForm">
           <!-- DADOS CADASTRAIS -->
           <div class="form-section">
             <h2 class="form-section-title">
@@ -426,7 +427,8 @@
               <span>Salvar Cadastro</span>
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   </div>
