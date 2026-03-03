@@ -4,170 +4,332 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Aprender Ensinando</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/modern-layout.css">
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-base);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .stat-card.secondary {
+      background: linear-gradient(135deg, var(--secondary) 0%, #5568d3 100%);
+    }
+
+    .stat-card.accent {
+      background: linear-gradient(135deg, var(--accent) 0%, #ec4899 100%);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .action-button {
+      background: white;
+      border: 2px solid var(--border-light);
+      padding: 1.25rem;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all var(--transition-base);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .action-button:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .action-icon {
+      font-size: 2rem;
+    }
+
+    .action-label {
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+
+    .timeline-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .timeline-time {
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      min-width: 100px;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <a href="/dashboard.html" class="logo">
-        🎓 Aprender <span>Ensinando</span>
-      </a>
-      <nav class="nav">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/cadastro.html">Novo Cadastro</a>
-        <a href="/alunos.html">Alunos</a>
-        <a href="/agenda.html">Agenda</a>
-        <a href="/financeiro.html">Financeiro</a>
-      </nav>
-      <div class="user-menu">
-        <span class="user-name" id="userName">Carregando...</span>
-        <button class="btn-logout" onclick="logout()">Sair</button>
-      </div>
-    </div>
-  </header>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
 
-  <div class="container">
-    <h1 class="mt-3 mb-3">Dashboard</h1>
+    <div class="main-content">
+      <div id="header-container"></div>
 
-    <!-- Estatísticas -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total de Alunos</div>
-        <div class="stat-value" id="totalPacientes">0</div>
-        <div class="stat-icon">👥</div>
-      </div>
-
-      <div class="stat-card success">
-        <div class="stat-label">Aulas Hoje</div>
-        <div class="stat-value" id="atendimentosHoje">0</div>
-        <div class="stat-icon">📅</div>
-      </div>
-
-      <div class="stat-card warning">
-        <div class="stat-label">Aulas no Mês</div>
-        <div class="stat-value" id="atendimentosMes">0</div>
-        <div class="stat-icon">📊</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Receita Mensal</div>
-        <div class="stat-value" id="receitaMensal">R$ 0,00</div>
-        <div class="stat-icon">💰</div>
-      </div>
-    </div>
-
-    <!-- Grid de Cards -->
-    <div class="grid grid-2">
-      <!-- Próximos Atendimentos -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📅 Aulas Agendadas</h2>
-          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-            <button onclick="filtrarAgendamentos('hoje')" id="btnHoje" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-              Hoje
-            </button>
-            <button onclick="filtrarAgendamentos('semana')" id="btnSemana" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-              Semana
-            </button>
-            <button onclick="filtrarAgendamentos('mes')" id="btnMes" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-              Mês
-            </button>
+      <div class="page-content">
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total de Alunos</div>
+            <div class="stat-value" id="totalAlunos">0</div>
+          </div>
+          <div class="stat-card secondary">
+            <div class="stat-label">Aulas Hoje</div>
+            <div class="stat-value" id="aulasHoje">0</div>
+          </div>
+          <div class="stat-card accent">
+            <div class="stat-label">Aulas no Mês</div>
+            <div class="stat-value" id="aulasMes">0</div>
           </div>
         </div>
-        <div class="card-body" id="proximosAtendimentos">
-          <div class="loading">
-            <div class="spinner"></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Ações Rápidas -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">⚡ Ações Rápidas</h2>
-        </div>
-        <div class="card-body">
-          <div style="display: flex; flex-direction: column; gap: 1rem;">
-            <a href="/cadastro.html" class="btn btn-primary">
-              ➕ Cadastro
+        <!-- Ações Rápidas -->
+        <div class="card" style="margin-bottom: 2rem;">
+          <div class="card-header">
+            <h2 class="card-title">⚡ Ações Rápidas</h2>
+          </div>
+          <div class="quick-actions">
+            <a href="/cadastro.html" class="action-button">
+              <span class="action-icon">➕</span>
+              <span class="action-label">Novo Cadastro</span>
             </a>
-            <a href="/registrar-aula.html" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              📚 Nova Aula
+            <a href="/registrar-aula.html" class="action-button">
+              <span class="action-icon">📚</span>
+              <span class="action-label">Nova Aula</span>
             </a>
-            <a href="/agenda.html" class="btn btn-secondary">
-              📅 Agendar Aula
+            <a href="/agenda.html" class="action-button">
+              <span class="action-icon">📅</span>
+              <span class="action-label">Agendar Aula</span>
             </a>
-            <a href="/alunos.html" class="btn btn-outline">
-              👥 Ver Alunos
-            </a>
-            <a href="/financeiro.html" class="btn btn-outline">
-              💰 Registrar Receita
+            <a href="/alunos.html" class="action-button">
+              <span class="action-icon">👥</span>
+              <span class="action-label">Ver Alunos</span>
             </a>
           </div>
         </div>
-      </div>
 
-      <!-- Pacientes Recentes -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">👥 Alunos Recentes</h2>
-        </div>
-        <div class="card-body" id="pacientesRecentes">
-          <div class="loading">
-            <div class="spinner"></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+          <!-- Próximas Aulas -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">📅 Aulas Agendadas</h2>
+            </div>
+            <div id="proximasAulas">
+              <p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Carregando...</p>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Avisos e Lembretes -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">🔔 Avisos</h2>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-info">
-            Bem-vindo ao sistema Aprender Ensinando! 🎉
-          </div>
-          <div class="alert alert-warning" id="avisoPendentes" style="display: none;">
-            Você tem pacientes pendentes para agendar primeira aula.
+          <!-- Alunos Recentes -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">👥 Alunos Recentes</h2>
+            </div>
+            <div id="alunosRecentes">
+              <p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Carregando...</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const sb = window.supabase.createClient(
-      'https://ukjxekdwumfxilphrrmb.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk'
-    );
-    
-    async function checkAuth() {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) {
-        window.location.href = '/index.html';
-        return null;
+  <script type="module">
+    import { supabase } from './js/supabase.js';
+    import { renderSidebar, renderHeader, loadUserName } from './js/sidebar.js';
+
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('dashboard');
+    document.getElementById('header-container').innerHTML = renderHeader('Dashboard', '🏠');
+    loadUserName();
+
+    async function carregarDashboard() {
+      try {
+        const { data: user } = await supabase.auth.getUser();
+        if (!user?.user) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        // Total de alunos
+        const { count: totalAlunos } = await supabase
+          .from('pacientes')
+          .select('*', { count: 'exact', head: true })
+          .eq('usuario_id', user.user.id);
+
+        document.getElementById('totalAlunos').textContent = totalAlunos || 0;
+
+        // Aulas hoje
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const dataHoje = `${ano}-${mes}-${dia}`;
+
+        const { count: aulasHoje } = await supabase
+          .from('agendamentos')
+          .select('*', { count: 'exact', head: true })
+          .gte('data_hora', `${dataHoje} 00:00:00`)
+          .lte('data_hora', `${dataHoje} 23:59:59`)
+          .eq('usuario_id', user.user.id);
+
+        document.getElementById('aulasHoje').textContent = aulasHoje || 0;
+
+        // Aulas no mês
+        const primeiroDia = `${ano}-${mes}-01`;
+        const ultimoDia = `${ano}-${mes}-31`;
+
+        const { count: aulasMes } = await supabase
+          .from('aulas')
+          .select('*', { count: 'exact', head: true })
+          .gte('data', primeiroDia)
+          .lte('data', ultimoDia)
+          .eq('profissional_id', user.user.id);
+
+        document.getElementById('aulasMes').textContent = aulasMes || 0;
+
+        // Próximas aulas
+        const { data: proximasAulas } = await supabase
+          .from('agendamentos')
+          .select('*, pacientes(nome)')
+          .gte('data_hora', `${dataHoje} 00:00:00`)
+          .eq('usuario_id', user.user.id)
+          .order('data_hora')
+          .limit(5);
+
+        renderProximasAulas(proximasAulas || []);
+
+        // Alunos recentes
+        const { data: alunosRecentes } = await supabase
+          .from('pacientes')
+          .select('*')
+          .eq('usuario_id', user.user.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        renderAlunosRecentes(alunosRecentes || []);
+
+      } catch (error) {
+        console.error('Erro:', error);
       }
-      return session;
     }
-    
-    async function logout() {
-      await sb.auth.signOut();
-      window.location.href = '/index.html';
+
+    function renderProximasAulas(aulas) {
+      const container = document.getElementById('proximasAulas');
+      
+      if (aulas.length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Nenhuma aula agendada</p>';
+        return;
+      }
+
+      container.innerHTML = aulas.map(aula => {
+        const dataHora = new Date(aula.data_hora);
+        const hora = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+        const data = dataHora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+        return `
+          <div class="timeline-item">
+            <div class="timeline-time">
+              <div style="font-weight: 600;">${hora}</div>
+              <div>${data}</div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">${aula.pacientes?.nome || 'Sem nome'}</div>
+              ${aula.observacoes ? `<div class="timeline-desc">${aula.observacoes}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-    
-    function formatDate(date) {
-      if (!date) return '';
-      return new Date(date).toLocaleDateString('pt-BR');
+
+    function renderAlunosRecentes(alunos) {
+      const container = document.getElementById('alunosRecentes');
+      
+      if (alunos.length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">Nenhum aluno cadastrado</p>';
+        return;
+      }
+
+      container.innerHTML = alunos.map(aluno => {
+        const idade = calcularIdade(aluno.data_nascimento);
+        
+        return `
+          <div class="timeline-item" onclick="window.location.href='/editar-paciente.html?id=${aluno.id}'" style="cursor: pointer;">
+            <div style="min-width: 40px;">
+              ${aluno.foto_url 
+                ? `<img src="${aluno.foto_url}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">`
+                : `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--primary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">${aluno.nome.charAt(0).toUpperCase()}</div>`
+              }
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">${aluno.nome}</div>
+              <div class="timeline-desc">${idade} anos ${aluno.telefone ? `• ${aluno.telefone}` : ''}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-    
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
-    }
-    
+
     function calcularIdade(dataNascimento) {
-      if (!dataNascimento) return null;
+      if (!dataNascimento) return '-';
       const hoje = new Date();
       const nascimento = new Date(dataNascimento);
       let idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -177,219 +339,8 @@
       }
       return idade;
     }
-  </script>
-  <script>
-    let currentUser = null;
 
-    // Carregar dados ao iniciar
-    (async () => {
-      const session = await checkAuth();
-      if (!session) return;
-
-      const { data } = await sb.from('usuarios').select('*').eq('id', session.user.id).single();
-      currentUser = data;
-      
-      if (currentUser) {
-        document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
-      }
-
-      await carregarDashboard();
-    })();
-
-    async function carregarDashboard() {
-      try {
-        // Total de pacientes
-        const { count: totalPacientes } = await sb
-          .from('pacientes')
-          .select('*', { count: 'exact', head: true });
-        
-        document.getElementById('totalPacientes').textContent = totalPacientes || 0;
-
-        // Atendimentos hoje
-        const hoje = new Date().toISOString().split('T')[0];
-        const { count: atendimentosHoje } = await sb
-          .from('agendamentos')
-          .select('*', { count: 'exact', head: true })
-          .gte('data_hora', hoje + 'T00:00:00')
-          .lt('data_hora', hoje + 'T23:59:59');
-        
-        document.getElementById('atendimentosHoje').textContent = atendimentosHoje || 0;
-
-        // Atendimentos do mês
-        const primeiroDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-        const { count: atendimentosMes } = await sb
-          .from('agendamentos')
-          .select('*', { count: 'exact', head: true })
-          .gte('data_hora', primeiroDiaMes);
-        
-        document.getElementById('atendimentosMes').textContent = atendimentosMes || 0;
-
-        // Receita mensal
-        const { data: receitas } = await sb
-          .from('financeiro')
-          .select('valor')
-          .eq('tipo', 'receita')
-          .gte('data', primeiroDiaMes);
-        
-        const receitaMensal = receitas?.reduce((sum, r) => sum + (r.valor || 0), 0) || 0;
-        document.getElementById('receitaMensal').textContent = formatCurrency(receitaMensal);
-
-        // Carregar próximos atendimentos
-        await carregarProximosAtendimentos();
-
-        // Carregar pacientes recentes
-        await carregarPacientesRecentes();
-
-        // Verificar pacientes pendentes
-        await verificarPacientesPendentes();
-
-      } catch (error) {
-        console.error('Erro ao carregar dashboard:', error);
-        showAlert('Erro ao carregar dados do dashboard', 'danger');
-      }
-    }
-
-    let filtroAtual = 'hoje'; // Filtro padrão
-
-    function filtrarAgendamentos(filtro) {
-      filtroAtual = filtro;
-      
-      // Atualizar botões
-      document.getElementById('btnHoje').className = filtro === 'hoje' ? 'btn btn-primary' : 'btn btn-outline';
-      document.getElementById('btnSemana').className = filtro === 'semana' ? 'btn btn-primary' : 'btn btn-outline';
-      document.getElementById('btnMes').className = filtro === 'mes' ? 'btn btn-primary' : 'btn btn-outline';
-      
-      // Recarregar agendamentos
-      carregarProximosAtendimentos();
-    }
-
-    async function carregarProximosAtendimentos() {
-      try {
-        const agora = new Date();
-        let dataInicio, dataFim;
-
-        // Definir período baseado no filtro
-        if (filtroAtual === 'hoje') {
-          // Hoje: do início do dia até o fim do dia
-          dataInicio = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).toISOString();
-          dataFim = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString();
-        } else if (filtroAtual === 'semana') {
-          // Semana: de hoje até 7 dias
-          dataInicio = agora.toISOString();
-          const fimSemana = new Date(agora);
-          fimSemana.setDate(fimSemana.getDate() + 7);
-          dataFim = fimSemana.toISOString();
-        } else if (filtroAtual === 'mes') {
-          // Mês: de hoje até o final do mês
-          dataInicio = agora.toISOString();
-          const ultimoDiaMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0, 23, 59, 59);
-          dataFim = ultimoDiaMes.toISOString();
-        }
-        
-        const { data: agendamentos, error } = await sb
-          .from('agendamentos')
-          .select(`
-            *,
-            pacientes (nome, id_aluno)
-          `)
-          .gte('data_hora', dataInicio)
-          .lte('data_hora', dataFim)
-          .order('data_hora', { ascending: true })
-          .limit(10);
-
-        if (error) throw error;
-
-        const container = document.getElementById('proximosAtendimentos');
-
-        if (!agendamentos || agendamentos.length === 0) {
-          container.innerHTML = '<p class="text-secondary">Nenhum agendamento encontrado</p>';
-          return;
-        }
-
-        container.innerHTML = agendamentos.map(a => `
-          <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong>${a.pacientes?.nome || 'Paciente'}</strong>
-                <small style="display: block; color: var(--text-secondary);">
-                  ${a.pacientes?.id_aluno || ''}
-                </small>
-              </div>
-              <div style="text-align: right;">
-                <div>${formatDate(a.data_hora)}</div>
-                <small style="color: var(--text-secondary);">
-                  ${new Date(a.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })}
-                </small>
-              </div>
-            </div>
-            ${a.observacoes ? `<p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">${a.observacoes}</p>` : ''}
-          </div>
-        `).join('');
-
-      } catch (error) {
-        console.error('Erro ao carregar próximos atendimentos:', error);
-        document.getElementById('proximosAtendimentos').innerHTML = 
-          '<p class="text-danger">Erro ao carregar atendimentos</p>';
-      }
-    }
-
-    async function carregarPacientesRecentes() {
-      try {
-        const { data: pacientes, error } = await sb
-          .from('pacientes')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        if (error) throw error;
-
-        const container = document.getElementById('pacientesRecentes');
-
-        if (!pacientes || pacientes.length === 0) {
-          container.innerHTML = '<p class="text-secondary">Nenhum paciente cadastrado</p>';
-          return;
-        }
-
-        container.innerHTML = pacientes.map(p => `
-          <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong>${p.nome}</strong>
-                <small style="display: block; color: var(--text-secondary);">
-                  ${p.id_aluno} • ${calcularIdade(p.data_nascimento)} anos
-                </small>
-              </div>
-              <a href="/alunos.html?id=${p.id}" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
-                Ver
-              </a>
-            </div>
-          </div>
-        `).join('');
-
-      } catch (error) {
-        console.error('Erro ao carregar pacientes recentes:', error);
-        document.getElementById('pacientesRecentes').innerHTML = 
-          '<p class="text-danger">Erro ao carregar pacientes</p>';
-      }
-    }
-
-    async function verificarPacientesPendentes() {
-      try {
-        // Buscar pacientes sem agendamentos
-        const { data: pacientes } = await sb
-          .from('pacientes')
-          .select('id')
-          .is('primeira_aula_agendada', false);
-
-        if (pacientes && pacientes.length > 0) {
-          const aviso = document.getElementById('avisoPendentes');
-          aviso.style.display = 'block';
-          aviso.textContent = `Você tem ${pacientes.length} paciente(s) pendente(s) para agendar primeira aula.`;
-        }
-      } catch (error) {
-        console.error('Erro ao verificar pacientes pendentes:', error);
-      }
-    }
+    carregarDashboard();
   </script>
 </body>
 </html>
