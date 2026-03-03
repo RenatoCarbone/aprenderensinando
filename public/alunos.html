@@ -164,7 +164,7 @@
             </div>
 
             <div class="student-card-footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-              <button class="btn btn-success" style="width: 100%;" onclick="event.stopPropagation(); abrirModalPagamento('${aluno.id}', '${aluno.nome.replace(/'/g, "\\'")}', ${aluno.valor_aula || 0}, ${aluno.dia_vencimento || 0}, '${aluno.forma_pagamento || ''}')">
+              <button class="btn btn-success btn-pagamento" data-aluno-id="${aluno.id}" data-aluno-nome="${aluno.nome}" data-valor-aula="${aluno.valor_aula || 0}" data-dia-vencimento="${aluno.dia_vencimento || 0}" data-forma-pagamento="${aluno.forma_pagamento || ''}" style="width: 100%;">
                 💰 Pagamento
               </button>
               <button class="btn btn-primary" style="width: 100%;" onclick="event.stopPropagation(); window.location.href='/editar-paciente.html?id=${aluno.id}'">
@@ -173,13 +173,36 @@
               <button class="btn btn-secondary" style="width: 100%;" onclick="event.stopPropagation(); window.location.href='/historico-aluno.html?id=${aluno.id}'">
                 📚 Histórico
               </button>
-              <button class="btn" style="width: 100%; background: #25D366; color: white;" onclick="event.stopPropagation(); abrirWhatsApp('${aluno.telefone || aluno.telefone2 || ''}')">
+              <button class="btn btn-contato" data-telefone="${aluno.telefone || aluno.telefone2 || ''}" style="width: 100%; background: #25D366; color: white;">
                 📱 Contato
               </button>
             </div>
           </div>
         `;
       }).join('');
+      
+      // Adicionar event listeners nos botões de pagamento e contato
+      setTimeout(() => {
+        document.querySelectorAll('.btn-pagamento').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const id = this.dataset.alunoId;
+            const nome = this.dataset.alunoNome;
+            const valor = this.dataset.valorAula;
+            const dia = this.dataset.diaVencimento;
+            const forma = this.dataset.formaPagamento;
+            abrirModalPagamento(id, nome, valor, dia, forma);
+          });
+        });
+        
+        document.querySelectorAll('.btn-contato').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const telefone = this.dataset.telefone;
+            abrirWhatsApp(telefone);
+          });
+        });
+      }, 100);
     }
 
     // Calcular idade
