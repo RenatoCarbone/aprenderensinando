@@ -946,25 +946,48 @@
       selectHorario.innerHTML = '<option value="">Carregando...</option>';
       
       try {
-        // Buscar agendamentos do dia
+        // Buscar agendamentos do dia COM DURAÇÃO
         const { data: agendamentos, error } = await sb
           .from('agendamentos')
-          .select('data_hora')
+          .select('data_hora, duracao')
           .gte('data_hora', data + 'T00:00:00')
           .lt('data_hora', data + 'T23:59:59');
         
         if (error) throw error;
         
-        // Extrair apenas os horários (HH:MM)
-        const horariosOcupados = agendamentos.map(a => a.data_hora.substring(11, 16));
+        // Calcular TODOS os slots de 30min ocupados
+        const slotsOcupados = new Set();
+        agendamentos.forEach(ag => {
+          const horarioInicio = ag.data_hora.substring(11, 16); // "HH:MM"
+          const duracao = ag.duracao || 60; // padrão 60min
+          
+          console.log('Agendamento:', horarioInicio, 'Duração:', duracao, 'min');
+          
+          const [h, m] = horarioInicio.split(':').map(Number);
+          let minutos = h * 60 + m;
+          const fim = minutos + duracao;
+          
+          console.log('  Início em minutos:', minutos, 'Fim:', fim);
+          
+          // Marcar todos os slots de 30min que esse agendamento ocupa
+          while (minutos < fim) {
+            const hh = Math.floor(minutos / 60).toString().padStart(2, '0');
+            const mm = (minutos % 60).toString().padStart(2, '0');
+            console.log('  Marcando:', `${hh}:${mm}`);
+            slotsOcupados.add(`${hh}:${mm}`);
+            minutos += 30;
+          }
+        });
+        
+        console.log('Slots ocupados final:', Array.from(slotsOcupados));
         
         // Gerar opções
         const horarios = gerarOpcoesHorario();
         let html = '<option value="">Selecione o horário</option>';
         
         horarios.forEach(horario => {
-          const ocupado = horariosOcupados.includes(horario);
-          const cor = ocupado ? 'color: #EF4444;' : '';
+          const ocupado = slotsOcupados.has(horario);
+          const cor = ocupado ? 'color: #EF4444; font-weight: 600;' : '';
           const texto = ocupado ? `${horario} ⛔ OCUPADO` : horario;
           
           html += `<option value="${horario}" style="${cor}">${texto}</option>`;
