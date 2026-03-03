@@ -779,9 +779,9 @@
     // Carregar alunos sem configuração de cobrança
     async function carregarAlunosSemCobranca() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await sb.auth.getUser();
 
-        const { data: alunos, error } = await supabase
+        const { data: alunos, error } = await sb
           .from('pacientes')
           .select('id, nome')
           .eq('usuario_id', user.id)
@@ -872,7 +872,7 @@
     // Carregar cobranças pendentes
     async function carregarCobrancasPendentes() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await sb.auth.getUser();
         
         // Buscar pacientes com cobrança ativa
         const { data: pacientes, error: errPacientes } = await supabase
@@ -1005,7 +1005,7 @@
       const { pacienteId, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento } = window.dadosBaixa;
 
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await sb.auth.getUser();
         
         // Criar/atualizar mensalidade
         const { error } = await supabase
@@ -1155,3 +1155,4 @@
   </script>
 </body>
 </html>
+
