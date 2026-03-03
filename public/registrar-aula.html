@@ -592,7 +592,7 @@
         const { data: aula, error: erroAula } = await supabase
           .from('aulas')
           .insert({
-            paciente_id: agendamentoAtual.pacientes.id,
+            paciente_id: agendamentoAtual.pacientes?.id || null,
             agendamento_id: agendamentoAtual.id,
             data: dataLocal,
             horario: dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }),
