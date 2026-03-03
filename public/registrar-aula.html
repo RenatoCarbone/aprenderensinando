@@ -688,7 +688,8 @@
         const telefoneLimpo = telefone.replace(/\D/g, '');
         
         // Montar mensagem formatada
-        const mensagemFormatada = `Olá! Segue o relatório da aula de ${paciente.nome}:\n\n${mensagem}`;
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        const mensagemFormatada = `Olá! Relatório da aula de hoje (${dataHoje}) do aluno(a) ${paciente.nome}:\n\n${mensagem}`;
         
         // Abrir WhatsApp
         const urlWhatsApp = `https://wa.me/55${telefoneLimpo}?text=${encodeURIComponent(mensagemFormatada)}`;
