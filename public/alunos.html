@@ -275,7 +275,7 @@
       }
 
       try {
-        const { error } = await sb
+        const { error } = await supabase
           .from('pacientes')
           .update({
             valor_aula: valorAula,
