@@ -14,8 +14,8 @@
       </a>
       <nav class="nav">
         <a href="/dashboard.html">Dashboard</a>
-        <a href="/cadastro.html">Novo Paciente</a>
-        <a href="/alunos.html">Pacientes</a>
+        <a href="/cadastro.html">Novo Cadastro</a>
+        <a href="/alunos.html">Alunos</a>
         <a href="/agenda.html">Agenda</a>
         <a href="/financeiro.html">Financeiro</a>
       </nav>
@@ -32,19 +32,19 @@
     <!-- Estatísticas -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Total de Pacientes</div>
+        <div class="stat-label">Total de Alunos</div>
         <div class="stat-value" id="totalPacientes">0</div>
         <div class="stat-icon">👥</div>
       </div>
 
       <div class="stat-card success">
-        <div class="stat-label">Atendimentos Hoje</div>
+        <div class="stat-label">Aulas Hoje</div>
         <div class="stat-value" id="atendimentosHoje">0</div>
         <div class="stat-icon">📅</div>
       </div>
 
       <div class="stat-card warning">
-        <div class="stat-label">Atendimentos Mês</div>
+        <div class="stat-label">Aulas no Mês</div>
         <div class="stat-value" id="atendimentosMes">0</div>
         <div class="stat-icon">📊</div>
       </div>
@@ -61,7 +61,7 @@
       <!-- Próximos Atendimentos -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">📅 Próximos Atendimentos</h2>
+          <h2 class="card-title">📅 Próximas Aulas</h2>
           <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
             <button onclick="filtrarAgendamentos('hoje')" id="btnHoje" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
               Hoje
@@ -89,16 +89,16 @@
         <div class="card-body">
           <div style="display: flex; flex-direction: column; gap: 1rem;">
             <a href="/cadastro.html" class="btn btn-primary">
-              ➕ Cadastrar Novo Paciente
+              ➕ Novo Cadastro
             </a>
             <a href="/registrar-aula.html" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
               📚 Registrar Aula
             </a>
             <a href="/agenda.html" class="btn btn-secondary">
-              📅 Agendar Atendimento
+              📅 Agendar Aula
             </a>
             <a href="/alunos.html" class="btn btn-outline">
-              👥 Ver Todos os Pacientes
+              👥 Ver Alunos
             </a>
             <a href="/financeiro.html" class="btn btn-outline">
               💰 Registrar Receita
@@ -110,7 +110,7 @@
       <!-- Pacientes Recentes -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">👥 Pacientes Recentes</h2>
+          <h2 class="card-title">👥 Alunos Recentes</h2>
         </div>
         <div class="card-body" id="pacientesRecentes">
           <div class="loading">
