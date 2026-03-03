@@ -343,17 +343,15 @@
           <select id="tipoAgendamento" class="form-control">
             <option value="aula" selected>📚 Aula</option>
             <option value="avaliacao">💬 Avaliação Inicial com os Pais</option>
+            <option value="reuniao">👥 Reunião (laudo, acompanhamento, etc.)</option>
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="pacienteSelect" class="form-label" id="labelPaciente">👤 Paciente/Aluno</label>
-          <select id="pacienteSelect" class="form-control" id="selectPaciente">
-            <option value="">Selecione um aluno (opcional para avaliação inicial)...</option>
+        <div class="form-group" id="grupoPaciente">
+          <label for="pacienteSelect" class="form-label required">👤 Paciente/Aluno</label>
+          <select id="pacienteSelect" class="form-control">
+            <option value="">Selecione um aluno...</option>
           </select>
-          <small class="form-text" id="helpPaciente" style="display: none; color: var(--text-tertiary);">
-            💡 Para Avaliação Inicial, você pode deixar em branco e preencher o nome nos comentários
-          </small>
         </div>
 
         <div class="form-group">
@@ -714,15 +712,15 @@
       const observacoes = document.getElementById('observacoesAgendamento').value.trim();
       const tipoAgendamento = document.getElementById('tipoAgendamento').value;
 
-      // Validar paciente apenas se não for avaliação inicial
+      // Validar paciente (obrigatório para Aula e Reunião)
       if (!pacienteId && tipoAgendamento !== 'avaliacao') {
         alert('Selecione um paciente');
         return;
       }
 
-      // Se for avaliação sem paciente, validar observações
-      if (tipoAgendamento === 'avaliacao' && !pacienteId && !observacoes) {
-        alert('Para Avaliação Inicial sem aluno cadastrado, preencha as observações com o nome dos pais/responsáveis');
+      // Para avaliação, validar observações (deve ter nome dos pais)
+      if (tipoAgendamento === 'avaliacao' && !observacoes) {
+        alert('Para Avaliação Inicial, preencha as observações com o nome dos pais/responsáveis e da criança');
         return;
       }
 
@@ -808,17 +806,17 @@
       }
     });
 
-    // Mostrar/esconder ajuda quando mudar tipo de agendamento
+    // Mostrar/esconder campo paciente conforme tipo de agendamento
     document.getElementById('tipoAgendamento').addEventListener('change', (e) => {
-      const helpText = document.getElementById('helpPaciente');
-      const label = document.getElementById('labelPaciente');
+      const grupoPaciente = document.getElementById('grupoPaciente');
       
       if (e.target.value === 'avaliacao') {
-        helpText.style.display = 'block';
-        label.innerHTML = '👤 Paciente/Aluno <span style="color: var(--text-tertiary); font-weight: normal;">(opcional)</span>';
+        // Esconder campo de paciente para avaliação inicial
+        grupoPaciente.style.display = 'none';
+        document.getElementById('pacienteSelect').value = ''; // Limpar seleção
       } else {
-        helpText.style.display = 'none';
-        label.innerHTML = '👤 Paciente/Aluno <span style="color: #EF4444;">*</span>';
+        // Mostrar campo para Aula e Reunião
+        grupoPaciente.style.display = 'block';
       }
     });
 
