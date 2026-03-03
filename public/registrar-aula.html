@@ -375,6 +375,9 @@
             <label for="mensagemResponsavel" class="form-label">Mensagem para o Responsável</label>
             <textarea id="mensagemResponsavel" class="form-control" rows="3" 
               placeholder="Mensagem que será enviada aos pais/responsáveis sobre esta aula..."></textarea>
+            <button type="button" onclick="enviarWhatsApp()" class="btn" style="margin-top: 0.5rem; background: #25D366; color: white; width: 100%;">
+              📱 Enviar por WhatsApp
+            </button>
           </div>
         </div>
 
@@ -636,6 +639,54 @@
         btnSubmit.textContent = '💾 Salvar e Finalizar Aula';
       }
     });
+
+    // Enviar mensagem por WhatsApp
+    async function enviarWhatsApp() {
+      const pacienteId = document.getElementById('pacienteSelect').value;
+      const mensagem = document.getElementById('mensagemResponsavel').value.trim();
+      
+      if (!pacienteId) {
+        alert('Selecione um aluno primeiro!');
+        return;
+      }
+      
+      if (!mensagem) {
+        alert('Escreva uma mensagem primeiro!');
+        return;
+      }
+      
+      try {
+        // Buscar telefone do responsável
+        const { data: paciente, error } = await sb
+          .from('pacientes')
+          .select('nome, telefone, telefone2')
+          .eq('id', pacienteId)
+          .single();
+        
+        if (error) throw error;
+        
+        const telefone = paciente.telefone || paciente.telefone2;
+        
+        if (!telefone) {
+          alert('Este aluno não possui telefone cadastrado!');
+          return;
+        }
+        
+        // Limpar telefone (remover caracteres não numéricos)
+        const telefoneLimpo = telefone.replace(/\D/g, '');
+        
+        // Montar mensagem formatada
+        const mensagemFormatada = `Olá! Segue o relatório da aula de ${paciente.nome}:\n\n${mensagem}`;
+        
+        // Abrir WhatsApp
+        const urlWhatsApp = `https://wa.me/55${telefoneLimpo}?text=${encodeURIComponent(mensagemFormatada)}`;
+        window.open(urlWhatsApp, '_blank');
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao buscar dados do aluno');
+      }
+    }
 
     // Carregar ao iniciar
     carregarAgendamentos();

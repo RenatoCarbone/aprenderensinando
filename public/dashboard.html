@@ -813,17 +813,20 @@
         const idade = calcularIdade(aluno.data_nascimento);
         
         return `
-          <div class="timeline-item" onclick="window.location.href='/editar-paciente.html?id=${aluno.id}'" style="cursor: pointer;">
-            <div style="min-width: 40px;">
+          <div class="timeline-item" style="cursor: pointer; display: flex; align-items: center; gap: 1rem;">
+            <div style="min-width: 40px;" onclick="window.location.href='/editar-paciente.html?id=${aluno.id}'">
               ${aluno.foto_url 
                 ? `<img src="${aluno.foto_url}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">`
                 : `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--primary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">${aluno.nome.charAt(0).toUpperCase()}</div>`
               }
             </div>
-            <div class="timeline-content">
+            <div class="timeline-content" style="flex: 1;" onclick="window.location.href='/editar-paciente.html?id=${aluno.id}'">
               <div class="timeline-title">${aluno.nome}</div>
               <div class="timeline-desc">${idade} anos ${aluno.telefone ? `• ${aluno.telefone}` : ''}</div>
             </div>
+            <button onclick="event.stopPropagation(); window.location.href='/agenda.html?paciente=${aluno.id}'" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem; white-space: nowrap;">
+              📅 Agendar
+            </button>
           </div>
         `;
       }).join('');
