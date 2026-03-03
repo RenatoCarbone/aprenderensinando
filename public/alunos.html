@@ -232,8 +232,8 @@
       renderizarAlunos();
     }
 
-    // Abrir WhatsApp
-    function abrirWhatsApp(telefone) {
+    // Abrir WhatsApp (global)
+    window.abrirWhatsApp = function(telefone) {
       if (!telefone) {
         alert('Este aluno não possui telefone cadastrado');
         return;
@@ -246,8 +246,8 @@
       window.open(`https://wa.me/55${numeroLimpo}`, '_blank');
     }
 
-    // ===== MODAL DE PAGAMENTO =====
-    function abrirModalPagamento(alunoId, alunoNome, valorAula, diaVencimento, formaPagamento) {
+    // ===== MODAL DE PAGAMENTO ===== (global)
+    window.abrirModalPagamento = function(alunoId, alunoNome, valorAula, diaVencimento, formaPagamento) {
       document.getElementById('alunoIdPagamento').value = alunoId;
       document.getElementById('alunoNomePagamento').textContent = alunoNome;
       document.getElementById('valorAulaPagamento').value = valorAula || '';
@@ -257,7 +257,7 @@
       document.getElementById('modalPagamento').style.display = 'block';
     }
 
-    function fecharModalPagamento() {
+    window.fecharModalPagamento = function() {
       document.getElementById('modalPagamento').style.display = 'none';
     }
 
