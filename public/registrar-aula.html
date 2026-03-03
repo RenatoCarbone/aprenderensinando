@@ -642,12 +642,23 @@
 
     // Enviar mensagem por WhatsApp (global)
     window.enviarWhatsApp = async function() {
+      console.log('Função enviarWhatsApp chamada');
+      console.log('agendamentoAtual:', agendamentoAtual);
+      
       if (!agendamentoAtual) {
         alert('Nenhum agendamento selecionado!');
         return;
       }
       
-      const mensagem = document.getElementById('mensagemResponsavel').value.trim();
+      const elemento = document.getElementById('mensagemResponsavel');
+      console.log('Elemento mensagemResponsavel:', elemento);
+      
+      if (!elemento) {
+        alert('Erro: Campo de mensagem não encontrado!');
+        return;
+      }
+      
+      const mensagem = elemento.value.trim();
       
       if (!mensagem) {
         alert('Escreva uma mensagem primeiro!');
