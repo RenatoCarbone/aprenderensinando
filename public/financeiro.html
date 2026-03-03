@@ -831,7 +831,7 @@
         const filtroStatus = document.getElementById('filtroStatusAluno').value;
         const filtroCobranca = document.getElementById('filtroCobrancaAtiva').value;
 
-        let query = supabase
+        let query = sb
           .from('pacientes')
           .select('*')
           .order('nome', { ascending: true });
