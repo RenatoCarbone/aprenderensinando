@@ -221,8 +221,9 @@ body:has(.sidebar-collapsed) .page-content {
 
 .nav-icon {
   font-size: 1.25rem;
-  width: 24px;
+  min-width: 24px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 /* Main Content */
