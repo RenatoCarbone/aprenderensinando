@@ -77,6 +77,238 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(79, 190, 205, 0.1);
     }
+
+    /* Alunos sem cobrança */
+    .aluno-cobranca-card {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .aluno-cobranca-info {
+      flex: 1;
+    }
+
+    .aluno-cobranca-nome {
+      font-weight: 600;
+      color: #92400E;
+      margin-bottom: 0.25rem;
+    }
+
+    .aluno-cobranca-desc {
+      font-size: 0.875rem;
+      color: #B45309;
+    }
+
+    /* Cobranças pendentes */
+    .cobranca-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #3B82F6;
+    }
+
+    .cobranca-card.vence-amanha {
+      border-left-color: #F59E0B;
+      background: #FFFBEB;
+    }
+
+    .cobranca-card.atrasado {
+      border-left-color: #EF4444;
+      background: #FEF2F2;
+    }
+
+    .cobranca-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+
+    .cobranca-aluno {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .cobranca-valor {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #10B981;
+    }
+
+    .cobranca-detalhes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+    }
+
+    .cobranca-detalhe {
+      text-align: center;
+    }
+
+    .cobranca-detalhe-label {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-bottom: 0.25rem;
+    }
+
+    .cobranca-detalhe-valor {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .btn-dar-baixa {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-dar-baixa:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-xl);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 2px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      background: var(--bg-tertiary);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--border);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .form-label.required::after {
+      content: " *";
+      color: #EF4444;
+    }
+
+    .btn-large {
+      padding: 1rem 2rem;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      border-radius: var(--radius-lg);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary-large {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary-large:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .btn-secondary-large {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary-large:hover {
+      background: var(--bg-secondary);
+    }
   </style>
 </head>
 <body>
@@ -153,6 +385,26 @@
         </div>
       </div>
     </div>
+
+        <!-- Configuração de Cobranças -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <div class="card-header">
+            <h2 class="card-title">💰 Configuração de Cobranças</h2>
+          </div>
+          <div id="alunosSemCobranca" style="padding: var(--spacing-lg);">
+            <p style="text-align: center; color: var(--text-tertiary);">Carregando...</p>
+          </div>
+        </div>
+
+        <!-- Cobranças Pendentes -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <div class="card-header">
+            <h2 class="card-title">🔔 Cobranças Pendentes</h2>
+          </div>
+          <div id="cobrancasPendentes" style="padding: var(--spacing-lg);">
+            <p style="text-align: center; color: var(--text-tertiary);">Carregando...</p>
+          </div>
+        </div>
 
         <!-- Lista de Lançamentos -->
         <div class="card">
