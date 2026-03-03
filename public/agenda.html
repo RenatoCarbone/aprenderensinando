@@ -347,10 +347,13 @@
         </div>
 
         <div class="form-group">
-          <label for="pacienteSelect" class="form-label required">👤 Paciente/Aluno</label>
-          <select id="pacienteSelect" class="form-control" required>
-            <option value="">Carregando...</option>
+          <label for="pacienteSelect" class="form-label" id="labelPaciente">👤 Paciente/Aluno</label>
+          <select id="pacienteSelect" class="form-control" id="selectPaciente">
+            <option value="">Selecione um aluno (opcional para avaliação inicial)...</option>
           </select>
+          <small class="form-text" id="helpPaciente" style="display: none; color: var(--text-tertiary);">
+            💡 Para Avaliação Inicial, você pode deixar em branco e preencher o nome nos comentários
+          </small>
         </div>
 
         <div class="form-group">
@@ -711,8 +714,15 @@
       const observacoes = document.getElementById('observacoesAgendamento').value.trim();
       const tipoAgendamento = document.getElementById('tipoAgendamento').value;
 
-      if (!pacienteId) {
+      // Validar paciente apenas se não for avaliação inicial
+      if (!pacienteId && tipoAgendamento !== 'avaliacao') {
         alert('Selecione um paciente');
+        return;
+      }
+
+      // Se for avaliação sem paciente, validar observações
+      if (tipoAgendamento === 'avaliacao' && !pacienteId && !observacoes) {
+        alert('Para Avaliação Inicial sem aluno cadastrado, preencha as observações com o nome dos pais/responsáveis');
         return;
       }
 
@@ -795,6 +805,20 @@
         alert('Erro ao salvar agendamento: ' + error.message);
       } finally {
         showLoading(false);
+      }
+    });
+
+    // Mostrar/esconder ajuda quando mudar tipo de agendamento
+    document.getElementById('tipoAgendamento').addEventListener('change', (e) => {
+      const helpText = document.getElementById('helpPaciente');
+      const label = document.getElementById('labelPaciente');
+      
+      if (e.target.value === 'avaliacao') {
+        helpText.style.display = 'block';
+        label.innerHTML = '👤 Paciente/Aluno <span style="color: var(--text-tertiary); font-weight: normal;">(opcional)</span>';
+      } else {
+        helpText.style.display = 'none';
+        label.innerHTML = '👤 Paciente/Aluno <span style="color: #EF4444;">*</span>';
       }
     });
 
