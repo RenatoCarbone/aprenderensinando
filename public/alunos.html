@@ -5,6 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alunos - Aprender Ensinando</title>
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .container {
+      max-width: 1400px !important;
+    }
+
+    .table {
+      font-size: 0.9rem;
+      min-width: 100%;
+    }
+
+    .table th,
+    .table td {
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+    }
+
+    .table th {
+      white-space: nowrap;
+      background: #f7fafc;
+      font-weight: 600;
+    }
+
+    .btn {
+      padding: 0.5rem 0.875rem;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -26,7 +60,7 @@
     </div>
   </header>
 
-  <div class="container">
+  <div class="container" style="max-width: 1400px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
       <h1>👥 Meus Alunos</h1>
       <a href="/cadastro.html" class="btn btn-primary">➕ Novo Paciente</a>
