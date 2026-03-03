@@ -530,6 +530,9 @@
 
   <script type="module">
     import { supabase } from './js/supabase.js';
+    
+    // Alias para usar nas funções de documentos
+    const sb = supabase;
 
     // Pegar ID do aluno da URL
     const urlParams = new URLSearchParams(window.location.search);
