@@ -521,10 +521,12 @@
                   ${isPast ? '<span class="badge badge-info">Realizado</span>' : '<span class="badge badge-success">Agendado</span>'}
                 </div>
                 <div>
-                  <strong>${a.pacientes?.nome || 'Paciente'}</strong>
-                  <small style="display: block; color: var(--text-secondary);">
-                    ${a.pacientes?.id_aluno || ''} • ${a.pacientes?.telefone || ''}
-                  </small>
+                  <strong>${a.pacientes?.nome || '💬 Avaliação Inicial'}</strong>
+                  ${a.pacientes ? `
+                    <small style="display: block; color: var(--text-secondary);">
+                      ${a.pacientes.id_aluno || ''} ${a.pacientes.telefone ? '• ' + a.pacientes.telefone : ''}
+                    </small>
+                  ` : ''}
                 </div>
                 ${a.observacoes ? `<p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">${a.observacoes}</p>` : ''}
               </div>
@@ -762,7 +764,7 @@
           const { error } = await sb
             .from('agendamentos')
             .update({
-              paciente_id: pacienteId,
+              paciente_id: pacienteId || null,
               data_hora: agendamentos[0].data_hora,
               duracao: duracao,
               observacoes: observacoes,
