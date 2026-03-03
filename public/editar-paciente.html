@@ -373,7 +373,128 @@
         <div class="form-group">
           <label for="endereco" class="form-label">Endereço</label>
           <input type="text" id="endereco" class="form-control">
+        </div>
+      </div>
+
+      <!-- Seção: Dados dos Responsáveis -->
+      <div class="card-section">
+        <h3 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.5rem;">👨‍👩‍👧</span>
+          <span>Dados dos Responsáveis</span>
+        </h3>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label for="nomePai" class="form-label">Nome do Pai</label>
+            <input type="text" id="nomePai" class="form-control">
           </div>
+
+          <div class="form-group">
+            <label for="nomeMaeResp" class="form-label">Nome da Mãe</label>
+            <input type="text" id="nomeMaeResp" class="form-control">
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label for="nomeAvo" class="form-label">Nome do(a) Avô/Avó</label>
+            <input type="text" id="nomeAvo" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="nomeOutroResponsavel" class="form-label">Outro Responsável</label>
+            <input type="text" id="nomeOutroResponsavel" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="responsavelPrincipal" class="form-label">Responsável Principal</label>
+          <select id="responsavelPrincipal" class="form-control">
+            <option value="">Selecione...</option>
+            <option value="Pai">Pai</option>
+            <option value="Mãe">Mãe</option>
+            <option value="Avô/Avó">Avô/Avó</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="emailResp" class="form-label">E-mail do Responsável</label>
+          <input type="email" id="emailResp" class="form-control">
+        </div>
+      </div>
+
+      <!-- Seção: Perguntas da Entrevista -->
+      <div class="card-section">
+        <h3 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.5rem;">📋</span>
+          <span>Perguntas da Entrevista Inicial</span>
+        </h3>
+
+        <div class="form-group">
+          <label for="pergunta1" class="form-label">1. Qual a queixa inicial?</label>
+          <textarea id="pergunta1" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta2" class="form-label">2. Quando começou?</label>
+          <textarea id="pergunta2" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta3" class="form-label">3. Como os responsáveis se sentem?</label>
+          <textarea id="pergunta3" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta4" class="form-label">4. Expectativas em relação à escola?</label>
+          <textarea id="pergunta4" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta5" class="form-label">5. Pergunta adicional 1</label>
+          <textarea id="pergunta5" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta6" class="form-label">6. Pergunta adicional 2</label>
+          <textarea id="pergunta6" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta7" class="form-label">7. Pergunta adicional 3</label>
+          <textarea id="pergunta7" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta8" class="form-label">8. Pergunta adicional 4</label>
+          <textarea id="pergunta8" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta9" class="form-label">9. Pergunta adicional 5</label>
+          <textarea id="pergunta9" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta10" class="form-label">10. Pergunta adicional 6</label>
+          <textarea id="pergunta10" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta11" class="form-label">11. Pergunta adicional 7</label>
+          <textarea id="pergunta11" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta12" class="form-label">12. Pergunta adicional 8</label>
+          <textarea id="pergunta12" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pergunta13" class="form-label">13. Pergunta adicional 9</label>
+          <textarea id="pergunta13" class="form-control" rows="2"></textarea>
+        </div>
       </div>
 
       <!-- Botões Modernos -->
@@ -438,6 +559,29 @@
       document.getElementById('telefone').value = paciente.telefone || '';
       document.getElementById('telefone2').value = paciente.telefone2 || '';
       document.getElementById('endereco').value = paciente.endereco || '';
+
+      // Dados dos Responsáveis
+      document.getElementById('nomePai').value = paciente.nome_pai || '';
+      document.getElementById('nomeMaeResp').value = paciente.nome_mae || '';
+      document.getElementById('nomeAvo').value = paciente.nome_avo || '';
+      document.getElementById('nomeOutroResponsavel').value = paciente.nome_outro_responsavel || '';
+      document.getElementById('responsavelPrincipal').value = paciente.responsavel_principal || '';
+      document.getElementById('emailResp').value = paciente.email || '';
+
+      // Perguntas da Entrevista
+      document.getElementById('pergunta1').value = paciente.pergunta_1 || '';
+      document.getElementById('pergunta2').value = paciente.pergunta_2 || '';
+      document.getElementById('pergunta3').value = paciente.pergunta_3 || '';
+      document.getElementById('pergunta4').value = paciente.pergunta_4 || '';
+      document.getElementById('pergunta5').value = paciente.pergunta_5 || '';
+      document.getElementById('pergunta6').value = paciente.pergunta_6 || '';
+      document.getElementById('pergunta7').value = paciente.pergunta_7 || '';
+      document.getElementById('pergunta8').value = paciente.pergunta_8 || '';
+      document.getElementById('pergunta9').value = paciente.pergunta_9 || '';
+      document.getElementById('pergunta10').value = paciente.pergunta_10 || '';
+      document.getElementById('pergunta11').value = paciente.pergunta_11 || '';
+      document.getElementById('pergunta12').value = paciente.pergunta_12 || '';
+      document.getElementById('pergunta13').value = paciente.pergunta_13 || '';
 
       // Foto
       if (paciente.foto_url) {
@@ -545,7 +689,29 @@
           foto_url: fotoUrl,
           status: status,
           data_conclusao: status === 'concluido' ? document.getElementById('dataConclusao').value : null,
-          motivo_conclusao: status === 'concluido' ? document.getElementById('motivoConclusao').value : null
+          motivo_conclusao: status === 'concluido' ? document.getElementById('motivoConclusao').value : null,
+          
+          // Dados dos Responsáveis
+          nome_pai: document.getElementById('nomePai').value || null,
+          nome_avo: document.getElementById('nomeAvo').value || null,
+          nome_outro_responsavel: document.getElementById('nomeOutroResponsavel').value || null,
+          responsavel_principal: document.getElementById('responsavelPrincipal').value || null,
+          email: document.getElementById('emailResp').value || null,
+          
+          // Perguntas da Entrevista
+          pergunta_1: document.getElementById('pergunta1').value || null,
+          pergunta_2: document.getElementById('pergunta2').value || null,
+          pergunta_3: document.getElementById('pergunta3').value || null,
+          pergunta_4: document.getElementById('pergunta4').value || null,
+          pergunta_5: document.getElementById('pergunta5').value || null,
+          pergunta_6: document.getElementById('pergunta6').value || null,
+          pergunta_7: document.getElementById('pergunta7').value || null,
+          pergunta_8: document.getElementById('pergunta8').value || null,
+          pergunta_9: document.getElementById('pergunta9').value || null,
+          pergunta_10: document.getElementById('pergunta10').value || null,
+          pergunta_11: document.getElementById('pergunta11').value || null,
+          pergunta_12: document.getElementById('pergunta12').value || null,
+          pergunta_13: document.getElementById('pergunta13').value || null
         };
 
         const { error } = await supabase
