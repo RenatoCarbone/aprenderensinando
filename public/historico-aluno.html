@@ -480,13 +480,19 @@
         </div>
 
         <h2>📚 Histórico de Aulas</h2>
-        ${aulas.map((aula, index) => `
-          <div class="aula">
-            <strong>Aula ${aulas.length - index} - ${new Date(aula.data).toLocaleDateString('pt-BR')}</strong>
-            <p><strong>Conteúdo:</strong> ${aula.conteudo_aplicado}</p>
-            ${aula.observacoes_gerais ? `<p><strong>Observações:</strong> ${aula.observacoes_gerais}</p>` : ''}
-          </div>
-        `).join('')}
+        ${aulas.map((aula, index) => {
+          // Corrigir data (forçar local)
+          const [ano, mes, dia] = aula.data.split('-');
+          const dataAula = new Date(ano, mes - 1, dia);
+          
+          return `
+            <div class="aula">
+              <strong>Aula ${aulas.length - index} - ${dataAula.toLocaleDateString('pt-BR')}</strong>
+              <p><strong>Conteúdo:</strong> ${aula.conteudo_aplicado}</p>
+              ${aula.observacoes_gerais ? `<p><strong>Observações:</strong> ${aula.observacoes_gerais}</p>` : ''}
+            </div>
+          `;
+        }).join('')}
       `;
     }
 
