@@ -343,6 +343,25 @@
 
     // Iniciar
     carregarAlunos();
+
+    // Verificar se deve abrir modal de pagamento automaticamente
+    const urlParams = new URLSearchParams(window.location.search);
+    const abrirPagamentoId = urlParams.get('abrir_pagamento');
+    
+    if (abrirPagamentoId) {
+      const nome = urlParams.get('nome') || '';
+      const valor = urlParams.get('valor') || 0;
+      const dia = urlParams.get('dia') || 0;
+      const forma = urlParams.get('forma') || '';
+      
+      // Aguardar um pouco para garantir que a página carregou
+      setTimeout(() => {
+        window.abrirModalPagamento(abrirPagamentoId, nome, valor, dia, forma);
+        
+        // Limpar URL para não reabrir ao recarregar
+        window.history.replaceState({}, document.title, '/alunos.html');
+      }, 500);
+    }
   </script>
 
   <!-- Modal Configurar Pagamento -->

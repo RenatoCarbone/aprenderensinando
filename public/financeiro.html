@@ -899,6 +899,11 @@
       }
     }
 
+    function abrirPagamentoDireto(alunoId, alunoNome, valorAula, diaVencimento, formaPagamento) {
+      // Redireciona para página de alunos com parâmetros para abrir o modal
+      window.location.href = `/alunos.html?abrir_pagamento=${alunoId}&nome=${encodeURIComponent(alunoNome)}&valor=${valorAula}&dia=${diaVencimento}&forma=${encodeURIComponent(formaPagamento)}`;
+    }
+
     function renderizarTabelaAlunos(alunos) {
       const container = document.getElementById('tabelaGestaoAlunos');
 
@@ -940,7 +945,7 @@
               <td style="padding: 0.75rem; text-align: center; width: 140px;">${diaVencimento}</td>
               <td style="padding: 0.75rem; text-align: center; width: 150px;">${formaPagamento}</td>
               <td style="padding: 0.75rem; text-align: center; width: 100px;">
-                <button onclick="window.location.href='/alunos.html'" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">
+                <button onclick="abrirPagamentoDireto('${aluno.id}', '${aluno.nome.replace(/'/g, "\\'")}', ${aluno.valor_aula || 0}, ${aluno.dia_vencimento || 0}, '${aluno.forma_pagamento || ''}')" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">
                   ⚙️ Editar
                 </button>
               </td>
