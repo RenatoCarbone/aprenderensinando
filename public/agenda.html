@@ -994,12 +994,17 @@
 
       // VALIDAR CONFLITOS antes de criar
       for (const dh of datasHorarios) {
+        console.log('Verificando conflito para:', `${dh.data}T${dh.horario}:00`);
+        
         const { data: conflitos, error: errorConflito } = await sb
           .from('agendamentos')
           .select('*')
           .eq('data_hora', `${dh.data}T${dh.horario}:00`);
         
+        console.log('Conflitos encontrados:', conflitos);
+        
         if (errorConflito) {
+          console.error('Erro ao verificar:', errorConflito);
           alert('Erro ao verificar conflitos');
           return;
         }
@@ -1009,6 +1014,8 @@
           return;
         }
       }
+      
+      console.log('Nenhum conflito encontrado. Prosseguindo...');
 
       if (!confirm(`Serão criados ${datasHorarios.length} agendamento(s). Deseja continuar?`)) {
         return;
