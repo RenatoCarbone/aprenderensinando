@@ -852,12 +852,23 @@
         document.getElementById('pacienteSelect').value = data.paciente_id;
         
         // Preencher a primeira linha de data/hora
-        const container = document.getElementById('datasContainer');
+        const container = document.getElementById('datasHorariosContainer');
         const inputData = container.querySelector('.input-data');
-        const inputHora = container.querySelector('.input-hora');
+        const selectHora = container.querySelector('.select-horario');
         
-        if (inputData) inputData.value = dataHora.toISOString().split('T')[0];
-        if (inputHora) inputHora.value = dataHora.toTimeString().substring(0, 5);
+        if (inputData) {
+          inputData.value = dataHora.toISOString().split('T')[0];
+          // Trigger change para carregar horários disponíveis
+          inputData.dispatchEvent(new Event('change'));
+          
+          // Aguardar carregamento dos horários e selecionar o correto
+          setTimeout(() => {
+            if (selectHora) {
+              const horaFormatada = dataHora.toTimeString().substring(0, 5);
+              selectHora.value = horaFormatada;
+            }
+          }, 500);
+        }
         
         document.getElementById('duracaoAgendamento').value = data.duracao || 60;
         document.getElementById('observacoesAgendamento').value = data.observacoes || '';
