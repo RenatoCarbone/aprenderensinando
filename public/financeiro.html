@@ -2004,9 +2004,8 @@
             .eq('data_vencimento', dataVencimento.toISOString().split('T')[0])
             .maybeSingle();
 
-          const status = mensalidade?.status === 'pago' ? 'pago' : 'pendente';
-          
-          if (status === 'pago') continue; // Pular se já foi pago
+          // Pular se já foi pago
+          if (mensalidade && mensalidade.status === 'pago') continue;
 
           const diasAteVencimento = Math.ceil((dataVencimento - hoje) / (1000 * 60 * 60 * 24));
           let statusLabel = '🔵 Pendente';
