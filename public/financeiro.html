@@ -1266,15 +1266,13 @@
         });
 
         // 3. Montar mensagem para WhatsApp
-        const tipoLancamento = lancamentoAtual.tipo === 'receita' ? 'Receita' : 'Despesa';
         const valorFormatado = formatCurrency(lancamentoAtual.valor);
         const dataFormatada = formatDate(lancamentoAtual.data);
         
-        const mensagem = `Olá! Segue o comprovante de ${tipoLancamento.toLowerCase()}:\n\n` +
-          `📋 Descrição: ${lancamentoAtual.descricao}\n` +
-          `💰 Valor: ${valorFormatado}\n` +
-          `📅 Data: ${dataFormatada}\n\n` +
-          `📸 Comprovante foi baixado! Por favor, anexe a imagem nesta conversa.`;
+        const mensagem = `Ola! Segue o comprovante de pagamento:\n\n` +
+          `Descricao: ${lancamentoAtual.descricao}\n` +
+          `Valor: ${valorFormatado}\n` +
+          `Data: ${dataFormatada}`;
 
         // 4. Limpar telefone e abrir WhatsApp
         const telefoneLimpo = telefone.replace(/\D/g, '');
