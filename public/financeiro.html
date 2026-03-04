@@ -1977,10 +1977,10 @@
           const dataFim = new Date(ano, mes, diaVenc - 1);
           const dataVencimento = new Date(ano, mes, diaVenc);
 
-          // Contar aulas do período
+          // Buscar TODAS as aulas do período (agendadas + realizadas)
           const { data: aulas } = await sb
             .from('aulas')
-            .select('id, data')
+            .select('id, data, status')
             .eq('paciente_id', paciente.id)
             .gte('data', dataInicio.toISOString().split('T')[0])
             .lte('data', dataFim.toISOString().split('T')[0])
@@ -1988,7 +1988,11 @@
 
           const totalAulas = aulas?.length || 0;
           
-          if (totalAulas === 0) continue; // Pular se não teve aulas
+          if (totalAulas === 0) continue; // Pular se não tem aulas nenhuma
+
+          // Separar aulas concluídas e agendadas
+          const aulasConcluidas = aulas.filter(a => a.status === 'concluida' || a.status === 'realizada').length;
+          const aulasAgendadas = aulas.filter(a => a.status === 'agendada' || !a.status).length;
 
           const valorTotal = totalAulas * paciente.valor_aula;
 
@@ -2019,6 +2023,8 @@
           alunosComAulas.push({
             ...paciente,
             totalAulas,
+            aulasConcluidas,
+            aulasAgendadas,
             valorTotal,
             dataInicio,
             dataFim,
@@ -2083,7 +2089,12 @@
           html += `
             <tr>
               <td><strong>${aluno.nome}</strong></td>
-              <td>${aluno.totalAulas} aulas</td>
+              <td>
+                <div><strong>${aluno.totalAulas} aulas</strong></div>
+                <div style="font-size: 0.75rem; color: var(--text-tertiary);">
+                  ✅ ${aluno.aulasConcluidas} concluídas | 📅 ${aluno.aulasAgendadas} agendadas
+                </div>
+              </td>
               <td>R$ ${aluno.valor_aula.toFixed(2)}</td>
               <td><strong style="color: var(--success);">R$ ${aluno.valorTotal.toFixed(2)}</strong></td>
               <td>${aluno.dataVencimento.toLocaleDateString('pt-BR')}</td>
