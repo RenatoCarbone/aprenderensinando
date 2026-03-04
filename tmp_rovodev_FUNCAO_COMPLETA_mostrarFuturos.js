@@ -91,27 +91,29 @@ async function mostrarFuturos(tipo) {
     let html = `
       <div style="display: flex; flex-direction: column; gap: 1rem;">
         ${lancamentos.map(item => `
-          <div class="futuro-card">
-            <div class="futuro-icon">${tipo === 'receita' ? '💵' : '💸'}</div>
-            <div class="futuro-info">
-              <h3>${item.descricao}</h3>
-              <p>${item.categoria} - ${formatDate(item.data_prevista)}</p>
+          <div style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid ${tipo === 'receita' ? '#28a745' : '#dc3545'};">
+            <div style="font-size: 2rem;">${tipo === 'receita' ? '💵' : '💸'}</div>
+            <div style="flex: 1;">
+              <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: #212529;">${item.descricao}</h3>
+              <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6c757d;">${item.categoria} - ${formatDate(item.data_prevista)}</p>
             </div>
-            <div class="futuro-valor ${tipo === 'receita' ? 'success' : 'danger'}">
-              R$ ${parseFloat(item.valor).toFixed(2)}
+            <div style="text-align: right;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: ${tipo === 'receita' ? '#28a745' : '#dc3545'};">
+                R$ ${parseFloat(item.valor).toFixed(2)}
+              </div>
+              ${!item.id.startsWith('aula-') ? `
+                <button onclick="marcarComoConcluido('${item.id}', '${tipo}')" class="btn btn-success" style="margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                  ✅ Concluir
+                </button>
+              ` : ''}
             </div>
-            ${!item.id.startsWith('aula-') ? `
-              <button onclick="marcarComoConcluido('${item.id}', '${tipo}')" class="btn btn-success btn-sm">
-                ✅ Concluir
-              </button>
-            ` : ''}
           </div>
         `).join('')}
       </div>
       
-      <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: var(--radius); text-align: center;">
-        <h3 style="margin: 0;">Total ${tipo === 'receita' ? 'a Receber' : 'a Pagar'}</h3>
-        <div style="font-size: 2rem; font-weight: 700; color: ${tipo === 'receita' ? 'var(--success)' : 'var(--danger)'}; margin-top: 0.5rem;">
+      <div style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; text-align: center;">
+        <h3 style="margin: 0; color: #495057;">Total ${tipo === 'receita' ? 'a Receber' : 'a Pagar'}</h3>
+        <div style="font-size: 2rem; font-weight: 700; color: ${tipo === 'receita' ? '#28a745' : '#dc3545'}; margin-top: 0.5rem;">
           R$ ${total.toFixed(2)}
         </div>
       </div>
