@@ -904,6 +904,11 @@
 
     function toggleGestaoAlunos() {
       const secao = document.getElementById('secaoGestaoAlunos');
+      const secaoAulas = document.getElementById('secaoGestaoAulas');
+      
+      // Fechar Gestão de Aulas se estiver aberta
+      secaoAulas.style.display = 'none';
+      
       if (secao.style.display === 'none') {
         secao.style.display = 'block';
         carregarGestaoAlunos();
@@ -918,6 +923,11 @@
 
     function toggleGestaoAulas() {
       const secao = document.getElementById('secaoGestaoAulas');
+      const secaoAlunos = document.getElementById('secaoGestaoAlunos');
+      
+      // Fechar Gestão de Alunos se estiver aberta
+      secaoAlunos.style.display = 'none';
+      
       if (secao.style.display === 'none') {
         secao.style.display = 'block';
         abaAtualGestaoAulas = 'aReceber';
