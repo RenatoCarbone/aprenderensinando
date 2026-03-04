@@ -1816,6 +1816,9 @@
 
     // Abrir modal dar baixa
     window.abrirModalDarBaixa = function(pacienteId, nome, valorTotal, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento) {
+      // Fechar o modal Controle Completo se estiver aberto
+      fecharControleCompleto();
+      
       window.dadosBaixa = { pacienteId, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento };
       
       document.getElementById('alunoNomeBaixa').textContent = nome;
@@ -1967,9 +1970,18 @@
 
     function filtrarAlunosControle() {
       const busca = document.getElementById('buscaAluno').value.toLowerCase();
-      renderizarTabelaControle(todosAlunosControle.filter(aluno => 
+      
+      // Se não tem dados carregados ainda, não faz nada
+      if (!todosAlunosControle || todosAlunosControle.length === 0) {
+        return;
+      }
+      
+      // Filtrar alunos
+      const alunosFiltrados = todosAlunosControle.filter(aluno => 
         aluno.nome.toLowerCase().includes(busca)
-      ));
+      );
+      
+      renderizarTabelaControle(alunosFiltrados);
     }
 
     async function carregarControleCompleto() {
