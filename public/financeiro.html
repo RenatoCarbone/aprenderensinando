@@ -393,13 +393,22 @@
               <button onclick="toggleGestaoAulas()" class="btn btn-secondary">✕ Fechar</button>
             </div>
 
-            <!-- Cards de Resumo (carregados dinamicamente) -->
-            <div id="cardsResumoGestaoAulas" style="margin-bottom: 1.5rem;"></div>
-
-            <!-- Filtros e Busca -->
+            <!-- Busca e Filtros -->
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
               
-              <!-- Botões de filtro modernos -->
+              <!-- Campo de busca (esquerda) -->
+              <div style="position: relative; flex: 1; min-width: 300px; max-width: 500px;">
+                <input 
+                  type="text" 
+                  id="buscaAlunoGestao" 
+                  class="form-control" 
+                  placeholder="🔍 Buscar aluno pelo nome..."
+                  oninput="filtrarAlunosGestaoAulas()"
+                  style="padding: 0.75rem 1rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem;"
+                >
+              </div>
+
+              <!-- Botões de filtro modernos (direita) -->
               <div style="display: flex; gap: 0.5rem;">
                 <button id="tabAulasAReceber" onclick="trocarAbaGestaoAulas('aReceber')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);">
                   🔔 A Receber
@@ -411,19 +420,10 @@
                   📋 Todas
                 </button>
               </div>
-
-              <!-- Campo de busca -->
-              <div style="position: relative; flex: 1; min-width: 250px; max-width: 400px;">
-                <input 
-                  type="text" 
-                  id="buscaAlunoGestao" 
-                  class="form-control" 
-                  placeholder="🔍 Buscar aluno pelo nome..."
-                  oninput="filtrarAlunosGestaoAulas()"
-                  style="padding: 0.75rem 1rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem;"
-                >
-              </div>
             </div>
+
+            <!-- Cards de Resumo -->
+            <div id="cardsResumoGestaoAulas" style="margin-bottom: 1.5rem;"></div>
 
             <!-- Conteúdo (Tabela) -->
             <div id="conteudoGestaoAulas">
