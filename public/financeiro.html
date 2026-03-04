@@ -1692,9 +1692,39 @@
 
         if (error) throw error;
 
+        // Buscar nome do paciente para a descrição
+        const { data: paciente } = await sb
+          .from('pacientes')
+          .select('nome')
+          .eq('id', pacienteId)
+          .single();
+
+        // Criar lançamento financeiro
+        const lancamentoFinanceiro = {
+          usuario_id: user.id,
+          tipo: 'receita',
+          categoria: 'Consulta',
+          descricao: `Mensalidade - ${paciente?.nome || 'Paciente'} (${totalAulas} aulas)`,
+          valor: totalAulas * valorAula,
+          data: dataPagamento,
+          status: 'concluido',
+          paciente_id: pacienteId,
+          observacoes: observacoes || `Período: ${new Date(dataInicio).toLocaleDateString('pt-BR')} a ${new Date(dataFim).toLocaleDateString('pt-BR')}`
+        };
+
+        const { error: errorLancamento } = await sb
+          .from('financeiro')
+          .insert(lancamentoFinanceiro);
+
+        if (errorLancamento) {
+          console.error('Erro ao criar lançamento financeiro:', errorLancamento);
+          // Não bloqueia o processo, apenas avisa
+        }
+
         alert('✅ Pagamento registrado com sucesso!');
         fecharModalBaixa();
         carregarCobrancasPendentes();
+        carregarLancamentos(); // Atualizar lista de lançamentos
         atualizarResumo();
       } catch (error) {
         console.error('Erro:', error);
