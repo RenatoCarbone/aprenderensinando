@@ -453,7 +453,7 @@
                   <label for="filtroCategoria" class="form-label">Categoria</label>
                   <select id="filtroCategoria" class="form-control">
                     <option value="">Todas</option>
-                    <option value="Consulta">Consulta</option>
+                    <option value="Aulas">Aulas</option>
                     <option value="Avaliação">Avaliação</option>
                     <option value="Material">Material</option>
                     <option value="Aluguel">Aluguel</option>
@@ -530,7 +530,7 @@
           <label for="categoriaLancamento" class="form-label required">Categoria</label>
           <select id="categoriaLancamento" class="form-control" required>
             <option value="">Selecione...</option>
-            <option value="Consulta">Consulta</option>
+            <option value="Aulas">Aulas</option>
             <option value="Avaliação">Avaliação</option>
             <option value="Material">Material</option>
             <option value="Aluguel">Aluguel</option>
@@ -540,7 +540,7 @@
 
         <div class="form-group">
           <label for="descricaoLancamento" class="form-label required">Descrição</label>
-          <input type="text" id="descricaoLancamento" class="form-control" required placeholder="Ex: Consulta - João Silva">
+          <input type="text" id="descricaoLancamento" class="form-control" required placeholder="Ex: Aulas - João Silva">
         </div>
 
         <div class="form-group">
@@ -1890,7 +1890,7 @@
         const lancamentoFinanceiro = {
           usuario_id: user.id,
           tipo: 'receita',
-          categoria: 'Consulta',
+          categoria: 'Aulas',
           descricao: `Mensalidade - ${paciente?.nome || 'Paciente'} (${totalAulas} aulas)`,
           valor: totalAulas * valorAula,
           data: dataPagamento,
