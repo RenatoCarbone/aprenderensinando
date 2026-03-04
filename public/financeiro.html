@@ -1977,22 +1977,34 @@
           const dataFim = new Date(ano, mes, diaVenc - 1);
           const dataVencimento = new Date(ano, mes, diaVenc);
 
-          // Buscar TODAS as aulas do período (agendadas + realizadas)
-          const { data: aulas } = await sb
+          // Buscar aulas REALIZADAS do período (tabela aulas)
+          const { data: aulasRealizadas } = await sb
             .from('aulas')
-            .select('id, data, status')
+            .select('id, data, agendamento_id')
             .eq('paciente_id', paciente.id)
             .gte('data', dataInicio.toISOString().split('T')[0])
             .lte('data', dataFim.toISOString().split('T')[0])
             .order('data');
 
-          const totalAulas = aulas?.length || 0;
+          // Buscar agendamentos do período (tabela agendamentos)
+          const { data: agendamentos } = await sb
+            .from('agendamentos')
+            .select('id, data_hora')
+            .eq('paciente_id', paciente.id)
+            .gte('data_hora', dataInicio.toISOString())
+            .lte('data_hora', dataFim.toISOString())
+            .order('data_hora');
+
+          const aulasConcluidas = aulasRealizadas?.length || 0;
+          const totalAgendamentos = agendamentos?.length || 0;
+          
+          // Aulas agendadas = agendamentos que ainda não têm aula realizada
+          const agendamentosIds = new Set(aulasRealizadas?.map(a => a.agendamento_id).filter(id => id));
+          const aulasAgendadas = agendamentos?.filter(ag => !agendamentosIds.has(ag.id)).length || 0;
+          
+          const totalAulas = aulasConcluidas + aulasAgendadas;
           
           if (totalAulas === 0) continue; // Pular se não tem aulas nenhuma
-
-          // Separar aulas concluídas e agendadas
-          const aulasConcluidas = aulas.filter(a => a.status === 'concluida' || a.status === 'realizada').length;
-          const aulasAgendadas = aulas.filter(a => a.status === 'agendada' || !a.status).length;
 
           const valorTotal = totalAulas * paciente.valor_aula;
 
@@ -2028,11 +2040,11 @@
             dataInicio,
             dataFim,
             dataVencimento,
-            status,
             statusLabel,
             statusClass,
             diasAteVencimento,
-            aulas
+            aulasRealizadas,
+            agendamentos
           });
 
           totalGeral += valorTotal;
