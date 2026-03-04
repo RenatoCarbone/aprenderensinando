@@ -416,8 +416,11 @@
 
             <!-- Cobranças Pendentes -->
             <div class="card">
-              <div class="card-header">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <h2 class="card-title">🔔 Cobranças Pendentes</h2>
+                <button onclick="abrirControleCompleto()" class="btn btn-primary" style="padding: 0.5rem 1rem;">
+                  📋 Ver Todos
+                </button>
               </div>
               <div id="cobrancasPendentes" style="padding: var(--spacing-lg);">
                 <p style="text-align: center; color: var(--text-tertiary);">Carregando...</p>
@@ -1927,6 +1930,187 @@
       }
     };
 
+    // Funções do Modal Controle Completo
+    function abrirControleCompleto() {
+      document.getElementById('modalControleCompleto').style.display = 'block';
+      carregarControleCompleto();
+    }
+
+    function fecharControleCompleto() {
+      document.getElementById('modalControleCompleto').style.display = 'none';
+    }
+
+    async function carregarControleCompleto() {
+      const container = document.getElementById('conteudoControleCompleto');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      try {
+        const { data: { user } } = await sb.auth.getUser();
+        
+        // Buscar TODOS os pacientes com cobrança ativa
+        const { data: pacientes, error: errPacientes } = await sb
+          .from('pacientes')
+          .select('id, nome, valor_aula, dia_vencimento, forma_pagamento')
+          .eq('usuario_id', user.id)
+          .eq('cobranca_ativa', true)
+          .order('nome');
+
+        if (errPacientes) throw errPacientes;
+
+        if (!pacientes || pacientes.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem;">Nenhum aluno com cobrança ativa</p>';
+          return;
+        }
+
+        const hoje = new Date();
+        const mes = hoje.getMonth();
+        const ano = hoje.getFullYear();
+        
+        let totalGeral = 0;
+        let totalAulasGeral = 0;
+        let alunosComAulas = [];
+
+        // Calcular dados de cada aluno
+        for (const paciente of pacientes) {
+          const diaVenc = paciente.dia_vencimento;
+          const dataInicio = new Date(ano, mes - 1, diaVenc);
+          const dataFim = new Date(ano, mes, diaVenc - 1);
+          const dataVencimento = new Date(ano, mes, diaVenc);
+
+          // Contar aulas do período
+          const { data: aulas } = await sb
+            .from('aulas')
+            .select('id, data')
+            .eq('paciente_id', paciente.id)
+            .gte('data', dataInicio.toISOString().split('T')[0])
+            .lte('data', dataFim.toISOString().split('T')[0])
+            .order('data');
+
+          const totalAulas = aulas?.length || 0;
+          
+          if (totalAulas === 0) continue; // Pular se não teve aulas
+
+          const valorTotal = totalAulas * paciente.valor_aula;
+
+          // Verificar se já foi pago
+          const { data: mensalidade } = await sb
+            .from('mensalidades')
+            .select('id, status')
+            .eq('paciente_id', paciente.id)
+            .eq('data_vencimento', dataVencimento.toISOString().split('T')[0])
+            .maybeSingle();
+
+          const status = mensalidade?.status === 'pago' ? 'pago' : 'pendente';
+          
+          if (status === 'pago') continue; // Pular se já foi pago
+
+          const diasAteVencimento = Math.ceil((dataVencimento - hoje) / (1000 * 60 * 60 * 24));
+          let statusLabel = '🔵 Pendente';
+          let statusClass = '';
+
+          if (diasAteVencimento < 0) {
+            statusLabel = '🔴 Atrasado';
+            statusClass = 'atrasado';
+          } else if (diasAteVencimento <= 1) {
+            statusLabel = '🟡 Vence amanhã';
+            statusClass = 'vence-amanha';
+          }
+
+          alunosComAulas.push({
+            ...paciente,
+            totalAulas,
+            valorTotal,
+            dataInicio,
+            dataFim,
+            dataVencimento,
+            status,
+            statusLabel,
+            statusClass,
+            diasAteVencimento,
+            aulas
+          });
+
+          totalGeral += valorTotal;
+          totalAulasGeral += totalAulas;
+        }
+
+        if (alunosComAulas.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 2rem;">✅ Nenhuma cobrança pendente!</p>';
+          return;
+        }
+
+        // Ordenar por data de vencimento (atrasados primeiro)
+        alunosComAulas.sort((a, b) => a.diasAteVencimento - b.diasAteVencimento);
+
+        // Montar HTML
+        let html = `
+          <!-- Resumo Geral -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div class="stat-card success">
+              <div class="stat-value">R$ ${totalGeral.toFixed(2)}</div>
+              <div class="stat-label">💰 Total a Receber</div>
+            </div>
+            <div class="stat-card primary">
+              <div class="stat-value">${alunosComAulas.length}</div>
+              <div class="stat-label">👥 Alunos com Pendências</div>
+            </div>
+            <div class="stat-card info">
+              <div class="stat-value">${totalAulasGeral}</div>
+              <div class="stat-label">📚 Total de Aulas</div>
+            </div>
+          </div>
+
+          <!-- Tabela de Alunos -->
+          <div style="overflow-x: auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Aluno</th>
+                  <th>Aulas</th>
+                  <th>Valor/Aula</th>
+                  <th>Total</th>
+                  <th>Vencimento</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        alunosComAulas.forEach(aluno => {
+          const corStatus = aluno.statusClass === 'atrasado' ? '#EF4444' : aluno.statusClass === 'vence-amanha' ? '#F59E0B' : '#3B82F6';
+          
+          html += `
+            <tr>
+              <td><strong>${aluno.nome}</strong></td>
+              <td>${aluno.totalAulas} aulas</td>
+              <td>R$ ${aluno.valor_aula.toFixed(2)}</td>
+              <td><strong style="color: var(--success);">R$ ${aluno.valorTotal.toFixed(2)}</strong></td>
+              <td>${aluno.dataVencimento.toLocaleDateString('pt-BR')}</td>
+              <td><span style="color: ${corStatus}; font-weight: 600;">${aluno.statusLabel}</span></td>
+              <td>
+                <button onclick="abrirModalDarBaixa('${aluno.id}', '${aluno.nome}', ${aluno.valorTotal}, ${aluno.totalAulas}, '${aluno.dataInicio.toISOString().split('T')[0]}', '${aluno.dataFim.toISOString().split('T')[0]}', '${aluno.dataVencimento.toISOString().split('T')[0]}', ${aluno.valor_aula}, '${aluno.forma_pagamento}')" class="btn btn-success" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                  ✅ Dar Baixa
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.innerHTML = html;
+
+      } catch (error) {
+        console.error('Erro ao carregar controle completo:', error);
+        container.innerHTML = '<p style="text-align: center; color: red; padding: 2rem;">Erro ao carregar dados</p>';
+      }
+    }
+
     // Inicializar
     carregarAlunosSemCobranca();
     carregarCobrancasPendentes();
@@ -2098,6 +2282,25 @@
     document.getElementById('header-container').innerHTML = renderHeader('Financeiro', '💰');
     loadUserName();
   </script>
+
+  <!-- Modal Controle Completo de Aulas -->
+  <div id="modalControleCompleto" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+    <div style="max-width: 1200px; margin: 2rem auto; background: white; border-radius: var(--radius); padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2>📊 Controle Completo de Aulas a Receber</h2>
+        <button onclick="fecharControleCompleto()" class="btn btn-secondary">✕</button>
+      </div>
+      
+      <div id="conteudoControleCompleto">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+        <button onclick="fecharControleCompleto()" class="btn btn-primary">Fechar</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
 
