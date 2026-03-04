@@ -29,22 +29,41 @@
 - ✅ **LIMITE de 15 linhas** + botão "Ver Todas" (abre modal popup completo)
 - ✅ Seções alternadas (Gestão de Alunos ↔ Gestão de Aulas)
 
-## ⚠️ TAREFA PENDENTE (FÁCIL):
+## ⚠️ TAREFA PENDENTE - PRÓXIMA SESSÃO:
 
 ### Para o modal "Relatórios → Lançamentos Futuros - Receitas":
 
-Atualmente mostra apenas lançamentos manuais futuros.
-Você pediu para INTEGRAR e mostrar também as **aulas realizadas a receber**.
+**PROBLEMA:**
+- Gestão de Aulas mostra: R$ 160,00 a receber
+- Relatórios → Futuros Receitas: NÃO mostra esse valor
 
-**Onde está:** Função `mostrarFuturos(tipo)` - linha ~1719
+**SOLUÇÃO:**
+Modificar função `mostrarFuturos(tipo)` (linha ~1719) para:
 
-**O que fazer:**
-Quando `tipo === 'receita'`, além de buscar lançamentos futuros manuais, buscar também:
-- Todos os alunos com cobrança ativa
-- Calcular aulas realizadas (não pagas) de cada um
-- Adicionar na lista junto com os lançamentos manuais
+Quando `tipo === 'receita'`:
+1. Buscar lançamentos futuros manuais (já faz)
+2. **ADICIONAR:** Buscar aulas realizadas não pagas
+3. Combinar e exibir tudo junto
 
-**Pode usar como base:** A lógica da função `carregarGestaoAulas()` (linha 1000-1110) que já faz exatamente isso!
+**CÓDIGO BASE (copiar da função carregarGestaoAulas - linhas 1000-1110):**
+```javascript
+// Buscar pacientes com cobrança ativa
+// Para cada paciente:
+//   - Calcular período (dataInicio até dataFim)
+//   - Buscar aulas REALIZADAS (tabela aulas)
+//   - Verificar se já foi pago (tabela mensalidades)
+//   - Se NÃO pago, adicionar na lista
+```
+
+**RESULTADO ESPERADO:**
+```
+Lançamentos Futuros - Receitas
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 João Silva - 4 aulas (R$ 160,00) - Vence 20/03
+💰 Venda Material (R$ 50,00) - 15/03
+━━━━━━━━━━━━━━━━━━━━━━━━━
+Total: R$ 210,00
+```
 
 ## 🚀 DEPLOY:
 
