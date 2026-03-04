@@ -321,9 +321,14 @@
       <div class="page-content">
         <!-- Botões Novo Lançamento e Relatórios -->
         <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: var(--spacing-lg);">
-          <button onclick="toggleGestaoAlunos()" class="btn" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white;">
-            👥 Gestão de Alunos
-          </button>
+          <div style="display: flex; gap: 1rem;">
+            <button onclick="toggleGestaoAlunos()" class="btn" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white;">
+              👥 Gestão de Alunos
+            </button>
+            <button onclick="toggleGestaoAulas()" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+              📊 Gestão de Aulas e Pagamentos
+            </button>
+          </div>
           <div style="display: flex; gap: 1rem;">
             <button onclick="abrirModalRelatorios()" class="btn btn-secondary">
               📊 Relatórios
@@ -861,6 +866,10 @@
       } else {
         secao.style.display = 'none';
       }
+    }
+
+    function toggleGestaoAulas() {
+      abrirControleCompleto();
     }
 
     function filtrarAlunosPorNome() {
