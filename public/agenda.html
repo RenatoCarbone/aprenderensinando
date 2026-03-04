@@ -548,6 +548,11 @@
       // Se quiser filtrar, o usuário escolhe a data
 
       await carregarPacientes();
+      
+      // Setar data de hoje no filtro
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('filtroData').value = hoje;
+      
       await carregarAgendamentos();
 
       if (pacienteId) {
@@ -848,8 +853,11 @@
         
         // Preencher a primeira linha de data/hora
         const container = document.getElementById('datasContainer');
-        container.querySelector('.data-input').value = dataHora.toISOString().split('T')[0];
-        container.querySelector('.hora-input').value = dataHora.toTimeString().substring(0, 5);
+        const inputData = container.querySelector('.input-data');
+        const inputHora = container.querySelector('.input-hora');
+        
+        if (inputData) inputData.value = dataHora.toISOString().split('T')[0];
+        if (inputHora) inputHora.value = dataHora.toTimeString().substring(0, 5);
         
         document.getElementById('duracaoAgendamento').value = data.duracao || 60;
         document.getElementById('observacoesAgendamento').value = data.observacoes || '';
