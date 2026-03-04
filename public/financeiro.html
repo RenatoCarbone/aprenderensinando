@@ -1183,9 +1183,9 @@
             <tbody>
       `;
 
-      // Limitar a 15 linhas na seção colapsável
-      const alunosExibir = alunosFiltrados.slice(0, 15);
-      const temMais = alunosFiltrados.length > 15;
+      // Limitar a 3 linhas na seção colapsável (para testes)
+      const alunosExibir = alunosFiltrados.slice(0, 3);
+      const temMais = alunosFiltrados.length > 3;
 
       alunosExibir.forEach((aluno, index) => {
         const bgColor = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
