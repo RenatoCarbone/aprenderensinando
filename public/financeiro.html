@@ -1183,7 +1183,11 @@
             <tbody>
       `;
 
-      alunosFiltrados.forEach((aluno, index) => {
+      // Limitar a 15 linhas na seção colapsável
+      const alunosExibir = alunosFiltrados.slice(0, 15);
+      const temMais = alunosFiltrados.length > 15;
+
+      alunosExibir.forEach((aluno, index) => {
         const bgColor = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
         
         let badgeStatus = '';
@@ -1240,6 +1244,17 @@
           </table>
         </div>
       `;
+
+      // Adicionar botão "Ver Todas" se tiver mais de 15 linhas
+      if (temMais) {
+        htmlTabela += `
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <button onclick="abrirControleCompleto()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.3s;">
+              📋 Ver Todas (${alunosFiltrados.length} registros)
+            </button>
+          </div>
+        `;
+      }
 
       containerTabela.innerHTML = htmlTabela;
     }
