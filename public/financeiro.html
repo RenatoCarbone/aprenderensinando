@@ -599,13 +599,15 @@
       
       <div id="conteudoDetalhes"></div>
       
-      <div class="btn-group" style="justify-content: flex-end; margin-top: 1.5rem;">
+      <div class="btn-group" style="justify-content: space-between; margin-top: 1.5rem;">
+        <button onclick="gerarComprovanteImagem()" class="btn btn-success">📸 Salvar Comprovante</button>
         <button onclick="fecharModalDetalhes()" class="btn btn-primary">Fechar</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     const sb = window.supabase.createClient('https://ukjxekdwumfxilphrrmb.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVranhla2R3dW1meGlscGhycm1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjM1ODQsImV4cCI6MjA4ODAzOTU4NH0.c68Cp_HYU53aeSoZyNUM6RiHSDFq0Y0sPxJEAyq1nQk');
     async function checkAuth(){const{data:{session}}=await sb.auth.getSession();if(!session){window.location.href='/index.html';return null}return session}
@@ -1101,6 +1103,79 @@
 
     function fecharModalDetalhes() {
       document.getElementById('modalDetalhes').style.display = 'none';
+    }
+
+    async function gerarComprovanteImagem() {
+      try {
+        const conteudo = document.getElementById('conteudoDetalhes');
+        
+        // Criar container temporário com estilo para captura
+        const container = document.createElement('div');
+        container.style.cssText = `
+          position: fixed;
+          left: -9999px;
+          top: 0;
+          width: 600px;
+          background: white;
+          padding: 2rem;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        `;
+        
+        // Adicionar cabeçalho bonito
+        const header = document.createElement('div');
+        header.style.cssText = 'text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #E5E7EB; padding-bottom: 1rem;';
+        header.innerHTML = `
+          <h1 style="margin: 0; color: #1F2937; font-size: 1.75rem;">📋 Comprovante</h1>
+          <p style="margin: 0.5rem 0 0 0; color: #6B7280; font-size: 0.875rem;">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</p>
+        `;
+        
+        // Clonar conteúdo
+        const conteudoClone = conteudo.cloneNode(true);
+        
+        // Montar container
+        container.appendChild(header);
+        container.appendChild(conteudoClone);
+        
+        // Adicionar rodapé
+        const footer = document.createElement('div');
+        footer.style.cssText = 'margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #E5E7EB; text-align: center; color: #9CA3AF; font-size: 0.75rem;';
+        footer.innerHTML = `
+          <p style="margin: 0;">Sistema Aprender Ensinando</p>
+          <p style="margin: 0.25rem 0 0 0;">Comprovante gerado automaticamente</p>
+        `;
+        container.appendChild(footer);
+        
+        // Adicionar ao DOM temporariamente
+        document.body.appendChild(container);
+        
+        // Gerar imagem com html2canvas
+        const canvas = await html2canvas(container, {
+          backgroundColor: '#ffffff',
+          scale: 2, // Melhor qualidade
+          logging: false,
+          windowWidth: 600
+        });
+        
+        // Remover container temporário
+        document.body.removeChild(container);
+        
+        // Converter para blob e baixar
+        canvas.toBlob(function(blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const dataHora = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+          link.download = `comprovante-${dataHora}.png`;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          alert('✅ Comprovante salvo com sucesso!\nAgora você pode enviar pelo WhatsApp! 📱');
+        });
+        
+      } catch (error) {
+        console.error('Erro ao gerar comprovante:', error);
+        alert('❌ Erro ao gerar comprovante. Tente novamente.');
+      }
     }
 
     function fecharModal() {
