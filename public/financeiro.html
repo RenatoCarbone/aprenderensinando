@@ -1781,7 +1781,15 @@
               categoria: 'Aulas',
               valor: valorTotal,
               data_prevista: dataVencimento.toISOString().split('T')[0],
-              tipo: 'receita'
+              tipo: 'receita',
+              // Dados extras para o botão "Dar Baixa"
+              paciente_id: paciente.id,
+              paciente_nome: paciente.nome,
+              valor_aula: paciente.valor_aula,
+              total_aulas: totalAulas,
+              data_inicio: dataInicio.toISOString().split('T')[0],
+              data_fim: dataFim.toISOString().split('T')[0],
+              forma_pagamento: paciente.forma_pagamento
             });
           }
         }
@@ -1821,7 +1829,11 @@
                 <button onclick="marcarComoConcluido('${item.id}', '${tipo}')" class="btn btn-success" style="margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem;">
                   ✅ Concluir
                 </button>
-              ` : ''}
+              ` : `
+                <button onclick="abrirModalDarBaixa('${item.paciente_id}', '${item.paciente_nome}', ${item.valor}, ${item.total_aulas}, '${item.data_inicio}', '${item.data_fim}', '${item.data_prevista}', ${item.valor_aula}, '${item.forma_pagamento}')" class="btn btn-success" style="margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                  ✅ Dar Baixa
+                </button>
+              `}
             </div>
           </div>
         `).join('')}
