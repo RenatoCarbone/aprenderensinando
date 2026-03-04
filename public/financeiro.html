@@ -1296,13 +1296,21 @@
     }
 
     // Funções do Modal de Relatórios
+    function ativarBotao(botaoId) {
+      // Remover classe primária de todos os botões
+      document.getElementById('btnFuturosDespesas').className = 'btn btn-secondary';
+      document.getElementById('btnFuturosReceitas').className = 'btn btn-secondary';
+      document.getElementById('btnHistorico').className = 'btn btn-secondary';
+      
+      // Adicionar classe primária ao botão clicado
+      document.getElementById(botaoId).className = 'btn btn-primary';
+    }
+
     function abrirModalRelatorios() {
       document.getElementById('modalRelatorios').style.display = 'block';
-      document.getElementById('conteudoRelatorio').innerHTML = `
-        <p style="text-align: center; color: var(--text-tertiary); padding: 3rem;">
-          Selecione uma opção acima para visualizar o relatório
-        </p>
-      `;
+      // Abrir o histórico automaticamente
+      ativarBotao('btnHistorico');
+      mostrarHistorico12Meses();
     }
 
     function fecharModalRelatorios() {
@@ -2064,13 +2072,13 @@
       
       <!-- Botões de escolha -->
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
-        <button onclick="mostrarFuturos('despesa')" class="btn btn-danger" style="padding: 1.5rem;">
+        <button id="btnFuturosDespesas" onclick="ativarBotao('btnFuturosDespesas'); mostrarFuturos('despesa')" class="btn btn-secondary" style="padding: 1.5rem;">
           💸 Lançamentos Futuros<br>Despesas
         </button>
-        <button onclick="mostrarFuturos('receita')" class="btn btn-success" style="padding: 1.5rem;">
+        <button id="btnFuturosReceitas" onclick="ativarBotao('btnFuturosReceitas'); mostrarFuturos('receita')" class="btn btn-secondary" style="padding: 1.5rem;">
           💵 Lançamentos Futuros<br>Receitas
         </button>
-        <button onclick="mostrarHistorico12Meses()" class="btn btn-primary" style="padding: 1.5rem;">
+        <button id="btnHistorico" onclick="ativarBotao('btnHistorico'); mostrarHistorico12Meses()" class="btn btn-primary" style="padding: 1.5rem;">
           📈 Histórico<br>12 Meses
         </button>
       </div>
