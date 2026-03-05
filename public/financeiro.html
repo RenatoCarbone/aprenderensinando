@@ -2291,8 +2291,9 @@
 
     // Abrir modal dar baixa
     window.abrirModalDarBaixa = function(pacienteId, nome, valorTotal, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento) {
-      // Fechar o modal Controle Completo se estiver aberto
+      // Fechar modais que podem estar abertos
       fecharControleCompleto();
+      fecharModalRelatorios();
       
       window.dadosBaixa = { pacienteId, totalAulas, dataInicio, dataFim, dataVencimento, valorAula, formaPagamento };
       
