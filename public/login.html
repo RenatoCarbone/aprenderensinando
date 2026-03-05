@@ -166,7 +166,60 @@
       }
     });
 
-    
+    // Criar conta
+    document.getElementById('createAccount').addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const email = prompt('Digite seu e-mail:');
+      if (!email) return;
+
+      const password = prompt('Digite uma senha (mínimo 6 caracteres):');
+      if (!password || password.length < 6) {
+        alert('Senha deve ter no mínimo 6 caracteres');
+        return;
+      }
+
+      const nome = prompt('Digite seu nome completo:');
+      if (!nome) return;
+
+      try {
+        showLoading(true);
+
+        // Criar usuário no Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              nome: nome
+            }
+          }
+        });
+
+        if (authError) throw authError;
+
+        // Criar perfil na tabela usuarios
+        const { error: profileError } = await supabase
+          .from('usuarios')
+          .insert({
+            id: authData.user.id,
+            email: email,
+            nome: nome
+          });
+
+        if (profileError) throw profileError;
+
+        showLoading(false);
+        alert('Conta criada com sucesso! Faça login para continuar.');
+        emailInput.value = email;
+        passwordInput.value = '';
+        
+      } catch (error) {
+        showLoading(false);
+        console.error('Erro ao criar conta:', error);
+        alert('Erro ao criar conta: ' + error.message);
+      }
+    });
   </script>
 </body>
 </html>
